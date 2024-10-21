@@ -1,4 +1,5 @@
 import {generateKeyPairSync, createHash, KeyObject} from "node:crypto";
+import argon2 from 'argon2';
 
 function generateKeys() {
     return generateKeyPairSync("ed25519", {
@@ -20,4 +21,8 @@ function createId(privateKey: KeyObject, publicKey: KeyObject) {
     return hashedKeys;
 }
 
-export { generateKeys, createId };
+async function hashPassword(password: string) {
+    return argon2.hash(password);
+}
+
+export { generateKeys, createId, hashPassword };

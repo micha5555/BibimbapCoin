@@ -1,14 +1,22 @@
 import express, { Express, Request, Response } from "express";
 
-import {createId, generateKeys} from "./key_utils";
+import {createId, generateKeys, hashPassword} from "./key_utils";
 
 const app = express();
 
-app.get("/", (request: Request, response: Response): void => {
-    const { publicKey, privateKey } = generateKeys();
-    const id = createId(privateKey, publicKey);
+app.get("/", async (request: Request, response: Response): Promise<void> => {
+    // const { publicKey, privateKey } = generateKeys();
+    // const id = createId(privateKey, publicKey);
     // response.send(publicKey + "\n" + privateKey);
-    response.send(id);
+
+    const promiseHashed = hashPassword("password");
+    const hashed = await promiseHashed.then((value) => {return value});
+    promiseHashed.then((value) => {console.log(value)});
+    // hashed.then((value) => console.log(value));
+    // console.log(promiseHashed.then((value) => console.log(value)));
+    console.log(hashed);
+    response.send(hashed);
+    // response.send(hashed);
 });
 
 app.listen(10000, (): void => {
