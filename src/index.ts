@@ -3,6 +3,8 @@ import readline from "readline";
 import {Controller} from "./controller";
 import {Node} from "./node";
 
+import {createId, generateKeys, hashPassword, encrypt, decrypt} from "./key_utils";
+
 const app = express();
 app.use(express.json());
 

@@ -1,0 +1,15 @@
+const { publicKey, privateKey } = generateKeys();
+const id = createId(privateKey, publicKey);
+const userPassword = "very_secure_password_123";
+
+const promiseHashedUserPassword = hashPassword(userPassword);
+const hashedPassword = await promiseHashedUserPassword.then((value) => {return value});
+
+const encryptedPrivateKey = encrypt(privateKey, userPassword);
+const decryptedPrivateKey = decrypt(encryptedPrivateKey, userPassword);
+console.log("public key: \n", publicKey);
+console.log("private key: \n", privateKey);
+console.log("id: \n", id);
+console.log("hashed password: \n", hashedPassword);
+console.log("encrypted private key: \n", encryptedPrivateKey);
+console.log("decrypted private key: \n", decryptedPrivateKey);
