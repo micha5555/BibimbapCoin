@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 
-import {createId, generateKeys, hashPassword, encrypt, decrypt} from "./key_utils";
+import {createId, generateKeys, hashPassword } from "./key_utils";
+import {encrypt, decrypt} from "./cipher_utils";
 
 const app = express();
 
