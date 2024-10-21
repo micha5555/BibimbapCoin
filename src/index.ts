@@ -6,21 +6,21 @@ import express, { Express, Request, Response } from "express";
 const app = express();
 
 app.get("/", (request: Request, response: Response): void => {
-    // const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519', {
-    //     publicKeyEncoding: {
-    //         type: 'spki',
-    //         format: 'pem'
-    //     },
-    //     privateKeyEncoding: {
-    //         type: 'pkcs8',
-    //         format: 'pem'
-    //     }
-    // });
-    //
-    // // Send the keys as response
-    // response.send(publicKey + "\n" + privateKey);
     response.send("Hello, world!");
 });
+
+app.post("/connect", (request: Request, response: Response): void => {
+
+})
+
+app.get("/get-neighbors", (request: Request, response: Response): void => {
+
+})
+
+app.get("/is-alive", (request: Request, response: Response): void => {
+    response.status(200)
+        .send("NAME Alive") //TODO: Add name
+})
 
 app.listen(10000, (): void => {
     console.log("Started application on port %d", 10000);
