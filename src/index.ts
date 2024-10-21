@@ -1,23 +1,11 @@
-// import express, { Request, Response } from ;
-// import crypto from "crypto";
-
 import express, { Express, Request, Response } from "express";
+
+import {generateKeys} from "./key_utils";
 
 const app = express();
 
 app.get("/", (request: Request, response: Response): void => {
-    // const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519', {
-    //     publicKeyEncoding: {
-    //         type: 'spki',
-    //         format: 'pem'
-    //     },
-    //     privateKeyEncoding: {
-    //         type: 'pkcs8',
-    //         format: 'pem'
-    //     }
-    // });
-    //
-    // // Send the keys as response
+    const { publicKey, privateKey } = generateKeys();
     // response.send(publicKey + "\n" + privateKey);
     response.send("Hello, world!");
 });
