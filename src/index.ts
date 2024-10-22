@@ -2,8 +2,8 @@ import express from "express";
 import {Controller} from "./controller";
 import {Node} from "./node";
 
-import {createId, generateKeys, hashPassword} from "./key_utils";
 import inquirer from "inquirer";
+import {validateIfUserExists, validateIfPasswordIsCorrect} from "./validators";
 import * as http from "node:http";
 import * as Timers from "node:timers";
 
@@ -26,15 +26,14 @@ Timers.setInterval(() => {
 
 
 const main = async () => {
-    await handlerPassword(await getPassword());
-    await startServer(await getPort());
+    const {port, password} = await handleRegisterAndLogin();
+    await startServer(port, password);
     while (true) {
         await menu();
     }
 }
 
 main();
-
 
 // private functions
 async function getPassword(): Promise<string> {
@@ -48,9 +47,33 @@ async function getPassword(): Promise<string> {
     return answer.password;
 }
 
-async function handlerPassword(password: string) {
-    let res = await hashPassword(password)
-    console.log(`Password hashed: ${res}`);
+async function handleRegisterAndLogin() {
+    let passwordValidation = false;
+    let port = 0;
+    let password = "";
+    let loadNodeDataFromFile = false;
+    while (!passwordValidation) {
+        port = await getPort();
+        password = await getPassword();
+        let validateExistingOfUser = await validateIfUserExists(port);
+        if (!validateExistingOfUser) {
+            break;
+        }
+        let validatePassword = await validateIfPasswordIsCorrect(port, password);
+        if (!validatePassword) {
+            console.error("Incorrect password");
+            continue;
+        }
+        passwordValidation = true;
+        loadNodeDataFromFile = true;
+    }
+    node.setPassword(password);
+
+    if (loadNodeDataFromFile) {
+        await node.loadDigitalWalletFromFile(port);
+    }
+
+    return {port, password};
 }
 
 async function getPort() {
@@ -96,6 +119,7 @@ async function menu() {
             await connectToNeighbor();
             break;
         case enum_exit:
+            await node.saveNodeToFile(controller.port);
             process.exit(0);
         default:
             break;
@@ -114,10 +138,12 @@ function handlePortInput(portInput: string) {
 }
 
 async function showId() {
-    //TODO: Use wallet, replace implementation below
-    let keys = generateKeys();
-    let id = createId(keys.privateKey, keys.publicKey);
-    console.log(`ID: ${id}`);
+    node.getDigitalWallet.identities.forEach((identity) => {
+        console.log(`ID: ${identity.id}`);
+        console.log(`Public key: ${identity.publicKey}`);
+        console.log(`Private key(decrypted): ${identity.privateKey}`);
+        console.log("-------------------------------------------------");
+    });
 }
 
 async function showNeighbors() {
@@ -155,9 +181,7 @@ async function connectToNeighbor() {
 }
 
 async function generateID() {
-    let keys = generateKeys();
-    let id = createId(keys.privateKey, keys.publicKey);
-    console.log(`ID: ${id}`);
+    node.addIdentity();
 }
 
 async function connect(port: number)

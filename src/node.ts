@@ -1,6 +1,5 @@
 import {DigitalWallet} from "./digital_wallet";
-import {createId, generateKeys, hashPassword} from "./key_utils";
-import {encrypt} from "./cipher_utils";
+import {createId, generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
 
 export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -38,10 +37,6 @@ export class Node{
         this._password = password;
     }
 
-    getPassword(): string {
-        return this._password;
-    }
-
     addIdentity(): void {
         let { privateKey, publicKey } = generateKeys();
         let id = createId(privateKey, publicKey);
@@ -72,9 +67,9 @@ export class Node{
         })
     }
 
-    async saveToFile(portNumber:number): Promise<void> {
+    async saveNodeToFile(portNumber:number): Promise<void> {
         const fs = require('fs');
-        var dir = './data';
+        let dir = './data';
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
         }
@@ -86,6 +81,24 @@ export class Node{
         const promiseParsedJSON = this.parseToJsonObject();
         const parsedJSON = await promiseParsedJSON.then((value) => {return value});
         fs.writeFileSync(fileName, parsedJSON);
+    }
+
+    async loadDigitalWalletFromFile(portNumber: number): Promise<void> {
+        const fs = require('fs');
+        let fileName = './data/' + portNumber + '/node_data.json';
+        let data = fs.readFileSync(fileName);
+        let dataJSON = JSON.parse(data);
+        let decryptedDigitalWalletIdentities = dataJSON.digitalWallet.map((identity: { privateKey: string, publicKey: string, id: string }) => {
+            return {
+                privateKey: decrypt(identity.privateKey, this._password),
+                publicKey: identity.publicKey,
+                id: identity.id
+            }
+        });
+        this._digitalWallet = new DigitalWallet();
+        decryptedDigitalWalletIdentities.forEach((identity: { privateKey: string, publicKey: string, id: string }) => {
+            this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey, identity.id);
+        });
     }
 
 }
