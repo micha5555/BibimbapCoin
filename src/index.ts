@@ -5,6 +5,7 @@ import {Node} from "./node";
 import {createId, generateKeys, hashPassword} from "./key_utils";
 import inquirer from "inquirer";
 import * as http from "node:http";
+import * as Timers from "node:timers";
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,11 @@ const enum_genID = "Generate ID";
 const enum_showNeighbors = "Show neighbors";
 const enum_connect = "Connect to neighbor";
 const enum_exit = "Exit";
+
+const interval_time = 10000;
+Timers.setInterval(() => {
+    pollNeighbors();
+}, interval_time);
 
 
 const main = async () => {
@@ -168,4 +174,37 @@ async function connect(port: number)
         throw new Error(`Failed to connect to port ${port}: ${response.statusText}`);
     }
 
+}
+
+function pollNeighbors() {
+     node.getNeighbors().forEach(async neighbor => {
+         await pollNeighbor(neighbor.port)
+    });
+}
+
+async function pollNeighbor(port: number) {
+    try
+    {
+        let result = await fetch(`http://localhost:${port}/is-alive`);
+        if (!result.ok) {
+            node.setNeighborStatus(port, false);
+        }
+        else {
+            let neighbor = node.getNeighbor(port)
+            if(neighbor?.isAlive === false)
+            {
+                node.setNeighborStatus(port, true);
+                try {
+                    await connect(port);
+                }
+                catch (error) {
+                    node.setNeighborStatus(port, false);
+                }
+            }
+
+        }
+    }
+    catch (error){
+        node.setNeighborStatus(port, false);
+    }
 }

@@ -14,6 +14,14 @@ export class Node{
         }
     }
 
+    setNeighborStatus(port: number, isAlive: boolean): void {
+        let neighbor = this.getNeighbor(port);
+        if(neighbor !== undefined)
+        {
+            neighbor.isAlive = isAlive;
+        }
+    }
+
     removeNeighbor(port: number): void {
         this._neighbors = this._neighbors.filter(neighbor => neighbor.port !== port);
     }
