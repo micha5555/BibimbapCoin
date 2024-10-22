@@ -2,7 +2,7 @@ import {generateKeyPairSync, createHash, KeyObject, createCipheriv, createDeciph
 import argon2 from 'argon2';
 
 function generateKeys() {
-    return generateKeyPairSync("ed25519", {
+    const { publicKey, privateKey } = generateKeyPairSync("ed25519", {
         modulusLength: 4096,
         publicKeyEncoding: {
             type: "spki",
@@ -13,10 +13,14 @@ function generateKeys() {
             format: "pem",
         },
     });
+
+    const publicKeyExtracted = extractOnlyKeyContent(publicKey);
+    const privateKeyExtracted = extractOnlyKeyContent(privateKey);
+    return { publicKey: publicKeyExtracted, privateKey: privateKeyExtracted };
 }
 
-function createId(privateKey: KeyObject, publicKey: KeyObject) {
-    let conjunctedKeys = privateKey.toString() + publicKey.toString();
+function createId(privateKey: string, publicKey: string) {
+    let conjunctedKeys = privateKey + publicKey;
     let hashedKeys = createHash("sha1").update(conjunctedKeys).digest("hex");
     return hashedKeys;
 }
@@ -25,4 +29,8 @@ async function hashPassword(password: string) {
     return argon2.hash(password);
 }
 
-export { generateKeys, createId, hashPassword };
+function extractOnlyKeyContent(key: KeyObject) {
+    return key.toString().split("\n").slice(1, -2).join("\n").trim();
+}
+
+export { generateKeys, createId, hashPassword, extractOnlyKeyContent };
