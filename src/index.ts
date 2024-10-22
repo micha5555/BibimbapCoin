@@ -27,7 +27,7 @@ Timers.setInterval(() => {
 
 const main = async () => {
     const {port, password} = await handleRegisterAndLogin();
-    await startServer(port, password);
+    await startServer(port);
     while (true) {
         await menu();
     }
