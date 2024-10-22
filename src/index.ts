@@ -1,59 +1,62 @@
 import express from "express";
-import readline from "readline";
 import {Controller} from "./controller";
 import {Node} from "./node";
 
-import {createId, generateKeys, hashPassword } from "./key_utils";
-import {encrypt, decrypt} from "./cipher_utils";
-import {resolve} from "node:dns/promises";
+import {createId, generateKeys, hashPassword} from "./key_utils";
 import inquirer from "inquirer";
 
 const app = express();
 app.use(express.json());
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 let controller: Controller;
 let node: Node = new Node();
 
-const question1 = () => {
-    return new Promise<void>((resolve, reject) => {
-            rl.question("Enter password: ", (password: string) => {
-
-                resolve();
-            });
-        }
-    )
-}
-
-const question2 = () => {
-    return new Promise<void>((resolve, reject) => {
-            rl.question("Enter port number: ", (portInput: string) => {
-                let port = handlePortInput(portInput);
-                controller = new Controller(app, port, node);
-
-                controller.defineControllerMethods();
-                controller.startController();
-            });
-        }
-    )
-}
-
 
 const main = async () => {
-    await question1();
-    await question2();
+    await handlerPassword(await getPassword());
+    await startServer(await getPort());
+    menu();
 }
 
 main();
 
-menu();
-
 
 // private functions
+async function getPassword() : Promise<string> {
+    let answer =  await inquirer.prompt([
+        {
+            type: "password",
+            name: "password",
+            message: "Enter password"
+        }
+    ]);
+    return answer.password;
+}
+
+async function handlerPassword(password : string){
+    let res = await hashPassword(password)
+    console.log(`Password hashed: ${res}`);
+}
+
+async function getPort() {
+    let answers = await inquirer.prompt([
+        {
+            type: "input",
+            name: "port",
+            message: "Enter port number"
+        }
+    ]);
+    return parseInt(answers.port);
+}
+
+async function startServer(port: number) {
+    controller = new Controller(app, port, node);
+
+    controller.defineControllerMethods();
+    controller.startController();
+    console.log(`Server started on port ${port}`);
+}
+
 function menu() {
     inquirer.prompt([
         {
@@ -92,6 +95,7 @@ function menu() {
             default:
                 break;
         }
+        menu();
     });
 }
 

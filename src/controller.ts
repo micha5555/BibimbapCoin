@@ -36,8 +36,6 @@ export class Controller {
     }
 
     startController(): void {
-        this.app.listen(this.port, (): void => {
-            console.log("Started application on port %d", this.port);
-        });
+        this.app.listen(this.port, (): void => { });
     }
 }
