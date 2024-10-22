@@ -11,12 +11,18 @@ app.use(express.json());
 let controller: Controller;
 let node: Node = new Node();
 
+const enum_showIDs = "Show IDs";
+const enum_genID = "Generate ID";
+const enum_showNeighbors = "Show neighbors";
+const enum_connect = "Connect to neighbor";
+const enum_exit = "Exit";
+
 
 const main = async () => {
     await handlerPassword(await getPassword());
     await startServer(await getPort());
     while (true) {
-        menu();
+        await menu();
     }
 }
 
@@ -65,36 +71,25 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: ["Show ID", "Show neighbors", "Connect to neighbor", "Exit"]
+            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_exit]
         }
     ])
 
     switch (answers.action) {
-        case "Show ID":
-            let keys = generateKeys();
-            let id = createId(keys.privateKey, keys.publicKey);
-            console.log(`Your ID is: ${id}`);
+        case enum_showIDs:
+            await showId();
             break;
-        case "Show neighbors":
-            console.log(node.getNeighbors());
+        case enum_genID:
+            await generateID();
             break;
-        case "Connect to neighbor":
-            inquirer.prompt([
-                {
-                    type: "input",
-                    name: "port",
-                    message: "Enter port number of neighbor"
-                }
-            ]).then((answers) => {
-                //TODO: call /connect endpoint
-                let port = parseInt(answers.port);
-                node.addNeighbor(port);
-                console.log(`Neighbor on port ${port} added`);
-            });
+        case enum_showNeighbors:
+            await showNeighbors();
             break;
-        case "Exit":
+        case enum_connect:
+            await connectToNeighbor();
+            break;
+        case enum_exit:
             process.exit(0);
-            break;
         default:
             break;
     }
@@ -105,8 +100,47 @@ function handlePortInput(portInput: string) {
 
 
     if (isNaN(port)) {
-        console.log("Given port number is not a number!");
+        console.error("Given port number is not a number!");
         process.exit(1);
     }
     return port;
+}
+
+async function showId() {
+    //TODO: Use wallet, replace implementation below
+    let keys = generateKeys();
+    let id = createId(keys.privateKey, keys.publicKey);
+    console.log(`ID: ${id}`);
+}
+
+async function showNeighbors() {
+    console.log(node.getNeighbors());
+}
+
+async function connectToNeighbor() {
+    let answers = await inquirer.prompt([
+        {
+            type: "input",
+            name: "port",
+            message: "Enter port number of neighbor"
+        }
+    ])
+
+    let port = parseInt(answers.port);
+    if (isNaN(port)) {
+        console.error("Given port number is not a number!");
+        return;
+    }
+
+    //TODO: call /connect endpoint of other node
+    //TODO: add error handling
+
+    node.addNeighbor(port);
+    console.log(`Neighbor on port ${port} added`);
+}
+
+async function generateID() {
+    let keys = generateKeys();
+    let id = createId(keys.privateKey, keys.publicKey);
+    console.log(`ID: ${id}`);
 }
