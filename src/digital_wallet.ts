@@ -1,5 +1,3 @@
-import {createId, generateKeys, hashPassword} from "./crypto_utils";
-
 export class DigitalWallet {
     private _identities: { privateKey: string, publicKey: string, id: string }[] = [];
 
