@@ -1,15 +1,68 @@
+import {DigitalWallet} from "./digital_wallet";
+import {createId, generateKeys, hashPassword} from "./key_utils";
+import {encrypt} from "./cipher_utils";
+
 export class Node{
-    neighbors: { port: number, isAlive: boolean }[] = [];
+    private _neighbors: { port: number, isAlive: boolean }[] = [];
+    private _password: string = "";
+    private _digitalWallet: DigitalWallet = new DigitalWallet();
 
     addNeighbor(port: number): void {
-        this.neighbors.push({ port, isAlive: true });
+        this._neighbors.push({ port, isAlive: true });
     }
 
     removeNeighbor(port: number): void {
-        this.neighbors = this.neighbors.filter(neighbor => neighbor.port !== port);
+        this._neighbors = this._neighbors.filter(neighbor => neighbor.port !== port);
     }
 
     getNeighbors(): { port: number, isAlive: boolean }[] {
-        return this.neighbors;
+        return this._neighbors;
     }
+
+    setPassword(password: string): void {
+        this._password = password;
+    }
+
+    getPassword(): string {
+        return this._password;
+    }
+
+    addIdentity(): void {
+        let { privateKey, publicKey } = generateKeys();
+        let id = createId(privateKey, publicKey);
+        this._digitalWallet.addIdentity(privateKey, publicKey, id);
+    }
+
+    get getDigitalWallet(): DigitalWallet {
+        return this._digitalWallet;
+    }
+
+    async parseToJsonObject(): Promise<any> {
+        let encryptedDigitalWalletIdentities = this._digitalWallet.identities.map(identity => {
+            return {
+                privateKey: encrypt(identity.privateKey, this._password),
+                publicKey: identity.publicKey,
+                id: identity.id
+            }
+        });
+
+        const promiseHashedUserPassword = hashPassword(this._password);
+        const hashedPassword = await promiseHashedUserPassword.then((value) => {
+            return value
+        });
+
+        return JSON.stringify({
+            password: hashedPassword,
+            digitalWallet: encryptedDigitalWalletIdentities
+        })
+    }
+
+    async saveToFile(): Promise<void> {
+        let fileName = "node_data.json";
+        const fs = require('fs');
+        const promiseParsedJSON = this.parseToJsonObject();
+        const parsedJSON = await promiseParsedJSON.then((value) => {return value});
+        fs.writeFileSync(fileName, parsedJSON);
+    }
+
 }
