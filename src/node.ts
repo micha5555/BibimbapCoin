@@ -57,9 +57,17 @@ export class Node{
         })
     }
 
-    async saveToFile(): Promise<void> {
-        let fileName = "node_data.json";
+    async saveToFile(portNumber:number): Promise<void> {
         const fs = require('fs');
+        var dir = './data';
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        if(!fs.existsSync(dir + '/' + portNumber)){
+            fs.mkdirSync(dir + '/' + portNumber);
+        }
+        let fileName = dir + "/" + portNumber + "/node_data.json";
+
         const promiseParsedJSON = this.parseToJsonObject();
         const parsedJSON = await promiseParsedJSON.then((value) => {return value});
         fs.writeFileSync(fileName, parsedJSON);
