@@ -4,6 +4,7 @@ import {Node} from "./node";
 
 import {createId, generateKeys, hashPassword} from "./key_utils";
 import inquirer from "inquirer";
+import * as http from "node:http";
 
 const app = express();
 app.use(express.json());
@@ -132,15 +133,39 @@ async function connectToNeighbor() {
         return;
     }
 
-    //TODO: call /connect endpoint of other node
-    //TODO: add error handling
+    if (node.getNeighbor(port) !== undefined) {
+        console.error(`Port ${port} is already a neighbor`);
+        return;
+    }
 
-    node.addNeighbor(port);
-    console.log(`Neighbor on port ${port} added`);
+    try {
+        await connect(port);
+        node.addNeighbor(port);
+        console.log(`Neighbor on port ${port} added`);
+    }
+    catch (error) {
+        console.error(`Failed to connect to neighbor on port ${port}`);
+    }
 }
 
 async function generateID() {
     let keys = generateKeys();
     let id = createId(keys.privateKey, keys.publicKey);
     console.log(`ID: ${id}`);
+}
+
+async function connect(port: number)
+{
+    const response = await fetch(`http://localhost:${port}/connect`, {
+        method: 'POST',
+        body: JSON.stringify({port: controller.port}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+
+    if (!response.ok) {
+        throw new Error(`Failed to connect to port ${port}: ${response.statusText}`);
+    }
+
 }

@@ -8,7 +8,10 @@ export class Node{
     private _digitalWallet: DigitalWallet = new DigitalWallet();
 
     addNeighbor(port: number): void {
-        this._neighbors.push({ port, isAlive: true });
+        if(this.getNeighbor(port) === undefined)
+        {
+            this._neighbors.push({ port, isAlive: true });
+        }
     }
 
     removeNeighbor(port: number): void {
@@ -17,6 +20,10 @@ export class Node{
 
     getNeighbors(): { port: number, isAlive: boolean }[] {
         return this._neighbors;
+    }
+
+    getNeighbor(port: number): { port: number, isAlive: boolean } | undefined {
+        return this._neighbors.find(neighbor => neighbor.port === port);
     }
 
     setPassword(password: string): void {
