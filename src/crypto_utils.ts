@@ -77,4 +77,8 @@ function decrypt(dataToDecrypt:string, password:string) {
     )
 }
 
-export { generateKeys, createId, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt };
+function hashTheMessage(body: string) {
+    return createHash("sha1").update(body).digest("hex");
+}
+
+export { generateKeys, createId, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt, hashTheMessage };

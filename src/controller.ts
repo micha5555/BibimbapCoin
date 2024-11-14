@@ -1,5 +1,6 @@
 import {Express, Request, Response} from "express";
 import {Node} from "./node";
+import {hashTheMessage} from "./crypto_utils";
 
 export class Controller {
     app: Express;
@@ -32,6 +33,36 @@ export class Controller {
         this.app.get("/is-alive", (request: Request, response: Response): void => {
             response.status(200)
                 .send(`Node on ${this.port} is alive`)
+        })
+
+        this.app.get("/get-messages", (request: Request, response: Response): void => {
+            response.status(200)
+                .send(this.node.getBroadcastedMessages);
+        })
+
+        this.app.post("/broadcast-message", (request: Request, response: Response): void => {
+            let message = request.body.message;
+            let timestamp = request.body.timestamp;
+            const messageHash = hashTheMessage(JSON.stringify(request.body));
+            const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(messageHash);
+            if(nodeHasThisMessage) {
+                response.status(201)
+                    .send(`The node ${this.port} already has this message`);
+            } else {
+                this.node.addMessage(message, messageHash, timestamp);
+                this.node.getNeighbors().forEach(neighbor => {
+                    let result = fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
+                        method: 'POST',
+                        body: JSON.stringify(request.body),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                });
+                response.status(200)
+                    .send(`Message broadcasted to all neighbors from node ${this.port}`);
+            }
+
         })
     }
 

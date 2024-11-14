@@ -5,6 +5,7 @@ export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
     private _password: string = "";
     private _digitalWallet: DigitalWallet = new DigitalWallet();
+    private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string}[] = [];
 
     addNeighbor(port: number): void {
         if(this.getNeighbor(port) === undefined)
@@ -41,6 +42,14 @@ export class Node{
         let { privateKey, publicKey } = generateKeys();
         let id = createId(privateKey, publicKey);
         this._digitalWallet.addIdentity(privateKey, publicKey, id);
+    }
+
+    addMessage(message: string, messageHash: string, timestamp: Date): void {
+        this._broadcastedMessages.push({ timestamp, message, messageHash });
+    }
+
+    get getBroadcastedMessages(): { timestamp: Date, message: string, messageHash: string}[] {
+        return this._broadcastedMessages;
     }
 
     get getDigitalWallet(): DigitalWallet {
@@ -99,6 +108,16 @@ export class Node{
         decryptedDigitalWalletIdentities.forEach((identity: { privateKey: string, publicKey: string, id: string }) => {
             this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey, identity.id);
         });
+    }
+
+    doesNodeAlreadyHasMessage(messageHash: string): boolean {
+        for (let i = 0; i < this._broadcastedMessages.length; i++) {
+            if(this._broadcastedMessages[i].messageHash == messageHash)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
