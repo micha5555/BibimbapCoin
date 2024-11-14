@@ -1,11 +1,8 @@
-import {generateKeyPairSync, createHash, KeyObject, createCipheriv, createDecipheriv} from "node:crypto";
+import {generateKeyPairSync, createHash, KeyObject, createCipheriv, createDecipheriv, randomBytes} from "node:crypto";
 import argon2 from 'argon2';
 
-const encryptionIV = createHash('sha512')
-    .update("dsfew542svw")
-    .digest('hex')
-    .substring(0, 16)
 const encryption_method = 'aes-256-cbc';
+// const encryption_method_2 = 'aes-256-gcm';
 const pepper = "sdf2453443dw!fwf";
 
 function generateKeys() {
@@ -45,14 +42,19 @@ function extractOnlyKeyContent(key: KeyObject) {
 }
 
 function encrypt(dataToEncrypt:any, password:string) {
+    let iv = randomBytes(16).toString('hex');
+    iv = createHash('sha512')
+        .update(iv)
+        .digest('hex')
+        .substring(0, 16)
     const passwordWithPepper = password + pepper;
     const key = createHash('sha512')
         .update(passwordWithPepper)
         .digest('hex')
         .substring(0, 32)
-    const cipher = createCipheriv(encryption_method, key, encryptionIV)
+    const cipher = createCipheriv(encryption_method, key, iv)
     return Buffer.from(
-        cipher.update(dataToEncrypt, 'utf8', 'hex') + cipher.final('hex')
+        cipher.update(dataToEncrypt, 'utf8', 'hex') + cipher.final('hex') + '$$$' + iv
     ).toString('base64')
 }
 
@@ -62,8 +64,10 @@ function decrypt(dataToDecrypt:string, password:string) {
         .update(passwordWithPepper)
         .digest('hex')
         .substring(0, 32)
-    const buff = Buffer.from(dataToDecrypt, 'base64')
-    const decipher = createDecipheriv(encryption_method, key, encryptionIV)
+    const dataToDecryptString = Buffer.from(dataToDecrypt, 'base64').toString('utf8');
+    const iv = dataToDecryptString.split('$$$')[1];
+    const buff = Buffer.from(dataToDecryptString.split('$$$')[0]);
+    const decipher = createDecipheriv(encryption_method, key, iv)
     return (
         decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
         decipher.final('utf8')
