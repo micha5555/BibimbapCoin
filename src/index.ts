@@ -6,18 +6,25 @@ import inquirer from "inquirer";
 import {validateIfUserExists, validateIfPasswordIsCorrect} from "./validators";
 import * as http from "node:http";
 import * as Timers from "node:timers";
+import {ListToMine} from "./list_to_mine";
+import {Miner} from "./miner";
 
 const app = express();
 app.use(express.json());
 
 let controller: Controller;
 let node: Node = new Node();
+let listToMine = new ListToMine();
+let miner = new Miner(listToMine);
 
 const enum_showIDs = "Show IDs";
 const enum_genID = "Generate ID";
 const enum_showNeighbors = "Show neighbors";
 const enum_connect = "Connect to neighbor";
 const enum_exit = "Exit";
+const add_to_mine = "Add message to mine";
+const mine = "Mine block";
+
 
 const interval_time = 10000;
 Timers.setInterval(() => {
@@ -101,7 +108,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_exit]
+            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_exit, add_to_mine, mine]
         }
     ])
 
@@ -117,6 +124,20 @@ async function menu() {
             break;
         case enum_connect:
             await connectToNeighbor();
+            break;
+        case add_to_mine:
+            let message = await inquirer.prompt([
+                {
+                    type: "input",
+                    name: "message",
+                    message: "Enter message to mine"
+                }
+            ])
+            listToMine.addItemToMine(message.message);
+            break;
+        case mine:
+            let block = miner.mineBlock();
+            console.log("Block mined: " + block.toString());
             break;
         case enum_exit:
             await node.saveNodeToFile(controller.port);
