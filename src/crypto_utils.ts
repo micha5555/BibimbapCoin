@@ -30,7 +30,7 @@ function createId(privateKey: string, publicKey: string) {
 }
 
 async function hashPassword(password: string) {
-    return argon2.hash(password);
+    return argon2.hash(password, {timeCost: 57});
 }
 
 async function verifyPassword(hash: string, password: string): Promise<boolean> {
