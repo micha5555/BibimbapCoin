@@ -4,6 +4,7 @@ import argon2 from 'argon2';
 // const encryption_method = 'aes-256-cbc';
 const encryption_method = 'aes-256-gcm';
 const pepper = "sdf2453443dw!fwf";
+const rounds_of_hashing_password = 57;
 
 function generateKeys() {
     const { publicKey, privateKey } = generateKeyPairSync("ed25519", {
@@ -30,7 +31,7 @@ function createId(privateKey: string, publicKey: string) {
 }
 
 async function hashPassword(password: string) {
-    return argon2.hash(password, {timeCost: 57});
+    return argon2.hash(password, {timeCost: rounds_of_hashing_password});
 }
 
 async function verifyPassword(hash: string, password: string): Promise<boolean> {
@@ -64,10 +65,10 @@ function decrypt(dataToDecrypt:string, password:string) {
         .update(passwordWithPepper)
         .digest('hex')
         .substring(0, 32)
-    const dataToDecryptsplited = Buffer.from(dataToDecrypt, 'base64').toString('utf8').split('$$$');
-    const iv = dataToDecryptsplited[1];
-    const authTag = dataToDecryptsplited[2];
-    const buff = Buffer.from(dataToDecryptsplited[0]);
+    const dataToDecryptSplit = Buffer.from(dataToDecrypt, 'base64').toString('utf8').split('$$$');
+    const iv = dataToDecryptSplit[1];
+    const authTag = dataToDecryptSplit[2];
+    const buff = Buffer.from(dataToDecryptSplit[0]);
     const decipher = createDecipheriv(encryption_method, key, iv);
     decipher.setAuthTag(Buffer.from(authTag, 'hex'));
     return (
