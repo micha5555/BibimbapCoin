@@ -1,11 +1,13 @@
 import {DigitalWallet} from "./digital_wallet";
 import {createId, generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
+import {Block} from "./block";
 
 export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
     private _password: string = "";
     private _digitalWallet: DigitalWallet = new DigitalWallet();
-    private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string}[] = [];
+    private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string, messageType: string}[] = [];
+    private _blocks: Block[] = [];
 
     addNeighbor(port: number): void {
         if(this.getNeighbor(port) === undefined)
@@ -44,12 +46,40 @@ export class Node{
         this._digitalWallet.addIdentity(privateKey, publicKey, id);
     }
 
-    addMessage(message: string, messageHash: string, timestamp: Date): void {
-        this._broadcastedMessages.push({ timestamp, message, messageHash });
+    addMessage(message: string, messageHash: string, timestamp: Date, messageType: string): void {
+        this._broadcastedMessages.push({ timestamp, message, messageHash, messageType });
     }
 
     get getBroadcastedMessages(): { timestamp: Date, message: string, messageHash: string}[] {
         return this._broadcastedMessages;
+    }
+
+    addBlock(block: Block): void {
+        this._blocks.push(block);
+    }
+
+    get getBlocks(): Block[] {
+        return this._blocks;
+    }
+
+    async assignNeighborBlockchainToNode(port: number) {
+        const response = await fetch(`http://localhost:${port}/get-blocks`);
+        if (!response.ok) {
+            throw new Error(`Failed to get blocks from port ${port}: ${response.statusText}`);
+        }
+        console.log('port: ' + port);
+
+        const responseJson = await response.json();
+        console.log(responseJson);
+        this.addBlockchainFromJson(responseJson);
+    }
+
+    addBlockchainFromJson(responseJson: any): void {
+        console.log(responseJson);
+        responseJson.forEach((block: any) => {
+            console.log(block);
+            this.addBlock(Block.fromJson(block));
+        });
     }
 
     get getDigitalWallet(): DigitalWallet {
