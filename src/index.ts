@@ -15,7 +15,8 @@ app.use(express.json());
 let controller: Controller;
 let node: Node = new Node();
 let listToMine = new ListToMine();
-let miner = new Miner(listToMine);
+let miner = new Miner(listToMine, node);
+let chosenIdentity : { privateKey: string, publicKey: string, id: string } | null = null;
 
 const enum_showIDs = "Show IDs";
 const enum_genID = "Generate ID";
@@ -24,8 +25,8 @@ const enum_connect = "Connect to neighbor";
 const enum_showBlocks = "Show blocks";
 const enum_exit = "Exit";
 const add_to_mine = "Add message to mine";
-const mine = "Mine block";
-
+const mine_block = "Mine block";
+const chose_identity = "Choose identity to mine";
 
 const interval_time = 10000;
 Timers.setInterval(() => {
@@ -109,7 +110,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, add_to_mine, mine, enum_showBlocks, enum_exit]
+            choices: [enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_showBlocks, enum_exit]
         }
     ])
 
@@ -119,6 +120,9 @@ async function menu() {
             break;
         case enum_genID:
             await generateID();
+            break;
+        case chose_identity:
+            await chooseIdentity();
             break;
         case enum_showNeighbors:
             await showNeighbors();
@@ -130,17 +134,10 @@ async function menu() {
             await showBlocks();
             break;
         case add_to_mine:
-            let message = await inquirer.prompt([
-                {
-                    type: "input",
-                    name: "message",
-                    message: "Enter message to mine"
-                }
-            ])
-            listToMine.addItemToMine(message.message);
+            await addToMine();
             break;
-        case mine:
-            await miner.mine();
+        case mine_block:
+            await mine();
             break;
         case enum_exit:
             await node.saveNodeToFile(controller.port);
@@ -209,6 +206,17 @@ async function showBlocks() {
     console.log(node.getBlocks);
 }
 
+async function addToMine() {
+    let message = await inquirer.prompt([
+        {
+            type: "input",
+            name: "message",
+            message: "Enter message to mine"
+        }
+    ])
+    listToMine.addItemToMine(message.message);
+}
+
 async function generateID() {
     node.addIdentity();
 }
@@ -260,4 +268,32 @@ async function pollNeighbor(port: number) {
     catch (error){
         node.setNeighborStatus(port, false);
     }
+}
+
+async function chooseIdentity() {
+    if(node.getDigitalWallet.identities.length === 0) {
+        console.error("No identities found");
+        return
+    }
+
+    let answer = await inquirer.prompt([{
+        type: "list",
+        name: "identity",
+        message: "Choose identity to mine",
+        choices: node.getDigitalWallet.identities.map((identity) => identity.id)
+    }]);
+
+    chosenIdentity = node.getDigitalWallet.getIdentityById(answer.identity) ?? null;
+    miner.setIdentity(chose_identity);
+    console.log(`Chosen identity: ${chosenIdentity?.id}`);
+}
+
+async function mine() {
+    if (chosenIdentity === null) {
+        console.error("No identity chosen");
+        return;
+    }
+
+    await miner.mine();
+    return;
 }

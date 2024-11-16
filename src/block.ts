@@ -3,20 +3,25 @@ import {createHash} from "node:crypto";
 export class Block {
     private index: number;
     private previousHash: string;
-    private timestamp: Date;
+    private startTimestamp: Date;
+    private timestamp: Date | null = null;
     private data: string;
-    private hash: string;
+    private hash: string = "";
     private nonce: number;
     private minerId: string;
 
-    constructor(index: number, previousHash: string, timestamp: Date, data: string, hash: string, nonce: number, minerId: string) {
+    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string ,nonce: number, minerId: string) {
         this.index = index;
         this.previousHash = previousHash;
-        this.timestamp = timestamp;
+        this.startTimestamp = startTimestamp;
         this.data = data;
-        this.hash = hash;
         this.nonce = nonce;
         this.minerId = minerId;
+        this.hash = hash;
+    }
+
+    static generate(index: number, previousHash: string, startTimestamp: Date, data: string, minerId: string): Block {
+        return new Block(index, previousHash, startTimestamp, data, "", 0, minerId);
     }
 
     static fromJson(json: any): Block {
@@ -31,11 +36,11 @@ export class Block {
         return this.previousHash;
     }
 
-    get getTimestamp(): Date {
+    get getTimestamp(): Date | null {
         return this.timestamp;
     }
 
-    set setTimestamp(timestamp: Date) {
+    setTimestamp(timestamp: Date) {
         this.timestamp = timestamp;
     }
 
@@ -46,10 +51,10 @@ export class Block {
     calculateHash(): void {
         this.hash = createHash('sha256')
             .update(this.index + this.previousHash + this.data + this.nonce + this.minerId)
-            .digest('hex');
+            .digest('hex'); //TODO: Store as binary
     }
 
-    get getHash(): string {
+    get getHash(): string { //TODO: Display as Hex
         return this.hash;
     }
 
@@ -77,6 +82,6 @@ export class Block {
     }
 
     isFound(difficulty: number): boolean {
-        return this.hash.substring(0, difficulty) === "0".repeat(difficulty);
+        return this.hash.substring(0, difficulty) === "0".repeat(difficulty); //TODO: Change check in binary format
     }
 }
