@@ -112,7 +112,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+            choices: [enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
         }
     ])
 
@@ -289,7 +289,11 @@ async function chooseIdentity() {
     }]);
 
     chosenIdentity = node.getDigitalWallet.getIdentityById(answer.identity) ?? null;
-    miner.setIdentity(chose_identity);
+    if (chosenIdentity === null) {
+        console.error("Identity not found");
+        return
+    }
+    miner.setIdentity(chosenIdentity.id);
     console.log(`Chosen identity: ${chosenIdentity?.id}`);
 }
 
