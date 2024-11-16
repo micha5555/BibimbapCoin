@@ -71,4 +71,8 @@ export class Block {
             minerId: ${this._minerId}
         ]`;
     }
+
+    isFound(difficulty: number): boolean {
+        return this._hash.substring(0, difficulty) === "0".repeat(difficulty);
+    }
 }

@@ -136,8 +136,7 @@ async function menu() {
             listToMine.addItemToMine(message.message);
             break;
         case mine:
-            let block = miner.mineBlock();
-            console.log("Block mined: " + block.toString());
+            await miner.mine();
             break;
         case enum_exit:
             await node.saveNodeToFile(controller.port);
