@@ -173,8 +173,6 @@ async function connectToNeighbor() {
     try {
         await connect(port);
         await node.assignNeighborBlockchainToNode(port);
-        // console.log(resp);
-        // node.addBlockchainFromJson(resp);
         node.addNeighbor(port);
         console.log(`Neighbor on port ${port} added`);
     }
@@ -203,14 +201,6 @@ async function connect(port: number, askForBlockchain: boolean = false)
     }
 
 }
-
-// async function assignNeighborBlockchainToNode(port: number) {
-//     const response = await fetch(`http://localhost:${port}/get-blocks`);
-//     if (!response.ok) {
-//         throw new Error(`Failed to get blocks from port ${port}: ${response.statusText}`);
-//     }
-//     node.addBlockchainFromJson(response.json());
-// }
 
 function pollNeighbors() {
      node.getNeighbors().forEach(async neighbor => {
