@@ -24,6 +24,8 @@ const enum_connect = "Connect to neighbor";
 const enum_showBlocks = "Show blocks";
 const enum_exit = "Exit";
 const add_to_mine = "Add message to mine";
+// TODO: delete?
+const enum_show_items_to_mine = "Show items to mine";
 const mine = "Mine block";
 
 
@@ -109,7 +111,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, add_to_mine, mine, enum_showBlocks, enum_exit]
+            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, add_to_mine, mine, enum_show_items_to_mine, enum_showBlocks, enum_exit]
         }
     ])
 
@@ -141,6 +143,9 @@ async function menu() {
             break;
         case mine:
             await miner.mine();
+            break;
+        case enum_show_items_to_mine:
+            console.log(listToMine.getQueue);
             break;
         case enum_exit:
             await node.saveNodeToFile(controller.port);
@@ -261,3 +266,5 @@ async function pollNeighbor(port: number) {
         node.setNeighborStatus(port, false);
     }
 }
+
+export {listToMine};

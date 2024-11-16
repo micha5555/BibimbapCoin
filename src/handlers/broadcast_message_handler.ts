@@ -1,10 +1,11 @@
 import {Block} from "../block";
 import {Node} from "../node";
+import {listToMine} from "../index";
 
 const MessageType = Object.freeze({
     BLOCK: 'block',
-    TRANSACTION: 'transaction',
-    PLAIN: 'plain'
+    TEXT: 'text',
+    TRANSACTION: 'transaction'
 });
 
 
@@ -18,12 +19,14 @@ function handleBlockMessage(message: string, node: Node): void {
     node.addBlock(block);
 }
 
+function handleTextMessage(message: string): void {
+    listToMine.addItemToMine(message);
+}
+
 function handleTransactionMessage(message: string, node: Node): void {
 
 }
 
-function handlePlainMessage(message: string, node: Node): void {
 
-}
 
-export { MessageType, handleBlockMessage, handleTransactionMessage, handlePlainMessage };
+export { MessageType, handleBlockMessage, handleTransactionMessage, handleTextMessage };

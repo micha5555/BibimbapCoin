@@ -1,7 +1,7 @@
 import {Express, Request, Response} from "express";
 import {Node} from "./node";
 import {hashTheMessage} from "./crypto_utils";
-import {handleBlockMessage, MessageType} from "./handlers/broadcast_message_handler";
+import {handleBlockMessage, handleTextMessage, MessageType} from "./handlers/broadcast_message_handler";
 
 export class Controller {
     app: Express;
@@ -74,9 +74,10 @@ export class Controller {
                     case MessageType.BLOCK:
                         handleBlockMessage(JSON.stringify(message), this.node);
                         break;
-                    case MessageType.TRANSACTION:
+                    case MessageType.TEXT:
+                        handleTextMessage(JSON.stringify(message));
                         break;
-                    case MessageType.PLAIN:
+                    case MessageType.TRANSACTION:
                         break;
                 }
                 response.status(200)
