@@ -75,6 +75,32 @@ export class Miner {
         this.run = true;
 
         while (this.run) {
+
+            while(this.listToMine.isEmpty()) {
+                console.log("\nNo blocks to mine. Waiting for new blocks...");
+                const prompt2 = inquirer.prompt(
+                    {
+                        type: "confirm",
+                        name: "leave",
+                        message: "Do you want to leave?",
+                        default: false
+                    }
+                );
+
+                const defaultValue2 = new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve({leave: false});
+                        prompt2.ui.close();
+                    }, 2000);
+                });
+
+                const answers: any = await Promise.race([defaultValue2, prompt2])
+
+                if (answers.leave) {
+                    return
+                }
+            }
+
             let block = await this.mineBlock();
             console.log("Block mined: " + block.toString());
 

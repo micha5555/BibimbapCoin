@@ -12,4 +12,8 @@ export class ListToMine {
     get getQueue(): any[] {
         return this._queue;
     }
+
+    isEmpty(): boolean {
+        return this._queue.length === 0;
+    }
 }
