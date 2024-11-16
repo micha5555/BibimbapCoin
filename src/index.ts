@@ -17,6 +17,7 @@ const enum_showIDs = "Show IDs";
 const enum_genID = "Generate ID";
 const enum_showNeighbors = "Show neighbors";
 const enum_connect = "Connect to neighbor";
+const enum_showBlocks = "Show blocks";
 const enum_exit = "Exit";
 
 const interval_time = 10000;
@@ -101,7 +102,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_exit]
+            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_showBlocks, enum_exit]
         }
     ])
 
@@ -117,6 +118,9 @@ async function menu() {
             break;
         case enum_connect:
             await connectToNeighbor();
+            break;
+        case enum_showBlocks:
+            await showBlocks();
             break;
         case enum_exit:
             await node.saveNodeToFile(controller.port);
@@ -180,6 +184,10 @@ async function connectToNeighbor() {
         console.error(`Failed to connect to neighbor on port ${port}`);
         console.error(error);
     }
+}
+
+async function showBlocks() {
+    console.log(node.getBlocks);
 }
 
 async function generateID() {
