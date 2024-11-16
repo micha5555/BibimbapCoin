@@ -1,47 +1,51 @@
 export class Block {
-    private _index: number;
-    private _previousHash: string;
-    private _timestamp: Date;
-    private _data: string;
-    private _hash: string;
-    private _nonce: number;
-    private _minerId: string;
+    private index: number;
+    private previousHash: string;
+    private timestamp: Date;
+    private data: string;
+    private hash: string;
+    private nonce: number;
+    private minerId: string;
 
     constructor(index: number, previousHash: string, timestamp: Date, data: string, hash: string, nonce: number, minerId: string) {
-        this._index = index;
-        this._previousHash = previousHash;
-        this._timestamp = timestamp;
-        this._data = data;
-        this._hash = hash;
-        this._nonce = nonce;
-        this._minerId = minerId;
+        this.index = index;
+        this.previousHash = previousHash;
+        this.timestamp = timestamp;
+        this.data = data;
+        this.hash = hash;
+        this.nonce = nonce;
+        this.minerId = minerId;
     }
 
-    get index(): number {
-        return this._index;
+    static fromJson(json: any): Block {
+        return new Block(json.index, json.previousHash, json.timestamp, json.data, json.hash, json.nonce, json.minerId);
     }
 
-    get previousHash(): string {
-        return this._previousHash;
+    get getIndex(): number {
+        return this.index;
     }
 
-    get timestamp(): Date {
-        return this._timestamp;
+    get getPreviousHash(): string {
+        return this.previousHash;
     }
 
-    get data(): string {
-        return this._data;
+    get getTimestamp(): Date {
+        return this.timestamp;
     }
 
-    get hash(): string {
-        return this._hash;
+    get getData(): string {
+        return this.data;
     }
 
-    get nonce(): number {
-        return this._nonce;
+    get getHash(): string {
+        return this.hash;
     }
 
-    get minerId(): string {
-        return this._minerId;
+    get getNonce(): number {
+        return this.nonce;
+    }
+
+    get getMinerId(): string {
+        return this.minerId;
     }
 }

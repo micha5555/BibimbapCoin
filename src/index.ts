@@ -172,11 +172,15 @@ async function connectToNeighbor() {
 
     try {
         await connect(port);
+        await node.assignNeighborBlockchainToNode(port);
+        // console.log(resp);
+        // node.addBlockchainFromJson(resp);
         node.addNeighbor(port);
         console.log(`Neighbor on port ${port} added`);
     }
     catch (error) {
         console.error(`Failed to connect to neighbor on port ${port}`);
+        console.error(error);
     }
 }
 
@@ -184,11 +188,11 @@ async function generateID() {
     node.addIdentity();
 }
 
-async function connect(port: number)
+async function connect(port: number, askForBlockchain: boolean = false)
 {
     const response = await fetch(`http://localhost:${port}/connect`, {
         method: 'POST',
-        body: JSON.stringify({port: controller.port}),
+        body: JSON.stringify({port: controller.port, askForBlockchain: askForBlockchain}),
         headers: {
             'Content-Type': 'application/json'
         }
@@ -199,6 +203,14 @@ async function connect(port: number)
     }
 
 }
+
+// async function assignNeighborBlockchainToNode(port: number) {
+//     const response = await fetch(`http://localhost:${port}/get-blocks`);
+//     if (!response.ok) {
+//         throw new Error(`Failed to get blocks from port ${port}: ${response.statusText}`);
+//     }
+//     node.addBlockchainFromJson(response.json());
+// }
 
 function pollNeighbors() {
      node.getNeighbors().forEach(async neighbor => {
@@ -219,7 +231,7 @@ async function pollNeighbor(port: number) {
             {
                 node.setNeighborStatus(port, true);
                 try {
-                    await connect(port);
+                    await connect(port, true);
                 }
                 catch (error) {
                     node.setNeighborStatus(port, false);
