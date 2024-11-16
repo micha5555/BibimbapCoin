@@ -107,6 +107,10 @@ export class Block {
         ]`;
     }
 
+    toJson() : string {
+        return JSON.stringify(this);
+    }
+
     isFound(difficulty: number): boolean {
         return this.hash.substring(0, difficulty) === "0".repeat(difficulty); //TODO: Change check in binary format
     }
