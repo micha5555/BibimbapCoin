@@ -9,4 +9,8 @@ export class DigitalWallet {
         this._identities.push({ privateKey, publicKey, id });
     }
 
+    getIdentityById(id: string): { privateKey: string; publicKey: string; id: string } | undefined {
+        return this._identities.find((identity) => identity.id === id);
+    }
+
 }
