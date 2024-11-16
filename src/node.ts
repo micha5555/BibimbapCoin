@@ -67,17 +67,13 @@ export class Node{
         if (!response.ok) {
             throw new Error(`Failed to get blocks from port ${port}: ${response.statusText}`);
         }
-        console.log('port: ' + port);
 
         const responseJson = await response.json();
-        console.log(responseJson);
         this.addBlockchainFromJson(responseJson);
     }
 
     addBlockchainFromJson(responseJson: any): void {
-        console.log(responseJson);
         responseJson.forEach((block: any) => {
-            console.log(block);
             this.addBlock(Block.fromJson(block));
         });
     }

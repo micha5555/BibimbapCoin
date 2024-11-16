@@ -22,12 +22,8 @@ export class Controller {
         this.app.post("/connect", (request: Request, response: Response): void => {
             let port = request.body.port;
             let askForBlockChain = request.body.askForBlockchain;
-            // TODO: implement
             if(askForBlockChain) {
-                // this.node.assignNeighborBlockchainToNode(port);
-                // const resp = await getNeighborBlocks(port);
-                // console.log(resp);
-                // node.addBlockchainFromJson(resp);
+                this.node.assignNeighborBlockchainToNode(port);
             }
             this.node.addNeighbor(port);
             response.status(201)
