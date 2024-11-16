@@ -1,78 +1,82 @@
 import {createHash} from "node:crypto";
 
 export class Block {
-    private _index: number;
-    private _previousHash: string;
-    private _timestamp: Date;
-    private _data: string;
-    private _hash: string;
-    private _nonce: number;
-    private _minerId: string;
+    private index: number;
+    private previousHash: string;
+    private timestamp: Date;
+    private data: string;
+    private hash: string;
+    private nonce: number;
+    private minerId: string;
 
     constructor(index: number, previousHash: string, timestamp: Date, data: string, hash: string, nonce: number, minerId: string) {
-        this._index = index;
-        this._previousHash = previousHash;
-        this._timestamp = timestamp;
-        this._data = data;
-        this._hash = hash;
-        this._nonce = nonce;
-        this._minerId = minerId;
+        this.index = index;
+        this.previousHash = previousHash;
+        this.timestamp = timestamp;
+        this.data = data;
+        this.hash = hash;
+        this.nonce = nonce;
+        this.minerId = minerId;
     }
 
-    get index(): number {
-        return this._index;
+    static fromJson(json: any): Block {
+        return new Block(json.index, json.previousHash, json.timestamp, json.data, json.hash, json.nonce, json.minerId);
     }
 
-    get previousHash(): string {
-        return this._previousHash;
+    get getIndex(): number {
+        return this.index;
     }
 
-    get timestamp(): Date {
-        return this._timestamp;
+    get getPreviousHash(): string {
+        return this.previousHash;
     }
 
-    set timestamp(timestamp: Date) {
-        this._timestamp = timestamp;
+    get getTimestamp(): Date {
+        return this.timestamp;
     }
 
-    get data(): string {
-        return this._data;
+    set setTimestamp(timestamp: Date) {
+        this.timestamp = timestamp;
+    }
+
+    get getData(): string {
+        return this.data;
     }
 
     calculateHash(): void {
-        this._hash = createHash('sha256')
-            .update(this._index + this._previousHash + this._data + this._nonce + this._minerId)
+        this.hash = createHash('sha256')
+            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId)
             .digest('hex');
     }
 
-    get hash(): string {
-        return this._hash;
+    get getHash(): string {
+        return this.hash;
     }
 
-    get nonce(): number {
-        return this._nonce;
+    get getNonce(): number {
+        return this.nonce;
     }
 
     incrementNonce(): void {
-        this._nonce++;
+        this.nonce++;
     }
 
-    get minerId(): string {
-        return this._minerId;
+    get getMinerId(): string {
+        return this.minerId;
     }
 
     toString(): string {
-        return `Block #${this._index} [
-            previousHash: ${this._previousHash}, 
-            timestamp: ${this._timestamp}, 
-            data: ${this._data}, 
-            hash: ${this._hash}, 
-            nonce: ${this._nonce}, 
-            minerId: ${this._minerId}
+        return `Block #${this.index} [
+            previousHash: ${this.previousHash}, 
+            timestamp: ${this.timestamp}, 
+            data: ${this.data}, 
+            hash: ${this.hash}, 
+            nonce: ${this.nonce}, 
+            minerId: ${this.minerId}
         ]`;
     }
 
     isFound(difficulty: number): boolean {
-        return this._hash.substring(0, difficulty) === "0".repeat(difficulty);
+        return this.hash.substring(0, difficulty) === "0".repeat(difficulty);
     }
 }

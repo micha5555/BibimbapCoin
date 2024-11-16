@@ -21,6 +21,7 @@ const enum_showIDs = "Show IDs";
 const enum_genID = "Generate ID";
 const enum_showNeighbors = "Show neighbors";
 const enum_connect = "Connect to neighbor";
+const enum_showBlocks = "Show blocks";
 const enum_exit = "Exit";
 const add_to_mine = "Add message to mine";
 const mine = "Mine block";
@@ -108,7 +109,7 @@ async function menu() {
             type: "list",
             name: "action",
             message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, enum_exit, add_to_mine, mine]
+            choices: [enum_showIDs, enum_genID, enum_showNeighbors, enum_connect, add_to_mine, mine, enum_showBlocks, enum_exit]
         }
     ])
 
@@ -124,6 +125,9 @@ async function menu() {
             break;
         case enum_connect:
             await connectToNeighbor();
+            break;
+        case enum_showBlocks:
+            await showBlocks();
             break;
         case add_to_mine:
             let message = await inquirer.prompt([
@@ -192,6 +196,7 @@ async function connectToNeighbor() {
 
     try {
         await connect(port);
+        await node.assignNeighborBlockchainToNode(port);
         node.addNeighbor(port);
         console.log(`Neighbor on port ${port} added`);
     }
@@ -200,15 +205,19 @@ async function connectToNeighbor() {
     }
 }
 
+async function showBlocks() {
+    console.log(node.getBlocks);
+}
+
 async function generateID() {
     node.addIdentity();
 }
 
-async function connect(port: number)
+async function connect(port: number, askForBlockchain: boolean = false)
 {
     const response = await fetch(`http://localhost:${port}/connect`, {
         method: 'POST',
-        body: JSON.stringify({port: controller.port}),
+        body: JSON.stringify({port: controller.port, askForBlockchain: askForBlockchain}),
         headers: {
             'Content-Type': 'application/json'
         }
@@ -239,7 +248,7 @@ async function pollNeighbor(port: number) {
             {
                 node.setNeighborStatus(port, true);
                 try {
-                    await connect(port);
+                    await connect(port, true);
                 }
                 catch (error) {
                     node.setNeighborStatus(port, false);
