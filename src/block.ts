@@ -73,6 +73,7 @@ export class Block {
     toString(): string {
         return `Block #${this.index} [
             previousHash: ${this.previousHash}, 
+            startTimestamp: ${this.startTimestamp},
             timestamp: ${this.timestamp}, 
             data: ${this.data}, 
             hash: ${this.hash}, 
