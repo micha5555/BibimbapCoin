@@ -4,9 +4,12 @@ import inquirer from "inquirer";
 import {Node} from "./node";
 
 export class Miner {
+    public TIME_TO_MINE : number = 10000;
+    public REGULATION_AFTER_BLOCKS : number = 5;
+
     private listToMine: ListToMine;
     private identity: string = "";
-    private difficulty: number = 4;
+    private difficulty: number = 6;
     private run = true;
     private node: Node;
 
@@ -20,8 +23,29 @@ export class Miner {
         if(this.node.getBlocks.length === 0) {
             return Block.generate(0, "" , new Date(), this.listToMine.getBlockToMine(), this.identity);
         }
+        if(this.node.getBlocks.length % this.REGULATION_AFTER_BLOCKS === 0) {
+            //calc time - average time between timestamp and starttimestamp
+            let timeSpent = this.node.getBlocks.map(block =>
+            {
+                let startTime = block.getStartTimestamp().getTime();
+                let endTime = block.getTimestamp()?.getTime();
+                if(endTime === undefined)
+                    throw new Error("Block has no timestamp");
+
+                return endTime - startTime
+            }).reduce((a, b) => a + b, 0);
+            let averageTime = timeSpent / this.REGULATION_AFTER_BLOCKS;
+            if(averageTime > this.TIME_TO_MINE * 2) {
+                this.difficulty--;
+                console.log("Decreasing difficulty to: " + this.difficulty);
+            }
+            else if(averageTime < this.TIME_TO_MINE / 2) {
+                this.difficulty++;
+                console.log("Increasing difficulty to: " + this.difficulty);
+            }
+        }
         let lastBlock = this.node.getBlocks[this.node.getBlocks.length - 1];
-        return Block.generate(lastBlock.getIndex+1, lastBlock.getHash, new Date(), this.listToMine.getBlockToMine(), this.identity);
+        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity);
     }
 
     setIdentity(identity: string) {
@@ -32,17 +56,18 @@ export class Miner {
         let block = this.prepareBlockToMine();
         console.log("Mining the block");
         block.calculateHash();
-        console.log("Current hash: " + block.getHash + " with nonce: " + block.getNonce);
+        console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
         while (!block.isFound(this.difficulty) && this.run) {
             block.incrementNonce();
             block.calculateHash();
             if(block.getNonce % 1000000 === 0)
-                console.log("Current hash: " + block.getHash + " with nonce: " + block.getNonce);
+                console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
             // await new Promise(resolve => setTimeout(resolve, 500));  // Adding delay to slow down mining loop
         }
-        console.log("Block mined with hash: " + block.getHash + " and nonce: " + block.getNonce);
+        console.log("Block mined with hash: " + block.getDisplayHash() + " and nonce: " + block.getNonce);
         block.setTimestamp(new Date());
-        //TODO: Add block to blocks
+        this.node.addBlock(block);
+        //TODO: Send block to neighbors
         return block;
     }
 

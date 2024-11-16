@@ -36,7 +36,7 @@ export class Block {
         return this.previousHash;
     }
 
-    get getTimestamp(): Date | null {
+    getTimestamp(): Date | null {
         return this.timestamp;
     }
 
@@ -49,13 +49,34 @@ export class Block {
     }
 
     calculateHash(): void {
-        this.hash = createHash('sha256')
+        let hashBuffer = createHash('sha256')
             .update(this.index + this.previousHash + this.data + this.nonce + this.minerId)
-            .digest('hex'); //TODO: Store as binary
+            .digest(); //TODO: Store as binary
+
+        this.hash = Array.from(hashBuffer)
+            .map(byte => byte.toString(2).padStart(8, '0')) // Konwertuje każdy bajt na 8-bitowy ciąg binarny
+            .join('');
     }
 
     get getHash(): string { //TODO: Display as Hex
         return this.hash;
+    }
+
+    getDisplayHash(): string {
+        let binaryString = this.hash;
+        if (binaryString.length % 4 !== 0) {
+            // Dopasowanie długości do wielokrotności 4 przez dodanie wiodących zer
+            binaryString = binaryString.padStart(Math.ceil(binaryString.length / 4) * 4, '0');
+        }
+
+        let hexString = '';
+        for (let i = 0; i < binaryString.length; i += 4) {
+            const binarySegment = binaryString.slice(i, i + 4); // Wyciągnij 4 bity
+            const hexValue = parseInt(binarySegment, 2).toString(16); // Konwertuj na HEX
+            hexString += hexValue; // Dodaj wynik
+        }
+
+        return hexString;
     }
 
     get getNonce(): number {
@@ -70,13 +91,17 @@ export class Block {
         return this.minerId;
     }
 
+    getStartTimestamp(): Date {
+        return this.startTimestamp;
+    }
+
     toString(): string {
         return `Block #${this.index} [
             previousHash: ${this.previousHash}, 
             startTimestamp: ${this.startTimestamp},
             timestamp: ${this.timestamp}, 
             data: ${this.data}, 
-            hash: ${this.hash}, 
+            hash: ${this.getDisplayHash()}, 
             nonce: ${this.nonce}, 
             minerId: ${this.minerId}
         ]`;
