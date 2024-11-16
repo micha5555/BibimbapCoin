@@ -20,17 +20,17 @@ export class Miner {
         let block = this.prepareBlockToMine(this.listToMine.getBlockToMine());
         console.log("Mining the block");
         block.calculateHash();
-        console.log("Current hash: " + block.hash + " with nonce: " + block.nonce);
+        console.log("Current hash: " + block.getHash + " with nonce: " + block.getNonce);
         while (!block.isFound(this.difficulty) && this.run) {
             block.incrementNonce();
             block.calculateHash();
-            if(block.nonce % 1000000 === 0)
-                console.log("Current hash: " + block.hash + " with nonce: " + block.nonce);
+            if(block.getNonce % 1000000 === 0)
+                console.log("Current hash: " + block.getHash + " with nonce: " + block.getNonce);
             // await new Promise(resolve => setTimeout(resolve, 500));  // Adding delay to slow down mining loop
         }
 
-        console.log("Block mined with hash: " + block.hash + " and nonce: " + block.nonce);
-        block.timestamp = new Date();
+        console.log("Block mined with hash: " + block.getHash + " and nonce: " + block.getNonce);
+        block.setTimestamp = new Date();
         return block;
     }
 
