@@ -75,7 +75,7 @@ export class Controller {
                         handleBlockMessage(JSON.stringify(message), this.node);
                         break;
                     case MessageType.TEXT:
-                        handleTextMessage(JSON.stringify(message));
+                        handleTextMessage(message);
                         break;
                     case MessageType.TRANSACTION:
                         break;
