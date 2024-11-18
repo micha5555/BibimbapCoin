@@ -53,6 +53,7 @@ export class Miner {
         this.identity = identity;
     }
 
+    // TODO: przerwać kopanie aktualnego bloku jak przyjdzie wykopany
     async mineBlock(): Promise<Block> {
         let block = this.prepareBlockToMine();
         console.log("Mining the block");

@@ -25,8 +25,8 @@ export class Block {
     }
 
     static fromJson(json: any): Block {
-        let block: Block = new Block(json.index, json.previousHash, json.startTimestamp, json.data, json.hash, json.nonce, json.minerId);
-        block.timestamp = json.timestamp;
+        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), String(json.data), String(json.hash), Number(json.nonce), String(json.minerId));
+        block.timestamp = new Date(json.timestamp);
         return block;
     }
 
@@ -52,7 +52,7 @@ export class Block {
 
     calculateHash(): void {
         let hashBuffer = createHash('sha256')
-            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId + this.startTimestamp)
+            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId + this.startTimestamp.toISOString())
             .digest();
 
         this.hash = Array.from(hashBuffer)
@@ -100,8 +100,8 @@ export class Block {
     toString(): string {
         return `Block #${this.index} [
             previousHash: ${this.previousHash}, 
-            startTimestamp: ${this.startTimestamp},
-            timestamp: ${this.timestamp}, 
+            startTimestamp: ${this.startTimestamp.toISOString()},
+            timestamp: ${this.timestamp?.toISOString()}, 
             data: ${this.data}, 
             hash: ${this.getDisplayHash()},
             nonce: ${this.nonce}, 
@@ -109,7 +109,7 @@ export class Block {
         ]`;
     }
 
-toJson() : string {
+    toJson() : string {
         return JSON.stringify(this);
     }
 

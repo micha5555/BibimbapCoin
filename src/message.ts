@@ -21,7 +21,6 @@ export class Message
 
     static recreateMessageJson(message: string): Message
     {
-        // console.log(message);
         let jsonMessage = JSON.parse(message);
         return new Message(jsonMessage.timestamp, jsonMessage.message, jsonMessage.messageType);
     }

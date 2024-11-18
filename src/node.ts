@@ -163,4 +163,10 @@ export class Node{
     getLastBlock(): Block {
         return this._blocks[this._blocks.length - 1];
     }
+
+    displayBlocks(): void {
+        this._blocks.forEach(block => {
+            console.log(block.toString());
+        });
+    }
 }
