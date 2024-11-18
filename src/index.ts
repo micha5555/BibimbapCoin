@@ -208,7 +208,7 @@ async function connectToNeighbor() {
 }
 
 async function showBlocks() {
-    console.log(node.getBlocks);
+    console.log(node.getBlocks.map(block => block.toString()));
 }
 
 async function addToMine() {

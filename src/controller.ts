@@ -58,11 +58,11 @@ export class Controller {
                 response.status(201)
                     .send(`The node ${this.port} already has this message`);
             } else {
-                let message = Message.recreateMessageJson(JSON.stringify(request.body)); //TODO: ZACZNIJ UZYWAC KLASY MESSAGE BO JEST PIERDOLNIK
+                let message = Message.recreateMessageJson(JSON.stringify(request.body));
                 this.node.broadcastMessage(message);
                 switch(message.messageType) {
                     case MessageType.BLOCK:
-                        handleBlockMessage(JSON.stringify(message), this.node);
+                        handleBlockMessage(message.message, this.node);
                         break;
                     case MessageType.TEXT:
                         handleTextMessage(message.message);

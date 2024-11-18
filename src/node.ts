@@ -160,4 +160,7 @@ export class Node{
         });
     }
 
+    getLastBlock(): Block {
+        return this._blocks[this._blocks.length - 1];
+    }
 }
