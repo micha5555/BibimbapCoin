@@ -2,6 +2,7 @@ import {Express, Request, Response} from "express";
 import {Node} from "./node";
 import {hashTheMessage} from "./crypto_utils";
 import {handleBlockMessage, handleTextMessage, MessageType} from "./handlers/broadcast_message_handler";
+import {Message} from "./message";
 
 export class Controller {
     app: Express;
@@ -51,31 +52,20 @@ export class Controller {
         })
 
         this.app.post("/broadcast-message", (request: Request, response: Response): void => {
-            let message = request.body.message;
-            let timestamp = request.body.timestamp;
-            let messageType = request.body.messageType;
             const messageHash = hashTheMessage(JSON.stringify(request.body));
             const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(messageHash);
             if(nodeHasThisMessage) {
                 response.status(201)
                     .send(`The node ${this.port} already has this message`);
             } else {
-                this.node.addMessage(message, messageHash, timestamp, messageType);
-                this.node.getNeighbors().forEach(neighbor => {
-                    let result = fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
-                        method: 'POST',
-                        body: JSON.stringify(request.body),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                });
-                switch(messageType) {
+                let message = Message.recreateMessageJson(JSON.stringify(request.body));
+                this.node.broadcastMessage(message);
+                switch(message.messageType) {
                     case MessageType.BLOCK:
-                        handleBlockMessage(JSON.stringify(message), this.node);
+                        handleBlockMessage(message.message, this.node);
                         break;
                     case MessageType.TEXT:
-                        handleTextMessage(message);
+                        handleTextMessage(message.message);
                         break;
                     case MessageType.TRANSACTION:
                         break;

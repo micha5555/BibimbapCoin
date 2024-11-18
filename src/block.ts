@@ -25,7 +25,9 @@ export class Block {
     }
 
     static fromJson(json: any): Block {
-        return new Block(json.index, json.previousHash, json.timestamp, json.data, json.hash, json.nonce, json.minerId);
+        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), String(json.data), String(json.hash), Number(json.nonce), String(json.minerId));
+        block.timestamp = new Date(json.timestamp);
+        return block;
     }
 
     get getIndex(): number {
@@ -50,8 +52,8 @@ export class Block {
 
     calculateHash(): void {
         let hashBuffer = createHash('sha256')
-            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId)
-            .digest(); //TODO: Store as binary
+            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId + this.startTimestamp.toISOString())
+            .digest();
 
         this.hash = Array.from(hashBuffer)
             .map(byte => byte.toString(2).padStart(8, '0')) // Konwertuje każdy bajt na 8-bitowy ciąg binarny
@@ -98,13 +100,17 @@ export class Block {
     toString(): string {
         return `Block #${this.index} [
             previousHash: ${this.previousHash}, 
-            startTimestamp: ${this.startTimestamp},
-            timestamp: ${this.timestamp}, 
+            startTimestamp: ${this.startTimestamp.toISOString()},
+            timestamp: ${this.timestamp?.toISOString()}, 
             data: ${this.data}, 
-            hash: ${this.getDisplayHash()}, 
+            hash: ${this.getDisplayHash()},
             nonce: ${this.nonce}, 
             minerId: ${this.minerId}
         ]`;
+    }
+
+    toJson() : string {
+        return JSON.stringify(this);
     }
 
     isFound(difficulty: number): boolean {

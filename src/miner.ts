@@ -2,6 +2,7 @@ import { Block } from "./block";
 import { ListToMine } from "./list_to_mine";
 import inquirer from "inquirer";
 import {Node} from "./node";
+import {Message, MessageType} from "./message";
 
 export class Miner {
     public TIME_TO_MINE : number = 10000;
@@ -52,6 +53,7 @@ export class Miner {
         this.identity = identity;
     }
 
+    // TODO: przerwać kopanie aktualnego bloku jak przyjdzie wykopany
     async mineBlock(): Promise<Block> {
         let block = this.prepareBlockToMine();
         console.log("Mining the block");
@@ -67,7 +69,8 @@ export class Miner {
         console.log("Block mined with hash: " + block.getDisplayHash() + " and nonce: " + block.getNonce);
         block.setTimestamp(new Date());
         this.node.addBlock(block);
-        //TODO: Send block to neighbors
+        let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
+        this.node.broadcastMessage(message);
         return block;
     }
 

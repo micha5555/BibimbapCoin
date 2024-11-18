@@ -1,6 +1,7 @@
 import {DigitalWallet} from "./digital_wallet";
 import {createId, generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
 import {Block} from "./block";
+import {Message} from "./message";
 
 export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -146,4 +147,26 @@ export class Node{
         return false;
     }
 
+    broadcastMessage(message: Message): void {
+        this.addMessage(message.message, message.getMessageHash(), message.timestamp, message.messageType);
+        this.getNeighbors().forEach(neighbor => {
+            let result = fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
+                method: 'POST',
+                body: JSON.stringify(message),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+        });
+    }
+
+    getLastBlock(): Block {
+        return this._blocks[this._blocks.length - 1];
+    }
+
+    displayBlocks(): void {
+        this._blocks.forEach(block => {
+            console.log(block.toString());
+        });
+    }
 }
