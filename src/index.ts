@@ -135,7 +135,7 @@ async function menu() {
         case enum_showBlocks:
             await showBlocks();
             break;
-        case add_to_mine:
+        case add_to_mine: //TODO: Add broadcasting this message to neighbors
             await addToMine();
             break;
         case mine_block:
