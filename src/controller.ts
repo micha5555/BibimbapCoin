@@ -52,13 +52,12 @@ export class Controller {
         })
 
         this.app.post("/broadcast-message", (request: Request, response: Response): void => {
-            const messageHash = hashTheMessage(JSON.stringify(request.body));
-            const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(messageHash);
+            let message = Message.recreateMessageJson(JSON.stringify(request.body));
+            const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(message.getMessageHash());
             if(nodeHasThisMessage) {
                 response.status(201)
                     .send(`The node ${this.port} already has this message`);
             } else {
-                let message = Message.recreateMessageJson(JSON.stringify(request.body));
                 this.node.broadcastMessage(message);
                 switch(message.messageType) {
                     case MessageType.BLOCK:
