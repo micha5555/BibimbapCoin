@@ -9,7 +9,7 @@ const MessageType = Object.freeze({
 });
 
 
-function handleBlockMessage(message: string, node: Node): void {
+function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received
     const block: Block = Block.fromJson(JSON.parse(message));
     const sentHash = block.getDisplayHash();
     block.calculateHash();
@@ -36,6 +36,7 @@ function handleBlockMessage(message: string, node: Node): void {
         }
     }
     node.addBlock(block);
+    listToMine.removeItemFromMine(block.getData);
 }
 
 function handleTextMessage(message: string): void {
