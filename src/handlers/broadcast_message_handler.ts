@@ -8,6 +8,8 @@ const MessageType = Object.freeze({
     TRANSACTION: 'transaction'
 });
 
+//TODO: Genesis Block
+//TODO: Walidacja bloku - sprawdzanie trudności
 
 function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received
     const block: Block = Block.fromJson(JSON.parse(message));
