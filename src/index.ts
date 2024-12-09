@@ -16,7 +16,7 @@ let controller: Controller;
 let node: Node = new Node();
 let listToMine = new ListToMine();
 let miner = new Miner(listToMine, node);
-let chosenIdentity : { privateKey: string, publicKey: string, id: string } | null = null;
+let chosenIdentity : { privateKey: string, publicKey: string } | null = null;
 
 const enum_showIDs = "Show IDs";
 const enum_genID = "Generate ID";
@@ -165,7 +165,6 @@ function handlePortInput(portInput: string) {
 
 async function showId() {
     node.getDigitalWallet.identities.forEach((identity) => {
-        console.log(`ID: ${identity.id}`);
         console.log(`Public key: ${identity.publicKey}`);
         console.log(`Private key(decrypted): ${identity.privateKey}`);
         console.log("-------------------------------------------------");
@@ -285,16 +284,16 @@ async function chooseIdentity() {
         type: "list",
         name: "identity",
         message: "Choose identity to mine",
-        choices: node.getDigitalWallet.identities.map((identity) => identity.id)
+        choices: node.getDigitalWallet.identities.map((identity) => identity.publicKey)
     }]);
 
-    chosenIdentity = node.getDigitalWallet.getIdentityById(answer.identity) ?? null;
+    chosenIdentity = node.getDigitalWallet.getIdentityBypublicKey(answer.identity) ?? null;
     if (chosenIdentity === null) {
         console.error("Identity not found");
         return
     }
-    miner.setIdentity(chosenIdentity.id);
-    console.log(`Chosen identity: ${chosenIdentity?.id}`);
+    miner.setIdentity(chosenIdentity.publicKey);
+    console.log(`Chosen identity: ${chosenIdentity?.publicKey}`);
 }
 
 async function mine() {

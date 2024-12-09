@@ -43,8 +43,7 @@ export class Node{
 
     addIdentity(): void {
         let { privateKey, publicKey } = generateKeys();
-        let id = createId(privateKey, publicKey);
-        this._digitalWallet.addIdentity(privateKey, publicKey, id);
+        this._digitalWallet.addIdentity(privateKey, publicKey);
     }
 
     addMessage(message: string, messageHash: string, timestamp: Date, messageType: string): void {
@@ -87,8 +86,7 @@ export class Node{
         let encryptedDigitalWalletIdentities = this._digitalWallet.identities.map(identity => {
             return {
                 privateKey: encrypt(identity.privateKey, this._password),
-                publicKey: identity.publicKey,
-                id: identity.id
+                publicKey: identity.publicKey
             }
         });
 
@@ -132,8 +130,8 @@ export class Node{
             }
         });
         this._digitalWallet = new DigitalWallet();
-        decryptedDigitalWalletIdentities.forEach((identity: { privateKey: string, publicKey: string, id: string }) => {
-            this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey, identity.id);
+        decryptedDigitalWalletIdentities.forEach((identity: { privateKey: string, publicKey: string }) => {
+            this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey);
         });
     }
 

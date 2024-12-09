@@ -1,16 +1,16 @@
 export class DigitalWallet {
-    private _identities: { privateKey: string, publicKey: string, id: string }[] = [];
+    private _identities: { privateKey: string, publicKey: string}[] = [];
 
-    get identities(): { privateKey: string; publicKey: string; id: string }[] {
+    get identities(): { privateKey: string; publicKey: string }[] {
         return this._identities;
     }
 
-    addIdentity(privateKey: any, publicKey: any, id: string): void {
-        this._identities.push({ privateKey, publicKey, id });
+    addIdentity(privateKey: any, publicKey: any ): void {
+        this._identities.push({ privateKey, publicKey });
     }
 
-    getIdentityById(id: string): { privateKey: string; publicKey: string; id: string } | undefined {
-        return this._identities.find((identity) => identity.id === id);
+    getIdentityBypublicKey(publicKey: string): { privateKey: string; publicKey: string} | undefined {
+        return this._identities.find((identity) => identity.publicKey === publicKey);
     }
 
 }
