@@ -8,6 +8,7 @@ import {ListToMine} from "./list_to_mine";
 import {NodeMenu} from "./menu/node_menu";
 import {WalletMenu} from "./menu/wallet_menu";
 import {OpenTransactions} from "./open_transactions";
+import {Blockchain} from "./blockchain";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,7 @@ let controller: Controller;
 let node: Node = new Node();
 export let listToMine = new ListToMine();
 export let openTransactions = new OpenTransactions();
+export let blockchain = new Blockchain();
 
 const interval_time = 10000;
 Timers.setInterval(() => {

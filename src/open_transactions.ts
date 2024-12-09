@@ -3,7 +3,6 @@ import {TransactionOutput} from "./transaction";
 export class OpenTransactions {
     //Tuple - outputTransactionId, address
     private _transactionsMap = new Map<[string, string], TransactionOutput>();
-    private lastCheckedBlockIndex: number = -1;
 
     addTransaction(transaction: TransactionOutput): void {
         this._transactionsMap.set([transaction.id, transaction.address], transaction);
