@@ -3,10 +3,10 @@ import {Controller} from "./controllers/controller";
 import {Node} from "./node";
 
 import inquirer from "inquirer";
-import {validateIfUserExists, validateIfPasswordIsCorrect} from "./validators";
 import * as Timers from "node:timers";
 import {ListToMine} from "./list_to_mine";
 import {NodeMenu} from "./menu/node_menu";
+import {WalletMenu} from "./menu/wallet_menu";
 
 const app = express();
 app.use(express.json());
@@ -15,20 +15,23 @@ let controller: Controller;
 let node: Node = new Node();
 export let listToMine = new ListToMine();
 
-
 const interval_time = 10000;
 Timers.setInterval(() => {
     pollNeighbors();
 }, interval_time);
 
+enum ModeOfRunning {
+    NODE = 'NODE',
+    WALLET = 'WALLET'
+}
 
 const main = async () => {
-    const {port, password} = await handleRegisterAndLogin();
-    // let port = await getPort();
+    // const {port, password} = await handleRegisterAndLogin();
+    let port = await getPort();
+    let menu = await selectAndCreateMenu(node, port, listToMine);
     await startServer(port);
-    let node_menu = new NodeMenu(node, port, listToMine);
     while (true) {
-        await node_menu.menu();
+        await menu.menu();
     }
 }
 
@@ -46,34 +49,34 @@ async function getPassword(): Promise<string> {
     return answer.password;
 }
 
-async function handleRegisterAndLogin() {
-    let passwordValidation = false;
-    let port = 0;
-    let password = "";
-    let loadNodeDataFromFile = false;
-    while (!passwordValidation) {
-        port = await getPort();
-        password = await getPassword();
-        let validateExistingOfUser = await validateIfUserExists(port);
-        if (!validateExistingOfUser) {
-            break;
-        }
-        let validatePassword = await validateIfPasswordIsCorrect(port, password);
-        if (!validatePassword) {
-            console.error("Incorrect password");
-            continue;
-        }
-        passwordValidation = true;
-        loadNodeDataFromFile = true;
-    }
-    node.setPassword(password);
-
-    if (loadNodeDataFromFile) {
-        await node.loadDigitalWalletFromFile(port);
-    }
-
-    return {port, password};
-}
+// async function handleRegisterAndLogin() {
+//     let passwordValidation = false;
+//     let port = 0;
+//     let password = "";
+//     let loadNodeDataFromFile = false;
+//     while (!passwordValidation) {
+//         port = await getPort();
+//         password = await getPassword();
+//         let validateExistingOfUser = await validateIfUserExists(port);
+//         if (!validateExistingOfUser) {
+//             break;
+//         }
+//         let validatePassword = await validateIfPasswordIsCorrect(port, password);
+//         if (!validatePassword) {
+//             console.error("Incorrect password");
+//             continue;
+//         }
+//         passwordValidation = true;
+//         loadNodeDataFromFile = true;
+//     }
+//     node.setPassword(password);
+//
+//     if (loadNodeDataFromFile) {
+//         await node.loadDigitalWalletFromFile(port);
+//     }
+//
+//     return {port, password};
+// }
 
 async function getPort() {
     let answers = await inquirer.prompt([
@@ -84,6 +87,27 @@ async function getPort() {
         }
     ]);
     return handlePortInput(answers.port);
+}
+
+async function selectAndCreateMenu(node: Node, port: number, listToMine: ListToMine) {
+    let answers = await inquirer.prompt([
+        {
+            type: "list",
+            name: "action",
+            message: "Select mode",
+            choices: [ModeOfRunning.NODE, ModeOfRunning.WALLET]
+        }
+    ])
+
+    switch (answers.action) {
+        case ModeOfRunning.NODE:
+            return new NodeMenu(node, port, listToMine);
+        case ModeOfRunning.WALLET:
+            return new WalletMenu(node, port, listToMine);
+    }
+
+    // TODO: zastanwoić się czy to zwracać domyślnie
+    return new NodeMenu(node, port, listToMine);
 }
 
 async function startServer(port: number) {

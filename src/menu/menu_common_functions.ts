@@ -4,6 +4,7 @@ import {Node} from "../node";
 import {connect} from "../index";
 import {ListToMine} from "../list_to_mine";
 
+// menu options
 export const enum_showIDs = "Show IDs";
 export const enum_genID = "Generate ID";
 export const enum_showNeighbors = "Show neighbors";

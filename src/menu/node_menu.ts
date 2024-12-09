@@ -31,6 +31,7 @@ export class NodeMenu {
     }
 
     async menu() {
+        console.log("Node mode");
         let answers = await inquirer.prompt([
             {
                 type: "list",
