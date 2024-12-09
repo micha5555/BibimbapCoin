@@ -3,7 +3,7 @@ import {Node} from "../node";
 import {handleBlockMessage, handleTextMessage} from "../handlers/broadcast_message_handler";
 import {Message, MessageType} from "../message";
 
-export class Controller {
+export abstract class Controller {
     app: Express;
     port: number;
     node: Node;

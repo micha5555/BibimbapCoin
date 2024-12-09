@@ -8,6 +8,15 @@ import {ListToMine} from "./list_to_mine";
 import {NodeMenu} from "./menu/node_menu";
 import {WalletMenu} from "./menu/wallet_menu";
 import {OpenTransactions} from "./open_transactions";
+import {WalletController} from "./controllers/wallet_controller";
+import {NodeController} from "./controllers/node_controller";
+
+enum ModeOfRunning {
+    NODE = 'NODE',
+    WALLET = 'WALLET'
+}
+
+let runningMode: ModeOfRunning;
 
 const app = express();
 app.use(express.json());
@@ -21,11 +30,6 @@ const interval_time = 10000;
 Timers.setInterval(() => {
     pollNeighbors();
 }, interval_time);
-
-enum ModeOfRunning {
-    NODE = 'NODE',
-    WALLET = 'WALLET'
-}
 
 const main = async () => {
     // const {port, password} = await handleRegisterAndLogin();
@@ -103,17 +107,24 @@ async function selectAndCreateMenu(node: Node, port: number, listToMine: ListToM
 
     switch (answers.action) {
         case ModeOfRunning.NODE:
+            runningMode = ModeOfRunning.NODE;
             return new NodeMenu(node, port, listToMine);
         case ModeOfRunning.WALLET:
+            runningMode = ModeOfRunning.WALLET;
             return new WalletMenu(node, port, listToMine);
     }
 
     // TODO: zastanwoić się czy to zwracać domyślnie
+    runningMode = ModeOfRunning.NODE;
     return new NodeMenu(node, port, listToMine);
 }
 
 async function startServer(port: number) {
-    controller = new Controller(app, port, node);
+    if(runningMode === ModeOfRunning.NODE) {
+        controller = new NodeController(app, port, node);
+    } else if(runningMode === ModeOfRunning.WALLET) {
+        controller = new WalletController(app, port, node);
+    }
     controller.defineControllerMethods();
     controller.startController();
     console.log(`Server started on port ${port}`);
