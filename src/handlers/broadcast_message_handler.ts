@@ -2,7 +2,6 @@ import {Block} from "../block";
 import {Node} from "../node";
 import {listToMine} from "../index";
 
-//TODO: Genesis Block
 //TODO: Walidacja bloku - sprawdzanie trudności
 
 function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received

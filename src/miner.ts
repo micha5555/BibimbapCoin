@@ -47,7 +47,7 @@ export class Miner {
             }
         }
         let lastBlock = this.node.getBlocks[this.node.getBlocks.length - 1];
-        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity);
+        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity, this.difficulty);
     }
 
     setIdentity(identity: string) {

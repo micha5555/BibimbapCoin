@@ -8,32 +8,34 @@ export class Block {
     private data: string;
     private hash: string = "";
     private nonce: number;
+    private difficulty: number;
     private minerId: string;
     // TODO: trzymanie trudności?
 
-    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string, nonce: number, minerId: string) {
+    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string, nonce: number, difficulty: number, minerId: string) {
         this.index = index;
         this.previousHash = previousHash;
         this.startTimestamp = startTimestamp;
         this.data = data;
         this.nonce = nonce;
+        this.difficulty = difficulty;
         this.minerId = minerId;
         this.hash = hash;
     }
 
-    static generate(index: number, previousHash: string, startTimestamp: Date, data: string, minerId: string): Block {
-        return new Block(index, previousHash, startTimestamp, data, "", 0, minerId);
+    static generate(index: number, previousHash: string, startTimestamp: Date, data: string, minerId: string, difficulty: number): Block {
+        return new Block(index, previousHash, startTimestamp, data, "", 0, difficulty, minerId);
     }
 
     static generateGenesis(): Block {
         const dataToHash = "Genesis Block";
-        var genesisBlock = new Block(0, "", new Date("2024-12-09T16:01:19.692Z"), dataToHash, "", 0, "");
+        var genesisBlock = new Block(0, "", new Date("2024-12-09T16:01:19.692Z"), dataToHash, "", 0, 0, "");
         genesisBlock.calculateHash();
         return genesisBlock;
     }
 
     static fromJson(json: any): Block {
-        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), String(json.data), String(json.hash), Number(json.nonce), String(json.minerId));
+        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), String(json.data), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
         block.timestamp = new Date(json.timestamp);
         return block;
     }
@@ -113,6 +115,7 @@ export class Block {
             data: ${this.data}, 
             hash: ${this.getDisplayHash()},
             nonce: ${this.nonce}, 
+            difficulty: ${this.difficulty},
             minerId: ${this.minerId}
         ]`;
     }
