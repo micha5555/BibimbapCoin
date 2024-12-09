@@ -1,6 +1,7 @@
 import {TransactionOutput} from "./transaction";
 
 export class OpenTransactions {
+    //Tuple - outputTransactionId, address
     private _transactionsMap = new Map<[string, string], TransactionOutput>();
     private lastCheckedBlockIndex: number = -1;
 
@@ -14,6 +15,12 @@ export class OpenTransactions {
 
     getAllTransactions(): TransactionOutput[] {
         return Array.from(this._transactionsMap.values());
+    }
+
+    getTransactionsForAddress(address: string): TransactionOutput[] {
+        return Array
+            .from(this._transactionsMap.values())
+            .filter(transaction => transaction.address === address);
     }
 
     isTransactionInOpenTransactions(transactionId: string, address: string): boolean {
