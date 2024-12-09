@@ -2,12 +2,6 @@ import {Block} from "../block";
 import {Node} from "../node";
 import {listToMine} from "../index";
 
-const MessageType = Object.freeze({
-    BLOCK: 'block',
-    TEXT: 'text',
-    TRANSACTION: 'transaction'
-});
-
 //TODO: Genesis Block
 //TODO: Walidacja bloku - sprawdzanie trudności
 
@@ -51,4 +45,4 @@ function handleTransactionMessage(message: string, node: Node): void {
 
 
 
-export { MessageType, handleBlockMessage, handleTransactionMessage, handleTextMessage };
+export { handleBlockMessage, handleTransactionMessage, handleTextMessage };

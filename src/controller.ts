@@ -1,8 +1,8 @@
 import {Express, Request, Response} from "express";
 import {Node} from "./node";
 import {hashTheMessage} from "./crypto_utils";
-import {handleBlockMessage, handleTextMessage, MessageType} from "./handlers/broadcast_message_handler";
-import {Message} from "./message";
+import {handleBlockMessage, handleTextMessage} from "./handlers/broadcast_message_handler";
+import {Message, MessageType} from "./message";
 
 export class Controller {
     app: Express;
