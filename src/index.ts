@@ -8,6 +8,7 @@ import * as http from "node:http";
 import * as Timers from "node:timers";
 import {ListToMine} from "./list_to_mine";
 import {Miner} from "./miner";
+import {OpenTransactions} from "./open_transactions";
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(express.json());
 let controller: Controller;
 let node: Node = new Node();
 let listToMine = new ListToMine();
+let openTransactions = new OpenTransactions();
 let miner = new Miner(listToMine, node);
 let chosenIdentity : { privateKey: string, publicKey: string } | null = null;
 
@@ -306,4 +308,4 @@ async function mine() {
     return;
 }
 
-export {listToMine};
+export {listToMine, openTransactions};

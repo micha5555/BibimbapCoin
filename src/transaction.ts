@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {openTransactions} from "./index";
 
 export class Transaction {
     public inputTransactions: TransactionInput[] = [];
