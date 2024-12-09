@@ -1,33 +1,19 @@
 import express from "express";
-import {Controller} from "./controller";
+import {Controller} from "./controllers/controller";
 import {Node} from "./node";
 
 import inquirer from "inquirer";
 import {validateIfUserExists, validateIfPasswordIsCorrect} from "./validators";
-import * as http from "node:http";
 import * as Timers from "node:timers";
 import {ListToMine} from "./list_to_mine";
-import {Miner} from "./miner";
+import {NodeMenu} from "./menu/node_menu";
 
 const app = express();
 app.use(express.json());
 
 let controller: Controller;
 let node: Node = new Node();
-let listToMine = new ListToMine();
-let miner = new Miner(listToMine, node);
-let chosenIdentity : { privateKey: string, publicKey: string } | null = null;
-
-const enum_showIDs = "Show IDs";
-const enum_genID = "Generate ID";
-const enum_showNeighbors = "Show neighbors";
-const enum_connect = "Connect to neighbor";
-const enum_showBlocks = "Show blocks";
-const enum_exit = "Exit";
-const add_to_mine = "Add message to mine"; //TODO? Delete
-const mine_block = "Mine block";
-const chose_identity = "Choose identity to mine";
-const enum_show_items_to_mine = "Show items to mine";
+export let listToMine = new ListToMine();
 
 
 const interval_time = 10000;
@@ -38,10 +24,11 @@ Timers.setInterval(() => {
 
 const main = async () => {
     const {port, password} = await handleRegisterAndLogin();
+    // let port = await getPort();
     await startServer(port);
-
+    let node_menu = new NodeMenu(node, port, listToMine);
     while (true) {
-        await menu();
+        await node_menu.menu();
     }
 }
 
@@ -106,52 +93,6 @@ async function startServer(port: number) {
     console.log(`Server started on port ${port}`);
 }
 
-async function menu() {
-    let answers = await inquirer.prompt([
-        {
-            type: "list",
-            name: "action",
-            message: "What do you want to do?",
-            choices: [enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
-        }
-    ])
-
-    switch (answers.action) {
-        case enum_showIDs:
-            await showId();
-            break;
-        case enum_genID:
-            await generateID();
-            break;
-        case chose_identity:
-            await chooseIdentity();
-            break;
-        case enum_showNeighbors:
-            await showNeighbors();
-            break;
-        case enum_connect:
-            await connectToNeighbor();
-            break;
-        case enum_showBlocks:
-            await showBlocks();
-            break;
-        case add_to_mine: //TODO: Add broadcasting this message to neighbors
-            await addToMine();
-            break;
-        case mine_block:
-            await mine();
-            break;
-        case enum_show_items_to_mine:
-            console.log(listToMine.getQueue);
-            break;
-        case enum_exit:
-            await node.saveNodeToFile(controller.port);
-            process.exit(0);
-        default:
-            break;
-    }
-}
-
 function handlePortInput(portInput: string) {
     let port = parseInt(portInput);
 
@@ -163,69 +104,7 @@ function handlePortInput(portInput: string) {
     return port;
 }
 
-async function showId() {
-    node.getDigitalWallet.identities.forEach((identity) => {
-        console.log(`Public key: ${identity.publicKey}`);
-        console.log(`Private key(decrypted): ${identity.privateKey}`);
-        console.log("-------------------------------------------------");
-    });
-}
-
-async function showNeighbors() {
-    console.log(node.getNeighbors());
-}
-
-async function connectToNeighbor() {
-    let answers = await inquirer.prompt([
-        {
-            type: "input",
-            name: "port",
-            message: "Enter port number of neighbor"
-        }
-    ])
-
-    let port = parseInt(answers.port);
-    if (isNaN(port)) {
-        console.error("Given port number is not a number!");
-        return;
-    }
-
-    if (node.getNeighbor(port) !== undefined) {
-        console.error(`Port ${port} is already a neighbor`);
-        return;
-    }
-
-    try {
-        await connect(port);
-        await node.assignNeighborBlockchainToNode(port);
-        node.addNeighbor(port);
-        console.log(`Neighbor on port ${port} added`);
-    }
-    catch (error) {
-        console.error(`Failed to connect to neighbor on port ${port}`);
-    }
-}
-
-async function showBlocks() {
-    node.displayBlocks();
-}
-
-async function addToMine() {
-    let message = await inquirer.prompt([
-        {
-            type: "input",
-            name: "message",
-            message: "Enter message to mine"
-        }
-    ])
-    listToMine.addItemToMine(message.message);
-}
-
-async function generateID() {
-    node.addIdentity();
-}
-
-async function connect(port: number, askForBlockchain: boolean = false)
+export async function connect(port: number, askForBlockchain: boolean = false)
 {
     const response = await fetch(`http://localhost:${port}/connect`, {
         method: 'POST',
@@ -273,37 +152,3 @@ async function pollNeighbor(port: number) {
         node.setNeighborStatus(port, false);
     }
 }
-
-async function chooseIdentity() {
-    if(node.getDigitalWallet.identities.length === 0) {
-        console.error("No identities found");
-        return
-    }
-
-    let answer = await inquirer.prompt([{
-        type: "list",
-        name: "identity",
-        message: "Choose identity to mine",
-        choices: node.getDigitalWallet.identities.map((identity) => identity.publicKey)
-    }]);
-
-    chosenIdentity = node.getDigitalWallet.getIdentityBypublicKey(answer.identity) ?? null;
-    if (chosenIdentity === null) {
-        console.error("Identity not found");
-        return
-    }
-    miner.setIdentity(chosenIdentity.publicKey);
-    console.log(`Chosen identity: ${chosenIdentity?.publicKey}`);
-}
-
-async function mine() {
-    if (chosenIdentity === null) {
-        console.error("No identity chosen");
-        return;
-    }
-
-    await miner.mine();
-    return;
-}
-
-export {listToMine};
