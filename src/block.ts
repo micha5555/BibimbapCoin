@@ -9,8 +9,9 @@ export class Block {
     private hash: string = "";
     private nonce: number;
     private minerId: string;
+    // TODO: trzymanie trudności?
 
-    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string ,nonce: number, minerId: string) {
+    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string, nonce: number, minerId: string) {
         this.index = index;
         this.previousHash = previousHash;
         this.startTimestamp = startTimestamp;
@@ -22,6 +23,13 @@ export class Block {
 
     static generate(index: number, previousHash: string, startTimestamp: Date, data: string, minerId: string): Block {
         return new Block(index, previousHash, startTimestamp, data, "", 0, minerId);
+    }
+
+    static generateGenesis(): Block {
+        const dataToHash = "Genesis Block";
+        var genesisBlock = new Block(0, "", new Date("2024-12-09T16:01:19.692Z"), dataToHash, "", 0, "");
+        genesisBlock.calculateHash();
+        return genesisBlock;
     }
 
     static fromJson(json: any): Block {

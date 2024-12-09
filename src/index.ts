@@ -39,6 +39,7 @@ Timers.setInterval(() => {
 const main = async () => {
     const {port, password} = await handleRegisterAndLogin();
     await startServer(port);
+
     while (true) {
         await menu();
     }
@@ -100,7 +101,6 @@ async function getPort() {
 
 async function startServer(port: number) {
     controller = new Controller(app, port, node);
-
     controller.defineControllerMethods();
     controller.startController();
     console.log(`Server started on port ${port}`);

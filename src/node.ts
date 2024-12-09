@@ -1,5 +1,5 @@
 import {DigitalWallet} from "./digital_wallet";
-import {createId, generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
+import { generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
 import {Block} from "./block";
 import {Message} from "./message";
 
@@ -9,6 +9,10 @@ export class Node{
     private _digitalWallet: DigitalWallet = new DigitalWallet();
     private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string, messageType: string}[] = [];
     private _blocks: Block[] = [];
+
+    constructor() {
+        this.generateGenesisBlock();
+    }
 
     addNeighbor(port: number): void {
         if(this.getNeighbor(port) === undefined)
@@ -166,5 +170,9 @@ export class Node{
         this._blocks.forEach(block => {
             console.log(block.toString());
         });
+    }
+
+    private generateGenesisBlock() {
+        this._blocks.push(Block.generateGenesis());
     }
 }

@@ -46,6 +46,14 @@ export class Controller {
                 .send(this.node.getBroadcastedMessages);
         })
 
+        this.app.get("/get-blocks-display", (request: Request, response: Response): void => {
+            const blocks = this.node.getBlocks.map(block => ({
+                ...block,
+                hash: block.getDisplayHash()
+            }));
+            response.status(200).send(blocks);
+        });
+
         this.app.get("/get-blocks", (request: Request, response: Response): void => {
             response.status(200)
                 .send(this.node.getBlocks);

@@ -24,12 +24,6 @@ function generateKeys() {
     return { publicKey: publicKeyExtracted, privateKey: privateKeyExtracted };
 }
 
-function createId(privateKey: string, publicKey: string) {
-    let conjunctedKeys = privateKey + publicKey;
-    let hashedKeys = createHash("sha1").update(conjunctedKeys).digest("hex");
-    return hashedKeys;
-}
-
 async function hashPassword(password: string) {
     return argon2.hash(password, {timeCost: rounds_of_hashing_password});
 }
@@ -81,4 +75,4 @@ function hashTheMessage(body: string) {
     return createHash("sha1").update(body).digest("hex");
 }
 
-export { generateKeys, createId, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt, hashTheMessage };
+export { generateKeys, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt, hashTheMessage };

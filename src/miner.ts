@@ -21,15 +21,16 @@ export class Miner {
 
     prepareBlockToMine(): Block {
         console.log("Preparing block to mine");
-        if(this.node.getBlocks.length === 0) {
-            return Block.generate(0, "" , new Date(), this.listToMine.getBlockToMine(), this.identity);
-        }
         if(this.node.getBlocks.length % this.REGULATION_AFTER_BLOCKS === 0) {
             //calc time - average time between timestamp and starttimestamp
             let timeSpent = this.node.getBlocks.map(block =>
             {
                 let startTime = block.getStartTimestamp().getTime();
                 let endTime = block.getTimestamp()?.getTime();
+                let index = block.getIndex;
+                // genesis block
+                if(index === 0)
+                    return 0;
                 if(endTime === undefined)
                     throw new Error("Block has no timestamp");
 
