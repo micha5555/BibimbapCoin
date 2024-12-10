@@ -15,8 +15,32 @@ export class Blockchain {
     }
 
     adjustDifficulty() {
-        if (this.blocks.length % DIFFICULTY_ADJUSTMENT_INTERVAL === 0) {
-            //TODO: Implement difficulty adjustment
+        if (this.blocks.length % DIFFICULTY_ADJUSTMENT_INTERVAL !== 0) {
+            return;
+        }
+
+        let lastBlocks = this.blocks.slice(-DIFFICULTY_ADJUSTMENT_INTERVAL);
+        let timeSpent = lastBlocks.map(block => {
+            let startTime = block.getStartTimestamp().getTime();
+            let endTime = block.getTimestamp()?.getTime();
+            let index = block.getIndex;
+
+            if (index === 0) // Genesis block
+                return 0;
+            if (endTime === undefined)
+                throw new Error("Block has no timestamp");
+
+            return endTime - startTime
+        }).reduce((a, b) => a + b, 0);
+
+        let averageTime = timeSpent / DIFFICULTY_ADJUSTMENT_INTERVAL;
+
+        if (averageTime > BLOCK_GENERATION_INTERVAL * 2) {
+            this.nextBlockDifficulty--;
+            console.log("Decreasing difficulty to: " + this.nextBlockDifficulty);
+        } else if (averageTime < BLOCK_GENERATION_INTERVAL / 2) {
+            this.nextBlockDifficulty++;
+            console.log("Increasing difficulty to: " + this.nextBlockDifficulty);
         }
     }
 
@@ -29,20 +53,30 @@ export class Blockchain {
 
     addBlock(block: Block) : boolean {
         //TODO: Validate the block
-        //TODO: If valid - Stop mining current block
-        this.blocks.push(block);
-        //TODO: Update open transactions
-        this.adjustDifficulty();
 
+        //TODO: If valid - Stop mining current block
+
+        this.blocks.push(block);
+        this.updateOpenTransactions();
+        this.adjustDifficulty();
+        //TODO: NOW - we can start mining again
         return true;
     }
 
     addBatchOfBlocks(blocks: Block[]) {
+        let lastBlockIndex = this.getLastBlock().getIndex;
+
         for (let block of blocks) {
-            let success = this.addBlock(block);
-            if (!success) {
-                console.log("Error while adding a block");
-                return;
+            if (block.getIndex <= lastBlockIndex) {
+                //TODO: Verify if the previous block are valid and are matching - if not -> stop importing
+                //TODO: Add fork handling
+            }
+            else {
+                let success = this.addBlock(block);
+                if (!success) {
+                    console.log("Error while adding a block");
+                    return;
+                }
             }
         }
     }
@@ -78,12 +112,18 @@ export class Blockchain {
     }
 
     updateOpenTransactions() {
-        while(this.lastCheckedBlockIndex < this.blocks.length) {
+        if (this.lastCheckedBlockIndex < this.blocks.length) {
             let block = this.blocks[this.lastCheckedBlockIndex + 1];
             for (let transaction of block.getData) { //TODO: Change for transactions
 
             }
             this.lastCheckedBlockIndex++;
+        }
+    }
+
+    displayBlockChain() {
+        for (let block of this.blocks) {
+            console.log(block.toString());
         }
     }
 }

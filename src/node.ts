@@ -7,12 +7,7 @@ export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
     private _password: string = "";
     private _digitalWallet: DigitalWallet = new DigitalWallet();
-    private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string, messageType: string}[] = [];
-    private _blocks: Block[] = [];
-
-    constructor() {
-        this.generateGenesisBlock();
-    }
+    private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string, messageType: string }[] = [];
 
     addNeighbor(port: number): void {
         if(this.getNeighbor(port) === undefined)
@@ -58,14 +53,6 @@ export class Node{
         return this._broadcastedMessages;
     }
 
-    addBlock(block: Block): void {
-        this._blocks.push(block);
-    }
-
-    get getBlocks(): Block[] {
-        return this._blocks;
-    }
-
     async assignNeighborBlockchainToNode(port: number) {
         const response = await fetch(`http://localhost:${port}/get-blocks`);
         if (!response.ok) {
@@ -77,9 +64,7 @@ export class Node{
     }
 
     addBlockchainFromJson(responseJson: any): void {
-        responseJson.forEach((block: any) => {
-            this.addBlock(Block.fromJson(block));
-        });
+        //TODO: parse JSON and use Blockchain.AddBatch
     }
 
     get getDigitalWallet(): DigitalWallet {
@@ -160,19 +145,5 @@ export class Node{
                 }
             })
         });
-    }
-
-    getLastBlock(): Block {
-        return this._blocks[this._blocks.length - 1];
-    }
-
-    displayBlocks(): void {
-        this._blocks.forEach(block => {
-            console.log(block.toString());
-        });
-    }
-
-    private generateGenesisBlock() {
-        this._blocks.push(Block.generateGenesis());
     }
 }

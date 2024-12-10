@@ -1,6 +1,6 @@
 import {Block} from "../block";
 import {Node} from "../node";
-import {listToMine} from "../index";
+import {blockchain, listToMine} from "../index";
 
 //TODO: Walidacja bloku - sprawdzanie trudności
 
@@ -12,7 +12,9 @@ function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mi
         console.error("Hashes are not equal");
         return;
     }
-    const lastBlock = node.getLastBlock();
+    //TODO: Sprawdzić co stąd powinno wylądać po stronie odpowiedzialności blockchaina (chyba cała walidacja?)
+
+    const lastBlock = blockchain.getLastBlock();
     if(lastBlock != undefined) {
         const maxIndexOfBlockFromNode = lastBlock.getIndex;
         if(maxIndexOfBlockFromNode + 1 != block.getIndex) {
@@ -25,12 +27,12 @@ function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mi
         }
     }
 
-    for (let i = 0; i < node.getBlocks.length; i++) {
-        if (node.getBlocks[i].getHash == block.getHash) {
+    for (let i = 0; i < blockchain.getBlocks.length; i++) {
+        if (blockchain.getBlock(i).getHash == block.getHash) {
             return;
         }
     }
-    node.addBlock(block);
+    blockchain.addBlock(block);
     listToMine.removeItemFromMine(block.getData);
 }
 

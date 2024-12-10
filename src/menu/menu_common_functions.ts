@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 // import {listToMine} from "../index";
 import {Node} from "../node";
-import {connect} from "../index";
+import {blockchain, connect} from "../index";
 import {ListToMine} from "../list_to_mine";
 
 // menu options
@@ -52,7 +52,7 @@ export async function connectToNeighbor(node: Node) {
 }
 
 export async function showBlocks(node: Node) {
-    node.displayBlocks();
+    blockchain.displayBlockChain()
 }
 
 // TODO: broadcast

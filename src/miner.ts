@@ -3,14 +3,11 @@ import { ListToMine } from "./list_to_mine";
 import inquirer from "inquirer";
 import {Node} from "./node";
 import {Message, MessageType} from "./message";
+import {blockchain} from "./index";
 
 export class Miner {
-    public TIME_TO_MINE : number = 10000;
-    public REGULATION_AFTER_BLOCKS : number = 5;
-
     private listToMine: ListToMine;
     private identity: string = "";
-    private difficulty: number = 6;
     private run = true;
     private node: Node;
 
@@ -20,34 +17,8 @@ export class Miner {
     }
 
     prepareBlockToMine(): Block {
-        console.log("Preparing block to mine");
-        if(this.node.getBlocks.length % this.REGULATION_AFTER_BLOCKS === 0) {
-            //calc time - average time between timestamp and starttimestamp
-            let timeSpent = this.node.getBlocks.map(block =>
-            {
-                let startTime = block.getStartTimestamp().getTime();
-                let endTime = block.getTimestamp()?.getTime();
-                let index = block.getIndex;
-                // genesis block
-                if(index === 0)
-                    return 0;
-                if(endTime === undefined)
-                    throw new Error("Block has no timestamp");
-
-                return endTime - startTime
-            }).reduce((a, b) => a + b, 0);
-            let averageTime = timeSpent / this.REGULATION_AFTER_BLOCKS;
-            if(averageTime > this.TIME_TO_MINE * 2) {
-                this.difficulty--;
-                console.log("Decreasing difficulty to: " + this.difficulty);
-            }
-            else if(averageTime < this.TIME_TO_MINE / 2) {
-                this.difficulty++;
-                console.log("Increasing difficulty to: " + this.difficulty);
-            }
-        }
-        let lastBlock = this.node.getBlocks[this.node.getBlocks.length - 1];
-        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity, this.difficulty);
+        let lastBlock = blockchain.getLastBlock();
+        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity, blockchain.nextBlockDifficulty);
     }
 
     setIdentity(identity: string) {
@@ -56,20 +27,25 @@ export class Miner {
 
     // TODO: przerwać kopanie aktualnego bloku jak przyjdzie wykopany
     async mineBlock(): Promise<Block> {
+        console.log("Preparing block to mine");
         let block = this.prepareBlockToMine();
+
         console.log("Mining the block");
         block.calculateHash();
+
         console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
-        while (!block.isFound(this.difficulty) && this.run) {
+        while (!block.isFound(blockchain.nextBlockDifficulty) && this.run) {
             block.incrementNonce();
             block.calculateHash();
             if(block.getNonce % 1000000 === 0)
                 console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
             // await new Promise(resolve => setTimeout(resolve, 500));  // Adding delay to slow down mining loop
         }
+
         console.log("Block mined with hash: " + block.getDisplayHash() + " and nonce: " + block.getNonce);
         block.setTimestamp(new Date());
-        this.node.addBlock(block);
+
+        blockchain.addBlock(block);
         let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
         this.node.broadcastMessage(message);
         return block;
