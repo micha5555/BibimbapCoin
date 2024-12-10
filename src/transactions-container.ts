@@ -51,7 +51,9 @@ export class TransactionsContainer {
         return this.transactions[index];
     }
 
-    toJson(): string {
+    toJsonString(): string {
+        let jsonTransactions = this.transactions.map(transaction => transaction.toJson());
+        // return JSON.stringify({transactions: jsonTransactions});
         return JSON.stringify(this);
     }
 

@@ -188,7 +188,7 @@ export class Block {
             previousHash: ${this.previousHash}, 
             startTimestamp: ${this.startTimestamp.toISOString()},
             timestamp: ${this.timestamp?.toISOString()}, 
-            data: ${this.data.toJson()}, 
+            data: ${this.data.toJsonString()}, 
             hash: ${this.getDisplayHash()},
             nonce: ${this.nonce}, 
             difficulty: ${this.difficulty},

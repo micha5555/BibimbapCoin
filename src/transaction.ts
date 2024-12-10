@@ -30,8 +30,18 @@ export class Transaction {
         return transaction;
     }
 
-    public toJson(): string {
-        return JSON.stringify(this);
+    public toJson(): any {
+        let jsonInputTransactions = this.inputTransactions.map(inputTransaction => inputTransaction.toJson());
+        let jsonOutputTransactions = this.outputTransactions.map(outputTransaction => outputTransaction.toJson());
+        return {inputTransactions: jsonInputTransactions, outputTransactions: jsonOutputTransactions, timestamp: this.timestamp, publicKey: this.publicKey, transactionSignature: this.transactionSignature};
+        // return JSON.stringify(this);
+    }
+
+    public toJsonString(): string {
+        let jsonInputTransactions = this.inputTransactions.map(inputTransaction => inputTransaction.toJson());
+        let jsonOutputTransactions = this.outputTransactions.map(outputTransaction => outputTransaction.toJson());
+        return JSON.stringify({inputTransactions: jsonInputTransactions, outputTransactions: jsonOutputTransactions, timestamp: this.timestamp, publicKey: this.publicKey, transactionSignature: this.transactionSignature});
+
     }
 
     private getTransactionHash() : string{
@@ -172,6 +182,10 @@ export class TransactionInput {
             .digest()
             .toString();
     }
+
+    toJson(): any {
+        return {transactionOutputId: this.transactionOutputId, transactionIndex: this.transactionIndex, blockIndex: this.blockIndex};
+    }
 }
 
 export class TransactionOutput {
@@ -197,6 +211,10 @@ export class TransactionOutput {
             .update(this.id + this.amount + this.address)
             .digest()
             .toString();
+    }
+
+    toJson(): any {
+        return {id: this.id, amount: this.amount, address: this.address};
     }
 
 }
