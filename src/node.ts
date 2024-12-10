@@ -2,6 +2,7 @@ import {DigitalWallet} from "./digital_wallet";
 import { generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
 import {Block} from "./block";
 import {Message} from "./message";
+import {blockchain} from "./index";
 
 export class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -64,7 +65,11 @@ export class Node{
     }
 
     addBlockchainFromJson(responseJson: any): void {
-        //TODO: parse JSON and use Blockchain.AddBatch
+        let blocks: Block[] = [];
+        for (let blockJson of responseJson) {
+            blocks.push(Block.fromJson(blockJson));
+        }
+        blockchain.addBatchOfBlocks(blocks);
     }
 
     get getDigitalWallet(): DigitalWallet {

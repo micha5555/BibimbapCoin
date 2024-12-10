@@ -11,7 +11,7 @@ export class Blockchain {
     public nextBlockDifficulty: number = DEFAULT_DIFFICULTY;
 
     constructor() {
-        this.generateGenesisBlock();
+        this.blocks.push(this.generateGenesisBlock());
     }
 
     adjustDifficulty() {
