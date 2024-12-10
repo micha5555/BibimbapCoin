@@ -1,4 +1,5 @@
 import {Block} from "./block";
+import {openTransactions} from "./index";
 
 export const DEFAULT_DIFFICULTY: number = 4;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
@@ -12,6 +13,7 @@ export class Blockchain {
 
     constructor() {
         this.blocks.push(Block.generateGenesis());
+        this.updateOpenTransactions();
     }
 
     adjustDifficulty() {
@@ -110,9 +112,20 @@ export class Blockchain {
     updateOpenTransactions() {
         if (this.lastCheckedBlockIndex < this.blocks.length) {
             let block = this.blocks[this.lastCheckedBlockIndex + 1];
-            for (let transaction of block.getData.getTransactions()) {
-                //TODO: Implement
+            for (let i = 0; i < block.getData.getTransactions().length; i++) {
+                let transaction = block.getData.getTransaction(i);
+                if(transaction === undefined) {
+                    throw new Error("Transaction not found");
+                }
+                for (let outputTransaction of transaction.outputTransactions) {
+                    openTransactions.addTransaction(outputTransaction, i, block.getIndex);
+                }
+
+                for (let inputTransaction of transaction.inputTransactions) {
+                    openTransactions.removeTransaction(inputTransaction.transactionOutputId, inputTransaction.address, i, block.getIndex);
+                }
             }
+
             this.lastCheckedBlockIndex++;
         }
     }

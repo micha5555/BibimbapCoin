@@ -179,6 +179,8 @@ export class TransactionOutput {
     public address: string;
     public amount: number;
     public tempBlocked: boolean = false;
+    public blockIndex: number = -1;
+    public transactionIndex: number = -1;
 
     constructor(id: string, amount: number, address: string) {
         this.id = id;

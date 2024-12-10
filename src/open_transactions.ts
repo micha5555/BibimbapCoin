@@ -5,6 +5,8 @@ export class OpenTransactions {
     private _transactionsMap = new Map<[string, number, number, string], TransactionOutput>();
 
     addTransaction(transaction: TransactionOutput, transactionIndex: number, blockIndex :number): void {
+        transaction.transactionIndex = transactionIndex;
+        transaction.blockIndex = blockIndex;
         this._transactionsMap.set([transaction.id, transactionIndex, blockIndex, transaction.address], transaction);
     }
 
@@ -20,6 +22,11 @@ export class OpenTransactions {
         return Array
             .from(this._transactionsMap.values())
             .filter(transaction => transaction.address === address);
+    }
+
+    getMoneyForAddress(address: string): number {
+        return this.getTransactionsForAddress(address)
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
     }
 
     isTransactionInOpenTransactions(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): boolean {
