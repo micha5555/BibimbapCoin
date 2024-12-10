@@ -2,7 +2,7 @@ import {Controller} from "./controller";
 import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
 import {NodeWallet} from "../nodes/node_wallet";
-import {generateKeys, verifyPassword} from "../crypto_utils";
+import {encrypt, generateKeys, verifyPassword} from "../crypto_utils";
 import {openTransactions} from "../index";
 import {Transaction, TransactionInput, TransactionOutput} from "../transaction";
 
@@ -54,7 +54,7 @@ export class WalletController extends Controller {
                 for(let user of (this.node as NodeWallet).getDigitalWallet.usersIdentities) {
                     if(user.port === port) {
                         if(await verifyPassword(user.password, password)) {
-                            (this.node as NodeWallet).getDigitalWallet.addIdentity(port, user.password, privateKey, publicKey);
+                            (this.node as NodeWallet).getDigitalWallet.addIdentity(port, user.password, encrypt(privateKey, password), publicKey);
                             response.status(200)
                                 .send("Identity added");
                             return;

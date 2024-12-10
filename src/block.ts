@@ -32,8 +32,8 @@ export class Block {
     static generateGenesis(): Block {
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
         const transactionsCoinbase = new TransactionsContainer();
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAu5UlyscexyK+Btof4ogsQOHbjJgxG07DxLkhecqhymk=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAQZG5B4eW28OiwqB5nKcsc33bbfEfP65gn5UvgNemje8=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAPMOQa0GAygWV7nvY5iKrdDZt/oLsy54UC7RxXHTBR9k=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
         var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
         genesisBlock.calculateHash();
         return genesisBlock;
