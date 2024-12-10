@@ -37,10 +37,10 @@ export class Blockchain {
 
         if (averageTime > BLOCK_GENERATION_INTERVAL * 2) {
             this.nextBlockDifficulty--;
-            console.log("Decreasing difficulty to: " + this.nextBlockDifficulty);
+            // console.log("Decreasing difficulty to: " + this.nextBlockDifficulty);
         } else if (averageTime < BLOCK_GENERATION_INTERVAL / 2) {
             this.nextBlockDifficulty++;
-            console.log("Increasing difficulty to: " + this.nextBlockDifficulty);
+            // console.log("Increasing difficulty to: " + this.nextBlockDifficulty);
         }
     }
 

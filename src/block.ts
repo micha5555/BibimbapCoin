@@ -10,7 +10,6 @@ export class Block {
     private nonce: number;
     private difficulty: number;
     private minerId: string;
-    // TODO: trzymanie trudności?
 
     constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string, nonce: number, difficulty: number, minerId: string) {
         this.index = index;
