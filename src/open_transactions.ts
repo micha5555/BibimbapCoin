@@ -1,15 +1,15 @@
 import {TransactionOutput} from "./transaction";
 
 export class OpenTransactions {
-    //Tuple - outputTransactionId, address
-    private _transactionsMap = new Map<[string, string], TransactionOutput>();
+    //Tuple - outputTransactionId, transactionIndex, blockIndex, address
+    private _transactionsMap = new Map<[string, number, number, string], TransactionOutput>();
 
-    addTransaction(transaction: TransactionOutput): void {
-        this._transactionsMap.set([transaction.id, transaction.address], transaction);
+    addTransaction(transaction: TransactionOutput, transactionIndex: number, blockIndex :number): void {
+        this._transactionsMap.set([transaction.id, transactionIndex, blockIndex, transaction.address], transaction);
     }
 
-    getTransaction(transactionId: string, address: string): TransactionOutput | undefined {
-        return this._transactionsMap.get([transactionId, address]);
+    getTransaction(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): TransactionOutput | undefined {
+        return this._transactionsMap.get([transactionId,  transactionIndex, blockIndex, address]);
     }
 
     getAllTransactions(): TransactionOutput[] {
@@ -22,14 +22,13 @@ export class OpenTransactions {
             .filter(transaction => transaction.address === address);
     }
 
-    isTransactionInOpenTransactions(transactionId: string, address: string): boolean {
-        return this._transactionsMap.has([transactionId, address]);
+    isTransactionInOpenTransactions(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): boolean {
+        return this._transactionsMap.has([transactionId,  transactionIndex, blockIndex,address]);
     }
 
-    removeTransaction(transactionId: string, address: string): void {
-        this._transactionsMap.delete([transactionId, address]);
+    removeTransaction(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): void {
+        this._transactionsMap.delete([transactionId,  transactionIndex, blockIndex,address]);
     }
-
 
     //Potentially to save and load from file - should be handled somewhere else
     loadFromJson(json: string): void {

@@ -1,18 +1,20 @@
 import {createHash} from "node:crypto";
 import {blockchain} from "./index";
+import {TransactionsContainer} from "./transactions-container";
+import {Transaction, TransactionInput} from "./transaction";
 
 export class Block {
     private index: number;
     private previousHash: string;
     private startTimestamp: Date;
     private timestamp: Date | null = null;
-    private data: string;
+    private data: TransactionsContainer;
     private hash: string = "";
     private nonce: number;
     private difficulty: number;
     private minerId: string;
 
-    constructor(index: number, previousHash: string, startTimestamp: Date, data: string, hash: string, nonce: number, difficulty: number, minerId: string) {
+    constructor(index: number, previousHash: string, startTimestamp: Date, data: TransactionsContainer, hash: string, nonce: number, difficulty: number, minerId: string) {
         this.index = index;
         this.previousHash = previousHash;
         this.startTimestamp = startTimestamp;
@@ -23,19 +25,22 @@ export class Block {
         this.hash = hash;
     }
 
-    static generate(index: number, previousHash: string, startTimestamp: Date, data: string, minerId: string, difficulty: number): Block {
+    static generate(index: number, previousHash: string, startTimestamp: Date, data: TransactionsContainer, minerId: string, difficulty: number): Block {
         return new Block(index, previousHash, startTimestamp, data, "", 0, difficulty, minerId);
     }
 
     static generateGenesis(): Block {
-        const dataToHash = "Genesis Block";
-        var genesisBlock = new Block(0, "", new Date("2024-12-09T16:01:19.692Z"), dataToHash, "", 0, 0, "");
+        const genesisDate = new Date("2024-12-09T16:01:19.692Z");
+        const transactionsCoinbase = new TransactionsContainer();
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAu5UlyscexyK+Btof4ogsQOHbjJgxG07DxLkhecqhymk=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAQZG5B4eW28OiwqB5nKcsc33bbfEfP65gn5UvgNemje8=", genesisDate));
+        var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
         genesisBlock.calculateHash();
         return genesisBlock;
     }
 
     static fromJson(json: any): Block {
-        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), String(json.data), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
+        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), TransactionsContainer.fromJson(json.data), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
         block.timestamp = new Date(json.timestamp);
         return block;
     }
@@ -56,13 +61,13 @@ export class Block {
         this.timestamp = timestamp;
     }
 
-    get getData(): string {
+    get getData(): TransactionsContainer {
         return this.data;
     }
 
     calculateHash(): void {
         let hashBuffer = createHash('sha256')
-            .update(this.index + this.previousHash + this.data + this.nonce + this.minerId + this.startTimestamp.toISOString())
+            .update(this.index + this.previousHash + this.data.getCalculatedHash() + this.nonce + this.minerId + this.startTimestamp.toISOString())
             .digest();
 
         this.hash = Array.from(hashBuffer)
@@ -110,10 +115,18 @@ export class Block {
 
         // If second block - no reward transaction
         // Verify reward transaction
-        //TODO: Verify reward transaction
+        if(this.index > 1)
+        {
+            if(this.data.verifyRewardTransaction())
+            {
+                return false;
+            }
+        }
 
         // Verify rest of the transactions
-        //TODO: Verify rest of the transactions
+        if (!this.data.verifyTransactions()) {
+            return false;
+        }
 
         return true;
     }
@@ -175,7 +188,7 @@ export class Block {
             previousHash: ${this.previousHash}, 
             startTimestamp: ${this.startTimestamp.toISOString()},
             timestamp: ${this.timestamp?.toISOString()}, 
-            data: ${this.data}, 
+            data: ${this.data.toJson()}, 
             hash: ${this.getDisplayHash()},
             nonce: ${this.nonce}, 
             difficulty: ${this.difficulty},

@@ -110,8 +110,8 @@ export class Blockchain {
     updateOpenTransactions() {
         if (this.lastCheckedBlockIndex < this.blocks.length) {
             let block = this.blocks[this.lastCheckedBlockIndex + 1];
-            for (let transaction of block.getData) { //TODO: Change for transactions
-
+            for (let transaction of block.getData.getTransactions()) {
+                //TODO: Implement
             }
             this.lastCheckedBlockIndex++;
         }
