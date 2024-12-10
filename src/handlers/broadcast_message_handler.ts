@@ -1,5 +1,5 @@
 import {Block} from "../block";
-import {Node} from "../node";
+import {Node} from "../nodes/node";
 import {listToMine} from "../index";
 
 //TODO: Walidacja bloku - sprawdzanie trudności

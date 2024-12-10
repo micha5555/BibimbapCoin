@@ -1,6 +1,6 @@
 import express from "express";
 import {Controller} from "./controllers/controller";
-import {Node} from "./node";
+import {Node} from "./nodes/node";
 
 import inquirer from "inquirer";
 import * as Timers from "node:timers";
@@ -10,6 +10,7 @@ import {WalletMenu} from "./menu/wallet_menu";
 import {OpenTransactions} from "./open_transactions";
 import {WalletController} from "./controllers/wallet_controller";
 import {NodeController} from "./controllers/node_controller";
+import {NodeWallet} from "./nodes/node_wallet";
 
 enum ModeOfRunning {
     NODE = 'NODE',
@@ -22,7 +23,7 @@ const app = express();
 app.use(express.json());
 
 let controller: Controller;
-let node: Node = new Node();
+let node: Node = new NodeWallet();
 export let listToMine = new ListToMine();
 export let openTransactions = new OpenTransactions();
 
@@ -35,6 +36,10 @@ const main = async () => {
     // const {port, password} = await handleRegisterAndLogin();
     let port = await getPort();
     let menu = await selectAndCreateMenu(node, port, listToMine);
+    node.setPort(port);
+    if(runningMode === ModeOfRunning.WALLET) {
+        await (node as NodeWallet).loadDigitalWalletFromFile();
+    }
     await startServer(port);
     while (true) {
         await menu.menu();
@@ -44,16 +49,16 @@ const main = async () => {
 main();
 
 // private functions
-async function getPassword(): Promise<string> {
-    let answer = await inquirer.prompt([
-        {
-            type: "password",
-            name: "password",
-            message: "Enter password"
-        }
-    ]);
-    return answer.password;
-}
+// async function getPassword(): Promise<string> {
+//     let answer = await inquirer.prompt([
+//         {
+//             type: "password",
+//             name: "password",
+//             message: "Enter password"
+//         }
+//     ]);
+//     return answer.password;
+// }
 
 // async function handleRegisterAndLogin() {
 //     let passwordValidation = false;
@@ -111,7 +116,7 @@ async function selectAndCreateMenu(node: Node, port: number, listToMine: ListToM
             return new NodeMenu(node, port, listToMine);
         case ModeOfRunning.WALLET:
             runningMode = ModeOfRunning.WALLET;
-            return new WalletMenu(node, port, listToMine);
+            return new WalletMenu((node as NodeWallet), port, listToMine);
     }
 
     // TODO: zastanwoić się czy to zwracać domyślnie

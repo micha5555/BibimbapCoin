@@ -28,7 +28,7 @@ async function hashPassword(password: string) {
     return argon2.hash(password, {timeCost: rounds_of_hashing_password});
 }
 
-async function verifyPassword(hash: string, password: string): Promise<boolean> {
+function verifyPassword(hash: string, password: string): Promise<boolean> {
     return argon2.verify(hash, password);
 }
 

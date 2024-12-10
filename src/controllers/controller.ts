@@ -1,5 +1,5 @@
 import {Express, Request, Response} from "express";
-import {Node} from "../node";
+import {Node} from "../nodes/node";
 import {handleBlockMessage, handleTextMessage} from "../handlers/broadcast_message_handler";
 import {Message, MessageType} from "../message";
 

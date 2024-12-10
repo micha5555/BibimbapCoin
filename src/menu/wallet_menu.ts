@@ -1,4 +1,4 @@
-import {Node} from "../node";
+import {NodeWallet} from "../nodes/node_wallet";
 import {ListToMine} from "../list_to_mine";
 import inquirer from "inquirer";
 import {
@@ -8,11 +8,11 @@ import {
 } from "./menu_common_functions";
 
 export class WalletMenu {
-    _node: Node;
+    _node: NodeWallet;
     _listToMine: ListToMine;
     _port: number;
 
-    constructor(node: Node, port: number, listToMine: ListToMine) {
+    constructor(node: NodeWallet, port: number, listToMine: ListToMine) {
         this._node = node;
         this._listToMine = listToMine;
         this._port = port;
@@ -46,7 +46,7 @@ export class WalletMenu {
                 console.log(this._listToMine.getQueue);
                 break;
             case enum_exit:
-                await this._node.saveNodeToFile(this._port);
+                await this._node.saveNodeToFile();
                 process.exit(0);
             default:
                 break;

@@ -1,7 +1,7 @@
 import { Block } from "./block";
 import { ListToMine } from "./list_to_mine";
 import inquirer from "inquirer";
-import {Node} from "./node";
+import {Node} from "./nodes/node";
 import {Message, MessageType} from "./message";
 
 export class Miner {

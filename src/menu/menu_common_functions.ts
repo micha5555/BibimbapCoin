@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
 // import {listToMine} from "../index";
-import {Node} from "../node";
+import {Node} from "../nodes/node";
 import {connect} from "../index";
 import {ListToMine} from "../list_to_mine";
 
@@ -15,6 +15,7 @@ export const add_to_mine = "Add message to mine"; //TODO? Delete
 export const mine_block = "Mine block";
 export const chose_identity = "Choose identity to mine";
 export const enum_show_items_to_mine = "Show items to mine";
+export const enum_login_in_wallet = "Login to wallet";
 
 export async function showNeighbors(node: Node) {
     console.log(node.getNeighbors());

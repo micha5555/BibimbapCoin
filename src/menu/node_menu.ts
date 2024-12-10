@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-import {Node} from "../node";
+import {Node} from "../nodes/node";
 import {
     enum_showIDs,
     enum_genID,
@@ -11,7 +11,7 @@ import {
     enum_show_items_to_mine,
     enum_showBlocks,
     enum_exit,
-    showNeighbors, connectToNeighbor, showBlocks, addToMine
+    showNeighbors, connectToNeighbor, showBlocks, addToMine, enum_login_in_wallet
 } from "./menu_common_functions";
 import {Miner} from "../miner";
 import {ListToMine} from "../list_to_mine";
@@ -37,11 +37,14 @@ export class NodeMenu {
                 type: "list",
                 name: "action",
                 message: "What do you want to do?",
-                choices: [enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+                choices: [enum_login_in_wallet, enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
             }
         ])
 
         switch (answers.action) {
+            case enum_login_in_wallet:
+                await this.loginToWallet();
+                break
             case enum_showIDs:
                 await this.showId();
                 break;
@@ -70,37 +73,90 @@ export class NodeMenu {
                 console.log(this._listToMine.getQueue);
                 break;
             case enum_exit:
-                await this._node.saveNodeToFile(this._port);
+                // await this._node.saveNodeToFile(this._port);
                 process.exit(0);
             default:
                 break;
         }
     }
 
+    async loginToWallet() {
+        // let port = -1;
+        // let password = "";
+        // let passwordValidated = false;
+        // while(!passwordValidated) {
+        //     port = await this.getWalletPort();
+        //     password = await this.getPassword();
+        //     let validateExistingOfUser = await this.validateIfUserExists(port);
+        //     if (!validateExistingOfUser) {
+        //         break;
+        //     }
+        //     let validatePassword = await this.validateIfPasswordIsCorrect(port, password);
+        //     if (!validatePassword) {
+        //         console.error("Incorrect password");
+        //         continue;
+        //     }
+        //     passwordValidated = true;
+        // }
+    }
+
+
+
+    // async function handleRegisterAndLogin() {
+//     let passwordValidation = false;
+//     let port = 0;
+//     let password = "";
+//     let loadNodeDataFromFile = false;
+//     while (!passwordValidation) {
+//         port = await getPort();
+//         password = await getPassword();
+//         let validateExistingOfUser = await validateIfUserExists(port);
+//         if (!validateExistingOfUser) {
+//             break;
+//         }
+//         let validatePassword = await validateIfPasswordIsCorrect(port, password);
+//         if (!validatePassword) {
+//             console.error("Incorrect password");
+//             continue;
+//         }
+//         passwordValidation = true;
+//         loadNodeDataFromFile = true;
+//     }
+//     node.setPassword(password);
+//
+//     if (loadNodeDataFromFile) {
+//         await node.loadDigitalWalletFromFile(port);
+//     }
+//
+//     return {port, password};
+// }
+
     async chooseIdentity() {
-        if(this._node.getDigitalWallet.identities.length === 0) {
-            console.error("No identities found");
-            return
-        }
-
-        let answer = await inquirer.prompt([{
-            type: "list",
-            name: "identity",
-            message: "Choose identity to mine",
-            choices: this._node.getDigitalWallet.identities.map((identity) => identity.publicKey)
-        }]);
-
-        this._chosenIdentity = this._node.getDigitalWallet.getIdentityBypublicKey(answer.identity) ?? null;
-        if (this._chosenIdentity === null) {
-            console.error("Identity not found");
-            return
-        }
-        this._miner.setIdentity(this._chosenIdentity.publicKey);
-        console.log(`Chosen identity: ${this._chosenIdentity?.publicKey}`);
+        // TODO: ucomment
+        // if(this._node.getIdentities.length === 0) {
+        //     console.error("No identities found");
+        //     return
+        // }
+        //
+        // let answer = await inquirer.prompt([{
+        //     type: "list",
+        //     name: "identity",
+        //     message: "Choose identity to mine",
+        //     choices: this._node.getIdentities.map((identity) => identity.publicKey)
+        // }]);
+        //
+        // this._chosenIdentity = answer.identity ?? null;
+        // if (this._chosenIdentity === null) {
+        //     console.error("Identity not found");
+        //     return
+        // }
+        // this._miner.setIdentity(this._chosenIdentity.publicKey);
+        // console.log(`Chosen identity: ${this._chosenIdentity?.publicKey}`);
     }
 
     async generateID() {
-        this._node.addIdentity();
+        // TODO: uncomment
+        // this._node.addIdentity();
     }
 
     async mine() {
@@ -114,11 +170,39 @@ export class NodeMenu {
     }
 
     async showId() {
-        this._node.getDigitalWallet.identities.forEach((identity) => {
-            console.log(`Public key: ${identity.publicKey}`);
-            console.log(`Private key(decrypted): ${identity.privateKey}`);
-            console.log("-------------------------------------------------");
-        });
+        // TODO: uncomment
+        // this._node.getIdentities.forEach((identity) => {
+        //     console.log(`Public key: ${identity}`);
+        //     console.log("-------------------------------------------------");
+        // });
+    }
+
+    async getWalletPort() {
+        let answers = await inquirer.prompt([
+            {
+                type: "input",
+                name: "port",
+                message: "Enter wallet port number"
+            }
+        ]);
+        let port = parseInt(answers.port);
+
+        if (isNaN(port)) {
+            console.error("Given port number is not a number!");
+            return -1;
+        }
+        return port;
+    }
+
+    async getPassword(): Promise<string> {
+        let answer = await inquirer.prompt([
+            {
+                type: "password",
+                name: "password",
+                message: "Enter your password"
+            }
+        ]);
+        return answer.password;
     }
 }
 
