@@ -151,7 +151,7 @@ function handlePortInput(portInput: string) {
     return port;
 }
 
-export async function connect(port: number, askForBlockchain: boolean = false)
+export async function connect(port: number, askForBlockchain: boolean = true)
 {
     const response = await fetch(`http://localhost:${port}/connect`, {
         method: 'POST',

@@ -12,12 +12,7 @@ export abstract class Node{
     // private _digitalWallet: DigitalWallet = new DigitalWallet();
     // private _identities: {identity: string}[] = [];
     private _broadcastedMessages: { timestamp: Date, message: string, messageHash: string, messageType: string}[] = [];
-    private _blocks: Block[] = [];
     protected port!: number
-
-    constructor() {
-        this.generateGenesisBlock();
-    }
 
     setPort(port: number): void {
         this.port = port;
