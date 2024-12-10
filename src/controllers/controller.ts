@@ -2,6 +2,7 @@ import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
 import {handleBlockMessage, handleTextMessage} from "../handlers/broadcast_message_handler";
 import {Message, MessageType} from "../message";
+import {blockchain} from "../index";
 
 export abstract class Controller {
     app: Express;
@@ -46,7 +47,7 @@ export abstract class Controller {
         })
 
         this.app.get("/get-blocks-display", (request: Request, response: Response): void => {
-            const blocks = this.node.getBlocks.map(block => ({
+            const blocks = blockchain.getBlocks.map(block => ({
                 ...block,
                 hash: block.getDisplayHash()
             }));
@@ -55,7 +56,7 @@ export abstract class Controller {
 
         this.app.get("/get-blocks", (request: Request, response: Response): void => {
             response.status(200)
-                .send(this.node.getBlocks);
+                .send(blockchain.getBlocks);
         })
 
         this.app.post("/broadcast-message", (request: Request, response: Response): void => {

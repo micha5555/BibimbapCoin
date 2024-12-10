@@ -1,3 +1,6 @@
+//import {DigitalWallet} from "./digital_wallet";
+//import { generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
+import {blockchain} from "../index";
 // import {DigitalWallet} from "../wallet/digital_wallet";
 // import { generateKeys, hashPassword, encrypt, decrypt } from "../crypto_utils";
 import {Block} from "../block";
@@ -65,14 +68,6 @@ export abstract class Node{
         return this._broadcastedMessages;
     }
 
-    addBlock(block: Block): void {
-        this._blocks.push(block);
-    }
-
-    get getBlocks(): Block[] {
-        return this._blocks;
-    }
-
     async assignNeighborBlockchainToNode(port: number) {
         const response = await fetch(`http://localhost:${port}/get-blocks`);
         if (!response.ok) {
@@ -84,9 +79,11 @@ export abstract class Node{
     }
 
     addBlockchainFromJson(responseJson: any): void {
-        responseJson.forEach((block: any) => {
-            this.addBlock(Block.fromJson(block));
-        });
+        let blocks: Block[] = [];
+        for (let blockJson of responseJson) {
+            blocks.push(Block.fromJson(blockJson));
+        }
+        blockchain.addBatchOfBlocks(blocks);
     }
 
     // get getIdentities(): {publicKey: string}[] {
@@ -170,19 +167,5 @@ export abstract class Node{
                 }
             })
         });
-    }
-
-    getLastBlock(): Block {
-        return this._blocks[this._blocks.length - 1];
-    }
-
-    displayBlocks(): void {
-        this._blocks.forEach(block => {
-            console.log(block.toString());
-        });
-    }
-
-    private generateGenesisBlock() {
-        this._blocks.push(Block.generateGenesis());
     }
 }

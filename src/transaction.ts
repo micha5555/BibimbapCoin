@@ -35,6 +35,10 @@ export class Transaction {
         //TODO: USE RANDOM NONCE
     }
 
+    public verifyRewardTransaction() { //TODO: Verify reward miner transaction
+
+    }
+
     public verifyTransaction() { //TODO: Verify the transaction
         // Verify input transactions - if they are unspent
 
