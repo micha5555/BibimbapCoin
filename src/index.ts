@@ -11,6 +11,7 @@ import {OpenTransactions} from "./open_transactions";
 import {WalletController} from "./controllers/wallet_controller";
 import {NodeController} from "./controllers/node_controller";
 import {NodeWallet} from "./nodes/node_wallet";
+import {NodeNode} from "./nodes/node_node";
 
 enum ModeOfRunning {
     NODE = 'NODE',
@@ -23,7 +24,7 @@ const app = express();
 app.use(express.json());
 
 let controller: Controller;
-let node: Node = new NodeWallet();
+let node: Node;
 export let listToMine = new ListToMine();
 export let openTransactions = new OpenTransactions();
 
@@ -35,7 +36,7 @@ Timers.setInterval(() => {
 const main = async () => {
     // const {port, password} = await handleRegisterAndLogin();
     let port = await getPort();
-    let menu = await selectAndCreateMenu(node, port, listToMine);
+    let menu = await selectAndCreateMenu(port, listToMine);
     node.setPort(port);
     if(runningMode === ModeOfRunning.WALLET) {
         await (node as NodeWallet).loadDigitalWalletFromFile();
@@ -100,7 +101,7 @@ async function getPort() {
     return handlePortInput(answers.port);
 }
 
-async function selectAndCreateMenu(node: Node, port: number, listToMine: ListToMine) {
+async function selectAndCreateMenu(port: number, listToMine: ListToMine) {
     let answers = await inquirer.prompt([
         {
             type: "list",
@@ -113,15 +114,17 @@ async function selectAndCreateMenu(node: Node, port: number, listToMine: ListToM
     switch (answers.action) {
         case ModeOfRunning.NODE:
             runningMode = ModeOfRunning.NODE;
-            return new NodeMenu(node, port, listToMine);
+            node = new NodeNode();
+            return new NodeMenu((node as NodeNode), port, listToMine);
         case ModeOfRunning.WALLET:
             runningMode = ModeOfRunning.WALLET;
+            node = new NodeWallet();
             return new WalletMenu((node as NodeWallet), port, listToMine);
     }
 
     // TODO: zastanwoić się czy to zwracać domyślnie
     runningMode = ModeOfRunning.NODE;
-    return new NodeMenu(node, port, listToMine);
+    return new NodeMenu((node as NodeNode), port, listToMine);
 }
 
 async function startServer(port: number) {

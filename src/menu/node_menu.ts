@@ -11,19 +11,20 @@ import {
     enum_show_items_to_mine,
     enum_showBlocks,
     enum_exit,
-    showNeighbors, connectToNeighbor, showBlocks, addToMine, enum_login_in_wallet
+    showNeighbors, connectToNeighbor, showBlocks, addToMine, enum_login_to_wallet, enum_fetch_identities_from_wallet
 } from "./menu_common_functions";
 import {Miner} from "../miner";
 import {ListToMine} from "../list_to_mine";
+import {NodeNode} from "../nodes/node_node";
 
 export class NodeMenu {
-    _node: Node;
-    _chosenIdentity : { privateKey: string, publicKey: string } | null = null;
+    _node: NodeNode;
+    _chosenIdentity: string | null = null;
     _miner: Miner;
     _listToMine: ListToMine;
     _port: number;
 
-    constructor(node: Node, port: number, listToMine: ListToMine) {
+    constructor(node: NodeNode, port: number, listToMine: ListToMine) {
         this._node = node;
         this._listToMine = listToMine;
         this._miner = new Miner(this._listToMine, this._node);
@@ -37,13 +38,16 @@ export class NodeMenu {
                 type: "list",
                 name: "action",
                 message: "What do you want to do?",
-                choices: [enum_login_in_wallet, enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+                choices: [enum_login_to_wallet, enum_fetch_identities_from_wallet, enum_showIDs, enum_genID, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
             }
         ])
 
         switch (answers.action) {
-            case enum_login_in_wallet:
+            case enum_login_to_wallet:
                 await this.loginToWallet();
+                break
+            case enum_fetch_identities_from_wallet:
+                await this.fetchIdentitiesFromWallet();
                 break
             case enum_showIDs:
                 await this.showId();
@@ -81,23 +85,45 @@ export class NodeMenu {
     }
 
     async loginToWallet() {
-        // let port = -1;
-        // let password = "";
-        // let passwordValidated = false;
-        // while(!passwordValidated) {
-        //     port = await this.getWalletPort();
-        //     password = await this.getPassword();
-        //     let validateExistingOfUser = await this.validateIfUserExists(port);
-        //     if (!validateExistingOfUser) {
-        //         break;
-        //     }
-        //     let validatePassword = await this.validateIfPasswordIsCorrect(port, password);
-        //     if (!validatePassword) {
-        //         console.error("Incorrect password");
-        //         continue;
-        //     }
-        //     passwordValidated = true;
-        // }
+        let walletPort = await this.getWalletPort();
+        let password = await this.getPassword();
+        let result = await fetch(`http://localhost:`+ walletPort + '/login-user', {
+            method: 'POST',
+            body: JSON.stringify({port: this._port, password: password}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        if(result.status !== 200) {
+            console.error("Failed to login to wallet");
+            return;
+        } else {
+            this._node.setPassword(password);
+            this._node.setWalletPort(walletPort);
+            console.log("Logged in to wallet");
+        }
+    }
+
+    async fetchIdentitiesFromWallet() {
+        let walletPort = await this._node.getWalletPort();
+        console.log("walletPort: " + walletPort);
+        let result = await fetch(`http://localhost:`+ walletPort + '/get-identities', {
+            method: 'POST',
+            body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        if(result.status !== 200) {
+            console.log(result.status);
+            console.log(result.statusText);
+            console.error("Failed to fetch identities from wallet");
+            return;
+        } else {
+            let identities = await result.json();
+            this._node.addIdentities(identities);
+            console.log("Fetched identities from wallet");
+        }
     }
 
 
@@ -133,30 +159,42 @@ export class NodeMenu {
 
     async chooseIdentity() {
         // TODO: ucomment
-        // if(this._node.getIdentities.length === 0) {
-        //     console.error("No identities found");
-        //     return
-        // }
-        //
-        // let answer = await inquirer.prompt([{
-        //     type: "list",
-        //     name: "identity",
-        //     message: "Choose identity to mine",
-        //     choices: this._node.getIdentities.map((identity) => identity.publicKey)
-        // }]);
-        //
-        // this._chosenIdentity = answer.identity ?? null;
-        // if (this._chosenIdentity === null) {
-        //     console.error("Identity not found");
-        //     return
-        // }
-        // this._miner.setIdentity(this._chosenIdentity.publicKey);
-        // console.log(`Chosen identity: ${this._chosenIdentity?.publicKey}`);
+        if(this._node.getIdentities().length === 0) {
+            console.error("No identities found");
+            return
+        }
+
+        let answer = await inquirer.prompt([{
+            type: "list",
+            name: "identity",
+            message: "Choose identity to mine",
+            choices: this._node.getIdentities()
+        }]);
+
+        console.log("chosen: " + answer.identity);
+        this._chosenIdentity = answer.identity ?? null;
+        if (this._chosenIdentity === null) {
+            console.error("Identity not found");
+            return
+        }
+        this._miner.setIdentity(this._chosenIdentity);
+        console.log(`Chosen identity: ${this._chosenIdentity}`);
     }
 
     async generateID() {
-        // TODO: uncomment
-        // this._node.addIdentity();
+        let result = await fetch(`http://localhost:`+ this._node.getWalletPort() + '/add-identity', {
+            method: 'POST',
+            body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        if(result.status !== 200) {
+            console.error("Failed to generate identity");
+            return;
+        } else {
+            console.log("Identity generated");
+        }
     }
 
     async mine() {
@@ -170,11 +208,10 @@ export class NodeMenu {
     }
 
     async showId() {
-        // TODO: uncomment
-        // this._node.getIdentities.forEach((identity) => {
-        //     console.log(`Public key: ${identity}`);
-        //     console.log("-------------------------------------------------");
-        // });
+        this._node.getIdentities().forEach((identity) => {
+            console.log(`Public key: ${identity}`);
+            console.log("-------------------------------------------------");
+        });
     }
 
     async getWalletPort() {

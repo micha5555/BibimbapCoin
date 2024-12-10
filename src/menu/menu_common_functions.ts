@@ -15,7 +15,8 @@ export const add_to_mine = "Add message to mine"; //TODO? Delete
 export const mine_block = "Mine block";
 export const chose_identity = "Choose identity to mine";
 export const enum_show_items_to_mine = "Show items to mine";
-export const enum_login_in_wallet = "Login to wallet";
+export const enum_login_to_wallet = "Login to wallet";
+export const enum_fetch_identities_from_wallet = "Fetch identities from wallet";
 
 export async function showNeighbors(node: Node) {
     console.log(node.getNeighbors());

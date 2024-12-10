@@ -14,7 +14,7 @@ export class WalletController extends Controller {
 
     defineControllerMethods() {
         super.defineControllerMethods();
-        this.app.get("/get-identities", async (request: Request, response: Response): Promise<void> => {
+        this.app.post("/get-identities", async (request: Request, response: Response): Promise<void> => {
             let port = request.body.port;
             let password = request.body.password;
             if(port == null || password == null) {
