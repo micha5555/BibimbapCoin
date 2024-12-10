@@ -108,6 +108,7 @@ export class Block {
             return false;
         }
 
+        // If second block - no reward transaction
         // Verify reward transaction
         //TODO: Verify reward transaction
 
