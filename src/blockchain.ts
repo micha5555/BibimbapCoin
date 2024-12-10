@@ -11,7 +11,7 @@ export class Blockchain {
     public nextBlockDifficulty: number = DEFAULT_DIFFICULTY;
 
     constructor() {
-        this.blocks.push(this.generateGenesisBlock());
+        this.blocks.push(Block.generateGenesis());
     }
 
     adjustDifficulty() {
@@ -44,15 +44,8 @@ export class Blockchain {
         }
     }
 
-    private generateGenesisBlock() {
-        const dataToHash = "Genesis Block";
-        var genesisBlock = new Block(0, "", new Date("2024-12-09T16:01:19.692Z"), dataToHash, "", 0, 0, "");
-        genesisBlock.calculateHash();
-        return genesisBlock;
-    }
-
     addBlock(block: Block) : boolean {
-        //TODO: Validate the block
+        block.verifyNew();
 
         //TODO: If valid - Stop mining current block
 
@@ -68,7 +61,10 @@ export class Blockchain {
 
         for (let block of blocks) {
             if (block.getIndex <= lastBlockIndex) {
-                //TODO: Verify if the previous block are valid and are matching - if not -> stop importing
+                if (!block.verifyExisting()) {
+                    console.log("Error while verifying a block that should be already in the blockchain");
+                    return;
+                }
                 //TODO: Add fork handling
             }
             else {

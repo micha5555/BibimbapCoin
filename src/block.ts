@@ -1,4 +1,5 @@
 import {createHash} from "node:crypto";
+import {blockchain} from "./index";
 
 export class Block {
     private index: number;
@@ -73,6 +74,68 @@ export class Block {
         return this.hash;
     }
 
+    verifyNew() : boolean {
+        // Verify if the hash and calculated hash are the same
+        let sentHash = this.hash;
+        this.calculateHash();
+        if(sentHash != this.hash) {
+            console.error("Hashes are not equal");
+            return false;
+        }
+
+        // Verify if the difficulty is expected
+        if(this.difficulty != blockchain.nextBlockDifficulty) {
+            console.error("Difficulty is not correct. Expected: " + blockchain.nextBlockDifficulty + " but got: " + this.difficulty);
+            return false;
+        }
+
+        //Verify if the difficulty is correct
+        if(!this.isFound()) {
+            console.error("Block is not mined correctly");
+            return false;
+        }
+
+        // Verify if the previous hash matches the hash of the previous block
+        let lastBlock = blockchain.getLastBlock();
+        if (lastBlock.getDisplayHash() != this.previousHash) {
+            console.error("Previous hash is not correct. Expected: " + lastBlock.getDisplayHash() + " but got: " + this.previousHash);
+            return false;
+        }
+
+        // Verify if the index is + 1 from the previous block
+        if(lastBlock.index + 1 != this.index) {
+            console.error("Block index is not correct. Expected: " + (lastBlock.index + 1) + " but got: " + this.index);
+            return false;
+        }
+
+        // Verify reward transaction
+        //TODO: Verify reward transaction
+
+        // Verify rest of the transactions
+        //TODO: Verify rest of the transactions
+
+        return true;
+    }
+
+    verifyExisting() : boolean {
+        // Verify if the hash and calculated hash are the same
+        let sentHash = this.hash;
+        this.calculateHash();
+        if(sentHash != this.hash) {
+            console.error("Hashes are not equal");
+            return false;
+        }
+
+        // Verify if the hashes of the block and adequate block in the blockchain are the same
+        let adequateBlock = blockchain.getBlock(this.index);
+        if(adequateBlock.hash != this.hash) {
+            console.error("Hashes are not equal");
+            return false;
+        }
+
+        return true;
+    }
+
     getDisplayHash(): string {
         let binaryString = this.hash;
         if (binaryString.length % 4 !== 0) {
@@ -123,7 +186,7 @@ export class Block {
         return JSON.stringify(this);
     }
 
-    isFound(difficulty: number): boolean {
-        return this.hash.substring(0, difficulty) === "0".repeat(difficulty); //TODO: Change check in binary format
+    isFound(): boolean {
+        return this.hash.substring(0, this.difficulty) === "0".repeat(this.difficulty); //TODO: Change check in binary format
     }
 }

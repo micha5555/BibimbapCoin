@@ -34,7 +34,7 @@ export class Miner {
         block.calculateHash();
 
         console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
-        while (!block.isFound(blockchain.nextBlockDifficulty) && this.run) {
+        while (!block.isFound() && this.run) {
             block.incrementNonce();
             block.calculateHash();
             if(block.getNonce % 1000000 === 0)
