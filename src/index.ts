@@ -1,4 +1,5 @@
 import express from "express";
+import 'reflect-metadata';
 import {Controller} from "./controllers/controller";
 import {Node} from "./nodes/node";
 
