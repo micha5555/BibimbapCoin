@@ -17,8 +17,6 @@ describe('TransactionOutput', () => {
     });
 });
 
-
-
 describe('TransactionToAddress', () => {
     it('should work correctly', () => {
         let transactionOutput = TransactionOutput.TransactionToAddress(100, "address");
@@ -26,5 +24,13 @@ describe('TransactionToAddress', () => {
         expect(transactionOutput.address).toBe("address");
         expect(transactionOutput.id).not.toBe("");
         expect(transactionOutput.id).not.toBeUndefined();
+    });
+});
+
+describe('TransactionOutput.toJson', () => {
+    it('should return a JSON object', () => {
+        let transactionOutput = new TransactionOutput("ID", 100, "address");
+        let json = transactionOutput.toJson();
+        expect(json).toBe('{"id":"ID","address":"address","amount":100}');
     });
 });

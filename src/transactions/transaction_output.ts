@@ -1,12 +1,21 @@
 import {createHash, randomUUID} from "node:crypto";
-import {serialize} from "class-transformer";
+import {Exclude, Expose, serialize} from "class-transformer";
 
+@Exclude()
 export class TransactionOutput {
+    @Expose()
     public id: string;
+
+    @Expose()
     public address: string;
+
+    @Expose()
     public amount: number;
+
     public tempBlocked: boolean = false;
+
     public blockIndex: number = -1;
+
     public transactionIndex: number = -1;
 
     constructor(id: string, amount: number, address: string) {
