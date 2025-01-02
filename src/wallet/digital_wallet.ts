@@ -1,18 +1,23 @@
 import {hashPassword} from "../crypto_utils";
 
 export class DigitalWallet {
-    private _usersIdentities: { port: number, password:string, identities: { privateKey: string, publicKey: string}[] }[] = [];
+    private _userData: { port: number, password:string, identities: { privateKey: string, publicKey: string}[] } | null = null;
 
-    get usersIdentities(): { port: number; password: string; identities: { privateKey: string; publicKey: string }[] }[] {
-        return this._usersIdentities;
+    setPortAndPassword(port: number, password: string): void {
+        this._userData = ({ port, password, identities : [] });
     }
 
-    addIdentity(port:number, password:string, privateKey: any, publicKey: any ): void {
-        let user = this._usersIdentities.find((user) => user.port === port);
-        if (user === undefined) {
-            this._usersIdentities.push({ port, password, identities: [{ privateKey, publicKey }] });
+    get userData(): { port: number; password: string; identities: { privateKey: string; publicKey: string }[] } {
+        return this._userData!;
+    }
+
+    addIdentity(/*port:number, password:string, */privateKey: any, publicKey: any ): void {
+        let portInWallet = this._userData!!.port;
+        if (portInWallet === undefined) {
+            console.error("User not registered");
+            // this._userData = ({ port, password, identities: [{ privateKey, publicKey }] });
         } else {
-            user.identities.push({ privateKey, publicKey });
+            this._userData!!.identities.push({ privateKey, publicKey });
         }
     }
 
@@ -21,11 +26,11 @@ export class DigitalWallet {
         const password = await promiseHashedUserPassword.then((value) => {
             return value
         });
-        this._usersIdentities.push({ port, password, identities: [] });
+        this._userData!! = ({ port, password, identities: [] });
     }
 
     toString(): string {
-        return JSON.stringify(this._usersIdentities);
+        return JSON.stringify(this._userData);
     }
 
     // private _identities: { privateKey: string, publicKey: string}[] = [];

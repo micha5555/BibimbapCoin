@@ -42,6 +42,7 @@ export class NodeMenu {
             }
         ])
 
+        // TODO wywala errory jak wallet wyłączony
         switch (answers.action) {
             case enum_login_to_wallet:
                 await this.loginToWallet();
@@ -50,9 +51,11 @@ export class NodeMenu {
                 await this.fetchIdentitiesFromWallet();
                 break
             case enum_showIDs:
+                // coś nei wyświetla
                 await this.showId();
                 break;
             case enum_genID:
+                // TODO: wywala błąd, jak się nie zalogował do walleta
                 await this.generateID();
                 break;
             case chose_identity:
