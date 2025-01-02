@@ -1,5 +1,8 @@
 import {createHash, randomUUID} from "node:crypto";
-import {blockchain, openTransactions} from "./index";
+import {blockchain, openTransactions} from "../index";
+import {serialize} from "class-transformer";
+import {TransactionInput} from "./transaction_input";
+import {TransactionOutput} from "./transaction_output";
 
 export class Transaction {
     public inputTransactions: TransactionInput[] = [];
@@ -160,61 +163,4 @@ export class Transaction {
 
         return true;
     }
-}
-
-export class TransactionInput {
-    public transactionOutputId: string;
-    public transactionIndex: number;
-    public blockIndex: number;
-    public address: string;
-    public amount: number = 0;
-
-    constructor(transactionOutputId: string, transactionIndex: number, blockIndex: number, address: string) {
-        this.transactionOutputId = transactionOutputId;
-        this.transactionIndex = transactionIndex;
-        this.blockIndex = blockIndex;
-        this.address = address;
-    }
-
-    calculateHash() : string {
-        return createHash('sha256')
-            .update(this.transactionOutputId + this.transactionIndex + this.blockIndex)
-            .digest()
-            .toString();
-    }
-
-    toJson(): any {
-        return {transactionOutputId: this.transactionOutputId, transactionIndex: this.transactionIndex, blockIndex: this.blockIndex};
-    }
-}
-
-export class TransactionOutput {
-    public id: string;
-    public address: string;
-    public amount: number;
-    public tempBlocked: boolean = false;
-    public blockIndex: number = -1;
-    public transactionIndex: number = -1;
-
-    constructor(id: string, amount: number, address: string) {
-        this.id = id;
-        this.amount = amount;
-        this.address = address;
-    }
-
-    static TransactionToAddress(amount: number, address: string) : TransactionOutput {
-        return new TransactionOutput(randomUUID(), amount, address);
-    }
-
-    calculateHash() : string {
-        return createHash('sha256')
-            .update(this.id + this.amount + this.address)
-            .digest()
-            .toString();
-    }
-
-    toJson(): any {
-        return {id: this.id, amount: this.amount, address: this.address};
-    }
-
 }

@@ -4,7 +4,10 @@ import {Node} from "../nodes/node";
 import {NodeWallet} from "../nodes/node_wallet";
 import {encrypt, generateKeys, verifyPassword} from "../crypto_utils";
 import {openTransactions} from "../index";
-import {Transaction, TransactionInput, TransactionOutput} from "../transaction";
+import {TransactionOutput} from "../transactions/transaction_output";
+import {TransactionInput} from "../transactions/transaction_input";
+import {Transaction} from "../transactions/transaction";
+
 
 export class WalletController extends Controller {
     constructor(app: Express, port: number, node: Node) {

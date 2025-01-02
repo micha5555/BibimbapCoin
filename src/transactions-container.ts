@@ -1,5 +1,7 @@
-import {Transaction} from "./transaction";
+
 import {createHash} from "node:crypto";
+import {deserialize} from "class-transformer";
+import {Transaction} from "./transactions/transaction";
 
 export class TransactionsContainer {
     private transactions: Transaction[] = [];
@@ -69,10 +71,6 @@ export class TransactionsContainer {
     }
 
     static fromJson(json: any): TransactionsContainer {
-        let transactionsContainer: TransactionsContainer = new TransactionsContainer();
-        for (let transaction of json.transactions) {
-            transactionsContainer.addTransaction(Transaction.recreateTransactionJson(transaction));
-        }
-        return transactionsContainer;
+        return deserialize(TransactionsContainer, json);
     }
 }
