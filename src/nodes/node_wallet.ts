@@ -69,15 +69,14 @@ export class NodeWallet extends Node {
 
 
     async loadDigitalWalletFromFile(): Promise<void> {
-        // console.log("in loadDigitalWalletFromFile");
         const fs = require('fs');
         let fileName = './data/' + this.port + '/wallet_data.json';
+        if (!fs.existsSync(fileName)) {
+            this._digitalWallet = new DigitalWallet();
+            return;
+        }
         let data = fs.readFileSync(fileName);
-        // console.log("Data:");
-        // console.log(data);
         let dataJSON = JSON.parse(data);
-        // console.log("data JSON:");
-        // console.log(dataJSON);
 
         this._digitalWallet = new DigitalWallet();
 
@@ -86,10 +85,5 @@ export class NodeWallet extends Node {
                 this._digitalWallet.addIdentity(user.port, user.password, identity.privateKey, identity.publicKey);
             });
         });
-        // console.log("Digital wallet loaded");
-        // console.log(this._digitalWallet.toString());
     }
-
-
-
 }
