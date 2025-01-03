@@ -1,5 +1,5 @@
 import {createHash} from "node:crypto";
-import {blockchain} from "./index";
+import {blockchain, openTransactions} from "./index";
 import {TransactionsContainer} from "./transactions-container";
 import {Transaction} from "./transactions/transaction";
 import {TransactionInput} from "./transactions/transaction_input";
@@ -31,7 +31,7 @@ export class Block {
     }
 
     static generateGenesis(): Block {
-        console.log('Transaction:', Transaction);
+        // console.log('Transaction:', Transaction);
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
         const transactionsCoinbase = new TransactionsContainer();
         transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAPMOQa0GAygWV7nvY5iKrdDZt/oLsy54UC7RxXHTBR9k=", genesisDate));
@@ -126,7 +126,7 @@ export class Block {
         }
 
         // Verify rest of the transactions
-        if (!this.data.verifyTransactions()) {
+        if (!this.data.verifyTransactions(blockchain, openTransactions)) {
             return false;
         }
 

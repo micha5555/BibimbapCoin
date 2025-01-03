@@ -1,15 +1,24 @@
 import {createHash, randomUUID} from "node:crypto";
-import {blockchain, openTransactions} from "../index";
-import {serialize} from "class-transformer";
+import {Exclude, Expose, serialize} from "class-transformer";
 import {TransactionInput} from "./transaction_input";
 import {TransactionOutput} from "./transaction_output";
+import {Blockchain} from "../blockchain";
+import {OpenTransactions} from "../open_transactions";
 
+
+@Exclude()
 export class Transaction {
+    @Expose()
     public inputTransactions: TransactionInput[] = [];
+    @Expose()
     public outputTransactions: TransactionOutput[] = [];
+    @Expose()
     public timestamp: Date;
+
     public transactionHash: string;
+    @Expose()
     public publicKey: string;
+    @Expose()
     public transactionSignature: string;
     
     constructor(inputTransactions: TransactionInput[], outputTransactions: TransactionOutput[], timestamp: Date, publicKey: string, transactionSignature: string) {
@@ -41,10 +50,10 @@ export class Transaction {
     }
 
     public toJsonString(): string {
-        let jsonInputTransactions = this.inputTransactions.map(inputTransaction => inputTransaction.toJson());
-        let jsonOutputTransactions = this.outputTransactions.map(outputTransaction => outputTransaction.toJson());
-        return JSON.stringify({inputTransactions: jsonInputTransactions, outputTransactions: jsonOutputTransactions, timestamp: this.timestamp, publicKey: this.publicKey, transactionSignature: this.transactionSignature});
-
+        // let jsonInputTransactions = this.inputTransactions.map(inputTransaction => inputTransaction.toJson());
+        // let jsonOutputTransactions = this.outputTransactions.map(outputTransaction => outputTransaction.toJson());
+        // return JSON.stringify({inputTransactions: jsonInputTransactions, outputTransactions: jsonOutputTransactions, timestamp: this.timestamp, publicKey: this.publicKey, transactionSignature: this.transactionSignature});
+        return serialize(this);
     }
 
     private getTransactionHash() : string{
@@ -60,7 +69,7 @@ export class Transaction {
         hashToCalc += this.timestamp + this.publicKey;
         return createHash('sha256')
             .update(hashToCalc)
-            .digest()
+            .digest('hex')
             .toString();
     }
 
@@ -86,7 +95,7 @@ export class Transaction {
         return true;
     }
 
-    public verifyTransaction() { //TODO: Verify the transaction
+    public verifyTransaction(blockchain: Blockchain, openTransactions: OpenTransactions) { //TODO: Verify the transaction
         // Verify input transactions - if they are unspent
         for (let inputTransaction of this.inputTransactions) {
             let block = blockchain.getBlock(inputTransaction.blockIndex);

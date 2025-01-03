@@ -8,7 +8,7 @@
     "start": "node dist/src/index.js",
     "dev": "nodemon src/index.ts",
     "test": "npx tsc; node --test",
-    "test-jest": "jest test/. --coverage"
+    "test-jest": "jest test/. --coverage --verbose --logHeapUsage --detectLeaks;"
   },
   "author": "maciejj1",
   "license": "ISC",

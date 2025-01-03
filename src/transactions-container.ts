@@ -2,6 +2,8 @@
 import {createHash} from "node:crypto";
 import {deserialize} from "class-transformer";
 import {Transaction} from "./transactions/transaction";
+import {Blockchain} from "./blockchain";
+import {OpenTransactions} from "./open_transactions";
 
 export class TransactionsContainer {
     private transactions: Transaction[] = [];
@@ -10,13 +12,13 @@ export class TransactionsContainer {
         this.transactions.push(transaction);
     }
 
-    addTransaction(transaction: Transaction) {
+    addTransaction(transaction: Transaction, blockchain: Blockchain, openTransactions: OpenTransactions) {
         let verified = false;
         if (this.transactions.length == 0) {
             verified = transaction.verifyRewardTransaction();
         }
         else {
-            verified = transaction.verifyTransaction();
+            verified = transaction.verifyTransaction(blockchain, openTransactions);
         }
         if (!verified) {
             console.log("Transaction verification failed");
@@ -33,9 +35,9 @@ export class TransactionsContainer {
         return this.transactions[0].verifyRewardTransaction();
     }
 
-    verifyTransactions() : boolean {
+    verifyTransactions(blockchain: Blockchain, openTransactions: OpenTransactions) : boolean {
         for (let transaction of this.transactions.slice(1)) {
-            if (!transaction.verifyTransaction()) {
+            if (!transaction.verifyTransaction(blockchain,openTransactions)) {
                 return false;
             }
         }
