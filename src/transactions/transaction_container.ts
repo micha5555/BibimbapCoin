@@ -1,11 +1,11 @@
 
 import {createHash} from "node:crypto";
 import {deserialize} from "class-transformer";
-import {Transaction} from "./transactions/transaction";
-import {Blockchain} from "./blockchain";
-import {OpenTransactions} from "./open_transactions";
+import {Transaction} from "./transaction";
+import {Blockchain} from "../blockchain";
+import {OpenTransactions} from "./transactions_open";
 
-export class TransactionsContainer {
+export class Transaction_container {
     private transactions: Transaction[] = [];
 
     addCoinbaseTransaction(transaction: Transaction) {
@@ -72,7 +72,7 @@ export class TransactionsContainer {
             .toString();
     }
 
-    static fromJson(json: any): TransactionsContainer {
-        return deserialize(TransactionsContainer, json);
+    static fromJson(json: any): Transaction_container {
+        return deserialize(Transaction_container, json);
     }
 }

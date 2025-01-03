@@ -1,4 +1,4 @@
-import {TransactionOutput} from "./transactions/transaction_output";
+import {TransactionOutput} from "./transaction_output";
 
 export class OpenTransactions {
     //Tuple - outputTransactionId, transactionIndex, blockIndex, address

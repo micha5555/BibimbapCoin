@@ -3,7 +3,7 @@ import {deserialize, Exclude, Expose, serialize, Type} from "class-transformer";
 import {TransactionInput} from "./transaction_input";
 import {TransactionOutput} from "./transaction_output";
 import {Blockchain} from "../blockchain";
-import {OpenTransactions} from "../open_transactions";
+import {OpenTransactions} from "./transactions_open";
 
 
 @Exclude()

@@ -8,7 +8,7 @@ import * as Timers from "node:timers";
 import {ListToMine} from "./list_to_mine";
 import {NodeMenu} from "./menu/node_menu";
 import {WalletMenu} from "./menu/wallet_menu";
-import {OpenTransactions} from "./open_transactions";
+import {OpenTransactions} from "./transactions/transactions_open";
 import {Blockchain} from "./blockchain";
 import {WalletController} from "./controllers/wallet_controller";
 import {NodeController} from "./controllers/node_controller";
