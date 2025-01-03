@@ -5,5 +5,6 @@ module.exports = {
         '/node_modules/', // Ignoruj folder node_modules
         '/dist/test/'     // Ignoruj folder dist/test
     ],
-    coverageReporters: ["text-summary", "html"]
+    coverageReporters: ["text-summary", "html"],
+    setupFiles:['reflect-metadata'],
 };

@@ -1,5 +1,5 @@
 import {createHash, randomUUID} from "node:crypto";
-import {Exclude, Expose, serialize} from "class-transformer";
+import {deserialize, Exclude, Expose, serialize, Type} from "class-transformer";
 import {TransactionInput} from "./transaction_input";
 import {TransactionOutput} from "./transaction_output";
 import {Blockchain} from "../blockchain";
@@ -9,10 +9,13 @@ import {OpenTransactions} from "../open_transactions";
 @Exclude()
 export class Transaction {
     @Expose()
-    public inputTransactions: TransactionInput[] = [];
+    @Type(() => TransactionInput)
+    public inputTransactions: TransactionInput[];
     @Expose()
-    public outputTransactions: TransactionOutput[] = [];
+    @Type(() => TransactionOutput)
+    public outputTransactions: TransactionOutput[];
     @Expose()
+    @Type(() => Date)
     public timestamp: Date;
 
     public transactionHash: string;
@@ -27,12 +30,13 @@ export class Transaction {
         this.timestamp = timestamp;
         this.publicKey = publicKey;
         this.transactionSignature = transactionSignature;
-        this.transactionHash = this.getTransactionHash();
+        this.transactionHash = "";
     }
 
-    static recreateTransactionJson(transaction: string): Transaction {
-        let jsonTransaction = JSON.parse(transaction);
-        return new Transaction(jsonTransaction.inputTransactions, jsonTransaction.outputTransactions, jsonTransaction.timestamp, jsonTransaction.publicKey, jsonTransaction.transactionSignature);
+    static recreateTransactionJson(jsonString: string): Transaction {
+        let transaction = deserialize(Transaction, jsonString);
+        transaction.transactionHash = transaction.getTransactionHash();
+        return transaction;
     }
 
     static createCoinbaseTransaction(amount: number, address: string, date: Date): Transaction {
