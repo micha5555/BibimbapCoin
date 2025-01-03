@@ -1,11 +1,14 @@
 
 import {createHash} from "node:crypto";
-import {deserialize} from "class-transformer";
+import {deserialize, Exclude, Expose, serialize, Type} from "class-transformer";
 import {Transaction} from "./transaction";
 import {Blockchain} from "../blockchain";
 import {OpenTransactions} from "./transactions_open";
 
-export class Transaction_container {
+@Exclude()
+export class TransactionContainer {
+    @Expose()
+    @Type(() => Transaction)
     private transactions: Transaction[] = [];
 
     addCoinbaseTransaction(transaction: Transaction) {
@@ -56,9 +59,10 @@ export class Transaction_container {
     }
 
     toJsonString(): string {
-        let jsonTransactions = this.transactions.map(transaction => transaction.toJson());
-        // return JSON.stringify({transactions: jsonTransactions});
-        return JSON.stringify(this);
+        // let jsonTransactions = this.transactions.map(transaction => transaction.toJson());
+        // // return JSON.stringify({transactions: jsonTransactions});
+        // return JSON.stringify(this);
+        return serialize(this);
     }
 
     getCalculatedHash(): string {
@@ -72,7 +76,7 @@ export class Transaction_container {
             .toString();
     }
 
-    static fromJson(json: any): Transaction_container {
-        return deserialize(Transaction_container, json);
+    static fromJson(json: string): TransactionContainer {
+        return deserialize(TransactionContainer, json);
     }
 }

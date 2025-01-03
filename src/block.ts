@@ -1,6 +1,6 @@
 import {createHash} from "node:crypto";
 import {blockchain, openTransactions} from "./index";
-import {Transaction_container} from "./transactions/transaction_container";
+import {TransactionContainer} from "./transactions/transaction_container";
 import {Transaction} from "./transactions/transaction";
 import {TransactionInput} from "./transactions/transaction_input";
 
@@ -9,13 +9,13 @@ export class Block {
     private previousHash: string;
     private startTimestamp: Date;
     private timestamp: Date | null = null;
-    private data: Transaction_container;
+    private data: TransactionContainer;
     private hash: string = "";
     private nonce: number;
     private difficulty: number;
     private minerId: string;
 
-    constructor(index: number, previousHash: string, startTimestamp: Date, data: Transaction_container, hash: string, nonce: number, difficulty: number, minerId: string) {
+    constructor(index: number, previousHash: string, startTimestamp: Date, data: TransactionContainer, hash: string, nonce: number, difficulty: number, minerId: string) {
         this.index = index;
         this.previousHash = previousHash;
         this.startTimestamp = startTimestamp;
@@ -26,14 +26,14 @@ export class Block {
         this.hash = hash;
     }
 
-    static generate(index: number, previousHash: string, startTimestamp: Date, data: Transaction_container, minerId: string, difficulty: number): Block {
+    static generate(index: number, previousHash: string, startTimestamp: Date, data: TransactionContainer, minerId: string, difficulty: number): Block {
         return new Block(index, previousHash, startTimestamp, data, "", 0, difficulty, minerId);
     }
 
     static generateGenesis(): Block {
         // console.log('Transaction:', Transaction);
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
-        const transactionsCoinbase = new Transaction_container();
+        const transactionsCoinbase = new TransactionContainer();
         transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAPMOQa0GAygWV7nvY5iKrdDZt/oLsy54UC7RxXHTBR9k=", genesisDate));
         transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
         var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
@@ -42,7 +42,7 @@ export class Block {
     }
 
     static fromJson(json: any): Block {
-        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), Transaction_container.fromJson(json.data), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
+        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), TransactionContainer.fromJson(JSON.stringify(json.data)), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
         block.timestamp = new Date(json.timestamp);
         return block;
     }
@@ -63,7 +63,7 @@ export class Block {
         this.timestamp = timestamp;
     }
 
-    get getData(): Transaction_container {
+    get getData(): TransactionContainer {
         return this.data;
     }
 
