@@ -42,7 +42,6 @@ export class NodeMenu {
             }
         ])
 
-        // TODO wywala errory jak wallet wyłączony
         switch (answers.action) {
             case enum_login_to_wallet:
                 await this.loginToWallet();
@@ -55,7 +54,6 @@ export class NodeMenu {
                 await this.showId();
                 break;
             case enum_genID:
-                // TODO: wywala błąd, jak się nie zalogował do walleta
                 await this.generateID();
                 break;
             case chose_identity:
@@ -115,7 +113,7 @@ export class NodeMenu {
     async fetchIdentitiesFromWallet() {
         try {
             let walletPort = await this._node.getWalletPort();
-            console.log("walletPort: " + walletPort);
+            // console.log("walletPort: " + walletPort);
             let result = await fetch(`http://localhost:`+ walletPort + '/get-identities', {
                 method: 'POST',
                 body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
@@ -124,12 +122,13 @@ export class NodeMenu {
                 }
             })
             if(result.status !== 200) {
-                console.log(result.status);
-                console.log(result.statusText);
+                // console.log(result.status);
+                // console.log(result.statusText);
                 console.error("Failed to fetch identities from wallet");
                 return;
             } else {
                 let identities = await result.json();
+                // console.log("identities: " + identities);
                 this._node.addIdentities(identities);
                 console.log("Fetched identities from wallet");
             }

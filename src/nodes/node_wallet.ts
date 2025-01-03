@@ -97,7 +97,7 @@ export class NodeWallet extends Node {
         let dataJSON = JSON.parse(data);
 
         // this._digitalWallet = new DigitalWallet();
-        console.log(dataJSON);
+        // console.log(dataJSON);
 
         // this._digitalWallet.addIdentity(dataJSON.port, dataJSON.password, dataJSON.digitalWallet.privateKey, dataJSON.digitalWallet.publicKey);
 
@@ -106,15 +106,17 @@ export class NodeWallet extends Node {
             this._digitalWallet.setPortAndPassword(dataJSON.port, dataJSON.password);
         }
 
-        if(dataJSON.identities == undefined) {
+        if(dataJSON.digitalWallet == undefined) {
             return;
         }
-        let walletIdentities = dataJSON.identities.map((identity: { privateKey: string, publicKey: string}) => {
+        let walletIdentities = dataJSON.digitalWallet.map((identity: { privateKey: string, publicKey: string}) => {
             return {
                 privateKey: identity.privateKey,
                 publicKey: identity.publicKey
             }
         });
+
+        // console.log("walletIdentities: " + walletIdentities);
 
         walletIdentities.forEach((identity: { privateKey: string, publicKey: string }) => {
             this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey);

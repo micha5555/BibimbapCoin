@@ -25,13 +25,15 @@ export class WalletController extends Controller {
                 return;
             } else {
                 let user = (this.node as NodeWallet).getDigitalWallet.userData;
-
+                // console.log("user " + user);
                 if (user.port === port) {
                     if (await verifyPassword(user.password, password)) {
+                        // console.log("returning 200 " + user.identities);
                         response.status(200)
                             .send(user.identities.map(identity => identity.publicKey));
                         return;
                     } else {
+                        // console.log("returning 400");
                         response.status(400)
                             .send("Incorrect password");
                         return;
@@ -80,8 +82,8 @@ export class WalletController extends Controller {
                 const user = (this.node as NodeWallet).getDigitalWallet.userData;
 
                 if (user != null) {
-                    console.log("user.port " + user.port);
-                    console.log("port " + port);
+                    // console.log("user.port " + user.port);
+                    // console.log("port " + port);
                     if (user.port === port) {
                         try {
                             const passwordVerified = await verifyPassword(user.password, password);
