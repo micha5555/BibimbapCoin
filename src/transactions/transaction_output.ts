@@ -31,7 +31,7 @@ export class TransactionOutput {
     calculateHash() : string {
         return createHash('sha256')
             .update(this.id + this.amount + this.address)
-            .digest()
+            .digest('hex')
             .toString();
     }
 

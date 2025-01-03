@@ -1,14 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import {TransactionOutput} from "../src/transactions/transaction_output";
 
-
-describe('synchronous passing test', () => {
-    it('should pass because it does not throw an exception', () => {
-        expect(1).toBe(1);
-    });
-});
-
-describe('TransactionOutput', () => {
+describe('TransactionOutput.constructor', () => {
     it('should be created with correct values', () => {
         let transactionOutput = new TransactionOutput("ID", 100, "address");
         expect(transactionOutput.id).toBe("ID");
@@ -17,13 +10,39 @@ describe('TransactionOutput', () => {
     });
 });
 
-describe('TransactionToAddress', () => {
+describe('TransactionOutput.TransactionToAddress', () => {
     it('should work correctly', () => {
         let transactionOutput = TransactionOutput.TransactionToAddress(100, "address");
         expect(transactionOutput.amount).toBe(100);
         expect(transactionOutput.address).toBe("address");
         expect(transactionOutput.id).not.toBe("");
         expect(transactionOutput.id).not.toBeUndefined();
+    });
+});
+
+describe('TransactionOutput.calculateHash', () => {
+   it('should return a hash', () => {
+         let transactionOutput = new TransactionOutput("ID", 100, "address");
+         let hash = transactionOutput.calculateHash();
+         expect(hash).not.toBe("");
+         expect(hash).not.toBeUndefined();
+         expect(hash).toBe("440506a2ae51fe4701fabf4d1ea92cd9b1c1154812f798dca56356657e34d598");
+   });
+
+    it('should return a different hash for different values', () => {
+            let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+            let transactionOutput2 = new TransactionOutput("ID", 200, "address");
+            let hash1 = transactionOutput1.calculateHash();
+            let hash2 = transactionOutput2.calculateHash();
+            expect(hash1).not.toBe(hash2);
+    });
+
+    it('should return the same hash for the same values', () => {
+            let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+            let transactionOutput2 = new TransactionOutput("ID", 100, "address");
+            let hash1 = transactionOutput1.calculateHash();
+            let hash2 = transactionOutput2.calculateHash();
+            expect(hash1).toBe(hash2);
     });
 });
 

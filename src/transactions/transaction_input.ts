@@ -1,5 +1,5 @@
 import {createHash} from "node:crypto";
-import {Exclude, Expose, serialize} from "class-transformer";
+import {deserialize, Exclude, Expose, serialize} from "class-transformer";
 
 @Exclude()
 export class TransactionInput {
@@ -22,7 +22,7 @@ export class TransactionInput {
     calculateHash() : string {
         return createHash('sha256')
             .update(this.transactionOutputId + this.transactionIndex + this.blockIndex)
-            .digest()
+            .digest('hex')
             .toString();
     }
 
@@ -32,5 +32,9 @@ export class TransactionInput {
 
     toJson(): any {
         return serialize(this)
+    }
+
+    static fromJson(json: any): TransactionInput {
+        return deserialize(TransactionInput, json);
     }
 }
