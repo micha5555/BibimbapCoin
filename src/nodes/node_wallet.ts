@@ -29,26 +29,44 @@ export class NodeWallet extends Node {
 
     async parseToJsonObject(): Promise<string> {
         // Assuming `this._data` holds the new array format
-        const processedData = await Promise.all(
-            this._digitalWallet.usersIdentities.map(async (item: { port: number; password: string; identities: Array<{ privateKey: string; publicKey: string }> }) => {
-                const identities = item.identities.map(identity => {
-                    return {
-                        privateKey: identity.privateKey, // Encrypt using item's password
-                        publicKey: identity.publicKey
-                    };
-                });
+        let userData = this._digitalWallet.userData;
+        if(userData === null) {
+            return JSON.stringify({});
+        }
+        let userIdentities = this._digitalWallet.userData.identities.map(identity => {
+            return {
+                privateKey: identity.privateKey,
+                publicKey: identity.publicKey
+            }
+        });
+        // const processedData = await Promise.all(
+        //     this._digitalWallet.userData.map(async (item: { port: number; password: string; identities: Array<{ privateKey: string; publicKey: string }> }) => {
+        //         const identities = item.identities.map(identity => {
+        //             return {
+        //                 privateKey: identity.privateKey, // Encrypt using item's password
+        //                 publicKey: identity.publicKey
+        //             };
+        //         });
+        //
+        //         // const hashedPassword = await hashPassword(item.password); // Hash the item's password
+        //
+        //
+        //
+        //         return {
+        //             port: item.port,
+        //             password: item.password,
+        //             identities: identities
+        //         };
+        //     })
+        // );
 
-                // const hashedPassword = await hashPassword(item.password); // Hash the item's password
+        return JSON.stringify({
+            port: this._digitalWallet.userData.port,
+            password: this._digitalWallet.userData.password,
+            digitalWallet: userIdentities
+        })
 
-                return {
-                    port: item.port,
-                    password: item.password,
-                    identities: identities
-                };
-            })
-        );
-
-        return JSON.stringify(processedData); // Convert processed array to JSON string
+        // return JSON.stringify(processedData); // Convert processed array to JSON string
     }
 
     async saveNodeToFile(): Promise<void> {
@@ -78,12 +96,36 @@ export class NodeWallet extends Node {
         let data = fs.readFileSync(fileName);
         let dataJSON = JSON.parse(data);
 
-        this._digitalWallet = new DigitalWallet();
+        // this._digitalWallet = new DigitalWallet();
+        // console.log(dataJSON);
 
-        dataJSON.forEach((user: { port: number, password: string, identities: { privateKey: string, publicKey: string }[] }) => {
-            user.identities.forEach((identity: { privateKey: string, publicKey: string }) => {
-                this._digitalWallet.addIdentity(user.port, user.password, identity.privateKey, identity.publicKey);
-            });
+        // this._digitalWallet.addIdentity(dataJSON.port, dataJSON.password, dataJSON.digitalWallet.privateKey, dataJSON.digitalWallet.publicKey);
+
+        this._digitalWallet = new DigitalWallet();
+        if(dataJSON.port != undefined && dataJSON.password != undefined) {
+            this._digitalWallet.setPortAndPassword(dataJSON.port, dataJSON.password);
+        }
+
+        if(dataJSON.digitalWallet == undefined) {
+            return;
+        }
+        let walletIdentities = dataJSON.digitalWallet.map((identity: { privateKey: string, publicKey: string}) => {
+            return {
+                privateKey: identity.privateKey,
+                publicKey: identity.publicKey
+            }
         });
+
+        // console.log("walletIdentities: " + walletIdentities);
+
+        walletIdentities.forEach((identity: { privateKey: string, publicKey: string }) => {
+            this._digitalWallet.addIdentity(identity.privateKey, identity.publicKey);
+        });
+
+        // dataJSON.forEach((user: { port: number, password: string, identities: { privateKey: string, publicKey: string }[] }) => {
+        //     user.identities.forEach((identity: { privateKey: string, publicKey: string }) => {
+        //         this._digitalWallet.addIdentity(user.port, user.password, identity.privateKey, identity.publicKey);
+        //     });
+        // });
     }
 }

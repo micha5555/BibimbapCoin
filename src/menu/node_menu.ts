@@ -50,6 +50,7 @@ export class NodeMenu {
                 await this.fetchIdentitiesFromWallet();
                 break
             case enum_showIDs:
+                // coś nei wyświetla
                 await this.showId();
                 break;
             case enum_genID:
@@ -87,43 +88,54 @@ export class NodeMenu {
     async loginToWallet() {
         let walletPort = await this.getWalletPort();
         let password = await this.getPassword();
-        let result = await fetch(`http://localhost:`+ walletPort + '/login-user', {
-            method: 'POST',
-            body: JSON.stringify({port: this._port, password: password}),
-            headers: {
-                'Content-Type': 'application/json'
+        try {
+            let result = await fetch(`http://localhost:`+ walletPort + '/login-user', {
+                method: 'POST',
+                body: JSON.stringify({port: this._port, password: password}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if(result.status !== 200) {
+                console.error("Failed to login to wallet");
+                return;
+            } else {
+                this._node.setPassword(password);
+                this._node.setWalletPort(walletPort);
+                console.log("Logged in to wallet");
             }
-        })
-        if(result.status !== 200) {
-            console.error("Failed to login to wallet");
-            return;
-        } else {
-            this._node.setPassword(password);
-            this._node.setWalletPort(walletPort);
-            console.log("Logged in to wallet");
+        } catch (e) {
+            console.error("Failed to connect to Wallet");
         }
+
     }
 
     async fetchIdentitiesFromWallet() {
-        let walletPort = await this._node.getWalletPort();
-        console.log("walletPort: " + walletPort);
-        let result = await fetch(`http://localhost:`+ walletPort + '/get-identities', {
-            method: 'POST',
-            body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
-            headers: {
-                'Content-Type': 'application/json'
+        try {
+            let walletPort = await this._node.getWalletPort();
+            // console.log("walletPort: " + walletPort);
+            let result = await fetch(`http://localhost:`+ walletPort + '/get-identities', {
+                method: 'POST',
+                body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if(result.status !== 200) {
+                // console.log(result.status);
+                // console.log(result.statusText);
+                console.error("Failed to fetch identities from wallet");
+                return;
+            } else {
+                let identities = await result.json();
+                // console.log("identities: " + identities);
+                this._node.addIdentities(identities);
+                console.log("Fetched identities from wallet");
             }
-        })
-        if(result.status !== 200) {
-            console.log(result.status);
-            console.log(result.statusText);
-            console.error("Failed to fetch identities from wallet");
-            return;
-        } else {
-            let identities = await result.json();
-            this._node.addIdentities(identities);
-            console.log("Fetched identities from wallet");
+        } catch (e) {
+            console.error("Failed to connect to Wallet");
         }
+
     }
 
 
@@ -182,19 +194,24 @@ export class NodeMenu {
     }
 
     async generateID() {
-        let result = await fetch(`http://localhost:`+ this._node.getWalletPort() + '/add-identity', {
-            method: 'POST',
-            body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
-            headers: {
-                'Content-Type': 'application/json'
+        try {
+            let result = await fetch(`http://localhost:`+ this._node.getWalletPort() + '/add-identity', {
+                method: 'POST',
+                body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if(result.status !== 200) {
+                console.error("Failed to generate identity");
+                return;
+            } else {
+                console.log("Identity generated");
             }
-        })
-        if(result.status !== 200) {
-            console.error("Failed to generate identity");
-            return;
-        } else {
-            console.log("Identity generated");
+        } catch (e) {
+            console.error("Failed to connect to Wallet");
         }
+
     }
 
     async mine() {
