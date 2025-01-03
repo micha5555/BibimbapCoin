@@ -11,6 +11,10 @@ export class TransactionContainer {
     @Type(() => Transaction)
     private transactions: Transaction[] = [];
 
+    constructor(transactions: Transaction[] = []) {
+        this.transactions = transactions;
+    }
+
     addCoinbaseTransaction(transaction: Transaction) {
         this.transactions.push(transaction);
     }
