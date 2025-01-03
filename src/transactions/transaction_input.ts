@@ -1,8 +1,13 @@
 import {createHash} from "node:crypto";
+import {Exclude, Expose, serialize} from "class-transformer";
 
+@Exclude()
 export class TransactionInput {
+    @Expose()
     public transactionOutputId: string;
+    @Expose()
     public transactionIndex: number;
+    @Expose()
     public blockIndex: number;
     public address: string;
     public amount: number = 0;
@@ -21,7 +26,11 @@ export class TransactionInput {
             .toString();
     }
 
+    // toJson(): any {
+    //     return {transactionOutputId: this.transactionOutputId, transactionIndex: this.transactionIndex, blockIndex: this.blockIndex};
+    // }
+
     toJson(): any {
-        return {transactionOutputId: this.transactionOutputId, transactionIndex: this.transactionIndex, blockIndex: this.blockIndex};
+        return serialize(this)
     }
 }

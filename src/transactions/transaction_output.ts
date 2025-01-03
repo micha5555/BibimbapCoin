@@ -1,5 +1,5 @@
 import {createHash, randomUUID} from "node:crypto";
-import {Exclude, Expose, serialize} from "class-transformer";
+import {deserialize, Exclude, Expose, serialize} from "class-transformer";
 
 @Exclude()
 export class TransactionOutput {
@@ -43,4 +43,7 @@ export class TransactionOutput {
         return serialize(this); //JSON.stringify(instanceToPlain(this)); //alternative
     }
 
+    static fromJson(json: any): TransactionOutput {
+        return deserialize(TransactionOutput, json);
+    }
 }

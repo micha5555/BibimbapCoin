@@ -34,3 +34,13 @@ describe('TransactionOutput.toJson', () => {
         expect(json).toBe('{"id":"ID","address":"address","amount":100}');
     });
 });
+
+describe('TransactionOutput.fromJson', () => {
+    it('should return a TransactionOutput object', () => {
+        let json = JSON.stringify({id: "ID", amount: 100, address: "address"});
+        let transactionOutput = TransactionOutput.fromJson(json);
+        expect(transactionOutput.id).toBe("ID");
+        expect(transactionOutput.amount).toBe(100);
+        expect(transactionOutput.address).toBe("address");
+    });
+});
