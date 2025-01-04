@@ -182,6 +182,9 @@ export class WalletController extends Controller {
                         listToMine.addItemToMine(transaction);
                         let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
                         this.node.broadcastMessage(message);
+
+                        // console.log("decrypted private key");
+                        // console.log(await (this.node as NodeWallet).getDigitalWallet.getDecryptedPrivateKey(port, password, from));
                         response.status(200)
                             .send("Transactions added");
                         return;
