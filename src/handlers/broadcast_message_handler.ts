@@ -2,6 +2,7 @@ import {Block} from "../block";
 import {Node} from "../nodes/node";
 import {blockchain, listToMine} from "../index";
 import {Transaction} from "../transactions/transaction";
+import {type} from "node:os";
 
 
 function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received
@@ -19,7 +20,6 @@ function handleTextMessage(message: string): void {
 
 function handleTransactionMessage(message: any): void {
     // // TODO: jakieś weryfikacje? ofc weryfikacja
-    console.log('plain message: \n', message);
     listToMine.addItemToMine(Transaction.recreateTransactionJson(message));
 }
 

@@ -1,10 +1,12 @@
 //import {DigitalWallet} from "./digital_wallet";
 //import { generateKeys, hashPassword, encrypt, decrypt } from "./crypto_utils";
-import {blockchain} from "../index";
+import {blockchain, listToMine} from "../index";
 // import {DigitalWallet} from "../wallet/digital_wallet";
 // import { generateKeys, hashPassword, encrypt, decrypt } from "../crypto_utils";
 import {Block} from "../block";
 import {Message} from "../message";
+import {Transaction} from "../transactions/transaction";
+import {TransactionContainer} from "../transactions/transaction_container";
 
 export abstract class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -73,12 +75,28 @@ export abstract class Node{
         this.addBlockchainFromJson(responseJson);
     }
 
+    async assignNeighbourListToMineToNode(port: number) {
+        const response = await fetch(`http://localhost:${port}/get-items-to-mine`);
+        if (!response.ok) {
+            throw new Error(`Failed to get items to mine from port ${port}: ${response.statusText}`);
+        }
+
+        const responseJson = await response.json();
+        this.addListToMineFromJson(responseJson);
+    }
+
     addBlockchainFromJson(responseJson: any): void {
         let blocks: Block[] = [];
         for (let blockJson of responseJson) {
             blocks.push(Block.fromJson(blockJson));
         }
         blockchain.addBatchOfBlocks(blocks);
+    }
+
+    addListToMineFromJson(responseJson: any): void {
+        for (let item of responseJson) {
+            listToMine.addItemToMine(Transaction.recreateTransactionJson(JSON.stringify(item)));
+        }
     }
 
     // get getIdentities(): {publicKey: string}[] {

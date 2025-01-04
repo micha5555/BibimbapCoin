@@ -2,7 +2,7 @@ import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
 import {handleBlockMessage, handleTextMessage, handleTransactionMessage} from "../handlers/broadcast_message_handler";
 import {Message, MessageType} from "../message";
-import {blockchain} from "../index";
+import {blockchain, listToMine} from "../index";
 
 export abstract class Controller {
     app: Express;
@@ -57,6 +57,11 @@ export abstract class Controller {
         this.app.get("/get-blocks", (request: Request, response: Response): void => {
             response.status(200)
                 .send(blockchain.getBlocks);
+        })
+
+        this.app.get("/get-items-to-mine", (request: Request, response: Response): void => {
+            response.status(200)
+                .send(listToMine.getQueue);
         })
 
         this.app.post("/broadcast-message", (request: Request, response: Response): void => {

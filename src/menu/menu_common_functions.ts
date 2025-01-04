@@ -45,6 +45,7 @@ export async function connectToNeighbor(node: Node) {
     try {
         await connect(port);
         await node.assignNeighborBlockchainToNode(port);
+        await node.assignNeighbourListToMineToNode(port);
         node.addNeighbor(port);
         console.log(`Neighbor on port ${port} added`);
     }
