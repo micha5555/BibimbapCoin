@@ -8,6 +8,7 @@ import {TransactionOutput} from "../transactions/transaction_output";
 import {TransactionInput} from "../transactions/transaction_input";
 import {Transaction} from "../transactions/transaction";
 import {listToMine} from "../index";
+import {Message, MessageType} from "../message";
 
 
 export class WalletController extends Controller {
@@ -175,9 +176,12 @@ export class WalletController extends Controller {
 
                         // (inputTransactions: TransactionInput[], outputTransactions: TransactionOutput[], timestamp: Date, publicKey: string, transactionSignature: string)
                         let transaction = new Transaction(transferedInputTransactions, outputTrans, new Date(), from, "");
-                        let transactionInJson = transaction.toJson();
+                        transaction.transactionHash = transaction.getTransactionHash();
+                        let transactionInJson = transaction.toJsonString();
                         // console.log(transactionInJson);
-                        listToMine.addItemToMine(transactionInJson);
+                        listToMine.addItemToMine(transaction);
+                        let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
+                        this.node.broadcastMessage(message);
                         response.status(200)
                             .send("Transactions added");
                         return;

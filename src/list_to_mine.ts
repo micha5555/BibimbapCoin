@@ -1,15 +1,19 @@
-export class ListToMine {
-    private _queue: any[] = [];
+import {Transaction} from "./transactions/transaction";
 
-    addItemToMine(item: any): void {
+export class ListToMine {
+    private _queue: Transaction[] = [];
+
+    addItemToMine(item: Transaction): void {
+        console.log("Adding item to mine: " + item);
+        console.log("Type of item: " + typeof item);
         this._queue.push(item);
     }
 
-    getBlockToMine(): any | undefined {
+    getBlockToMine(): Transaction | undefined {
         return this._queue.shift();
     }
 
-    get getQueue(): any[] {
+    get getQueue(): Transaction[] {
         return this._queue;
     }
 
@@ -17,7 +21,7 @@ export class ListToMine {
         return this._queue.length === 0;
     }
 
-    removeItemFromMine(item: any): void {
+    removeItemFromMine(item: Transaction): void {
         const index = this._queue.indexOf(item);
         if (index > -1) {
             this._queue.splice(index, 1);

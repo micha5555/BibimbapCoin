@@ -1,6 +1,6 @@
 import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
-import {handleBlockMessage, handleTextMessage} from "../handlers/broadcast_message_handler";
+import {handleBlockMessage, handleTextMessage, handleTransactionMessage} from "../handlers/broadcast_message_handler";
 import {Message, MessageType} from "../message";
 import {blockchain} from "../index";
 
@@ -75,6 +75,7 @@ export abstract class Controller {
                         handleTextMessage(message.message);
                         break;
                     case MessageType.TRANSACTION:
+                        handleTransactionMessage(message.message);
                         break;
                 }
                 response.status(200)

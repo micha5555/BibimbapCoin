@@ -4,6 +4,7 @@ import inquirer from "inquirer";
 import {Node} from "./nodes/node";
 import {Message, MessageType} from "./message";
 import {blockchain} from "./index";
+import {TransactionContainer} from "./transactions/transaction_container";
 
 export class Miner {
     private listToMine: ListToMine;
@@ -18,7 +19,17 @@ export class Miner {
 
     prepareBlockToMine(): Block {
         let lastBlock = blockchain.getLastBlock();
-        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), this.listToMine.getBlockToMine(), this.identity, blockchain.nextBlockDifficulty);
+        console.log("lastBlock: " + lastBlock);
+        console.log("lastBlock.toString: " + lastBlock.toString());
+        let blockToMine = this.listToMine.getBlockToMine();
+        if(blockToMine == undefined)
+        {
+            throw new Error("Block to mine is undefined");
+        }
+        let transactionContainer = new TransactionContainer([blockToMine])
+        console.log(blockToMine);
+        console.log(typeof blockToMine);
+        return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), transactionContainer, this.identity, blockchain.nextBlockDifficulty);
     }
 
     setIdentity(identity: string) {

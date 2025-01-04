@@ -68,6 +68,8 @@ export class Block {
     }
 
     calculateHash(): void {
+        console.log("data in calculateHash: ", this.data);
+        console.log(typeof this.data);
         let hashBuffer = createHash('sha256')
             .update(this.index + this.previousHash + this.data.getCalculatedHash() + this.nonce + this.minerId + this.startTimestamp.toISOString())
             .digest();
