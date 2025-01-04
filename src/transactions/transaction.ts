@@ -81,6 +81,36 @@ export class Transaction {
             .toString();
     }
 
+    public equals(transaction: Transaction): boolean {
+        if (this.inputTransactions.length !== transaction.inputTransactions.length) {
+            return false;
+        }
+        if (this.outputTransactions.length !== transaction.outputTransactions.length) {
+            return false;
+        }
+        for (let i = 0; i < this.inputTransactions.length; i++) {
+            if (!this.inputTransactions[i].equals(transaction.inputTransactions[i])) {
+                return false;
+            }
+        }
+        for (let i = 0; i < this.outputTransactions.length; i++) {
+            if (!this.outputTransactions[i].equals(transaction.outputTransactions[i])) {
+                return false;
+            }
+        }
+        if (this.timestamp.getTime() !== transaction.timestamp.getTime()) {
+            return false;
+        }
+        if (this.publicKey !== transaction.publicKey) {
+            return false;
+        }
+        if (this.transactionSignature !== transaction.transactionSignature) {
+            return false;
+        }
+
+        return true;
+    }
+
     public signTransaction(privateKey: string) { //TODO: Sign the transaction
         //TODO: USE RANDOM NONCE
     }

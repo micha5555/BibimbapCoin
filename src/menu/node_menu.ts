@@ -14,17 +14,17 @@ import {
     showNeighbors, connectToNeighbor, showBlocks, addToMine, enum_login_to_wallet, enum_fetch_identities_from_wallet
 } from "./menu_common_functions";
 import {Miner} from "../miner";
-import {ListToMine} from "../list_to_mine";
+import {TransactionQueueToMine} from "../list_to_mine";
 import {NodeNode} from "../nodes/node_node";
 
 export class NodeMenu {
     _node: NodeNode;
     _chosenIdentity: string | null = null;
     _miner: Miner;
-    _listToMine: ListToMine;
+    _listToMine: TransactionQueueToMine;
     _port: number;
 
-    constructor(node: NodeNode, port: number, listToMine: ListToMine) {
+    constructor(node: NodeNode, port: number, listToMine: TransactionQueueToMine) {
         this._node = node;
         this._listToMine = listToMine;
         this._miner = new Miner(this._listToMine, this._node);

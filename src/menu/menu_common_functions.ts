@@ -2,7 +2,7 @@ import inquirer from "inquirer";
 // import {listToMine} from "../index";
 import {Node} from "../nodes/node";
 import {blockchain, connect} from "../index";
-import {ListToMine} from "../list_to_mine";
+import {TransactionQueueToMine} from "../list_to_mine";
 
 // menu options
 export const enum_showIDs = "Show IDs";
@@ -59,7 +59,7 @@ export async function showBlocks(node: Node) {
 }
 
 // TODO: broadcast
-export async function addToMine(listToMine: ListToMine) {
+export async function addToMine(listToMine: TransactionQueueToMine) {
     let message = await inquirer.prompt([
         {
             type: "input",
@@ -67,5 +67,5 @@ export async function addToMine(listToMine: ListToMine) {
             message: "Enter message to mine"
         }
     ])
-    listToMine.addItemToMine(message.message);
+    listToMine.addTransactionToQueue(message.message);
 }

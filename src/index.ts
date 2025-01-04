@@ -5,7 +5,7 @@ import {Node} from "./nodes/node";
 
 import inquirer from "inquirer";
 import * as Timers from "node:timers";
-import {ListToMine} from "./list_to_mine";
+import {TransactionQueueToMine} from "./list_to_mine";
 import {NodeMenu} from "./menu/node_menu";
 import {WalletMenu} from "./menu/wallet_menu";
 import {OpenTransactions} from "./transactions/transactions_open";
@@ -27,7 +27,7 @@ app.use(express.json());
 
 let controller: Controller;
 let node: Node;
-export let listToMine = new ListToMine();
+export let listToMine = new TransactionQueueToMine();
 export let openTransactions = new OpenTransactions();
 export let blockchain = new Blockchain();
 
@@ -104,7 +104,7 @@ async function getPort() {
     return handlePortInput(answers.port);
 }
 
-async function selectAndCreateMenu(port: number, listToMine: ListToMine) {
+async function selectAndCreateMenu(port: number, listToMine: TransactionQueueToMine) {
     let answers = await inquirer.prompt([
         {
             type: "list",

@@ -9,7 +9,7 @@ function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mi
     const block: Block = Block.fromJson(JSON.parse(message));
     blockchain.addBlock(block);
     block.getData.getTransactions().forEach(transaction => {
-        listToMine.removeItemFromMine(transaction);
+        listToMine.removeTransactionFromQueue(transaction);
     });
     //TODO: Zaktualizować, by działało dla transakcji
 }
@@ -20,7 +20,7 @@ function handleTextMessage(message: string): void {
 
 function handleTransactionMessage(message: any): void {
     // // TODO: jakieś weryfikacje? ofc weryfikacja
-    listToMine.addItemToMine(Transaction.recreateTransactionJson(message));
+    listToMine.addTransactionToQueue(Transaction.recreateTransactionJson(message));
 }
 
 

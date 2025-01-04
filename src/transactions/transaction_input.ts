@@ -37,4 +37,17 @@ export class TransactionInput {
     static fromJson(json: any): TransactionInput {
         return deserialize(TransactionInput, json);
     }
+
+    equals(transactionInput: TransactionInput) {
+        if (this.transactionOutputId !== transactionInput.transactionOutputId) {
+            return false;
+        }
+        if (this.transactionIndex !== transactionInput.transactionIndex) {
+            return false;
+        }
+        if (this.blockIndex !== transactionInput.blockIndex) {
+            return false;
+        }
+        return true;
+    }
 }

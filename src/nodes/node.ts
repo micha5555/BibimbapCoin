@@ -95,7 +95,7 @@ export abstract class Node{
 
     addListToMineFromJson(responseJson: any): void {
         for (let item of responseJson) {
-            listToMine.addItemToMine(Transaction.recreateTransactionJson(JSON.stringify(item)));
+            listToMine.addTransactionToQueue(Transaction.recreateTransactionJson(JSON.stringify(item)));
         }
     }
 

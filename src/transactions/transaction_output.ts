@@ -46,4 +46,20 @@ export class TransactionOutput {
     static fromJson(json: any): TransactionOutput {
         return deserialize(TransactionOutput, json);
     }
+
+    equals(transactionOutput: TransactionOutput) {
+        if (this.id !== transactionOutput.id) {
+            return false;
+        }
+
+        if (this.amount !== transactionOutput.amount) {
+            return false;
+        }
+
+        if (this.address !== transactionOutput.address) {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -1,5 +1,5 @@
 import {NodeWallet} from "../nodes/node_wallet";
-import {ListToMine} from "../list_to_mine";
+import {TransactionQueueToMine} from "../list_to_mine";
 import inquirer from "inquirer";
 import {
     add_to_mine, addToMine, connectToNeighbor,
@@ -9,10 +9,10 @@ import {
 
 export class WalletMenu {
     _node: NodeWallet;
-    _listToMine: ListToMine;
+    _listToMine: TransactionQueueToMine;
     _port: number;
 
-    constructor(node: NodeWallet, port: number, listToMine: ListToMine) {
+    constructor(node: NodeWallet, port: number, listToMine: TransactionQueueToMine) {
         this._node = node;
         this._listToMine = listToMine;
         this._port = port;

@@ -179,7 +179,7 @@ export class WalletController extends Controller {
                         transaction.transactionHash = transaction.getTransactionHash();
                         let transactionInJson = transaction.toJsonString();
                         // console.log(transactionInJson);
-                        listToMine.addItemToMine(transaction);
+                        listToMine.addTransactionToQueue(transaction);
                         let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
                         this.node.broadcastMessage(message);
                         response.status(200)

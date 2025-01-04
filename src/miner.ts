@@ -1,5 +1,5 @@
 import { Block } from "./block";
-import { ListToMine } from "./list_to_mine";
+import { TransactionQueueToMine } from "./list_to_mine";
 import inquirer from "inquirer";
 import {Node} from "./nodes/node";
 import {Message, MessageType} from "./message";
@@ -7,12 +7,12 @@ import {blockchain} from "./index";
 import {TransactionContainer} from "./transactions/transaction_container";
 
 export class Miner {
-    private listToMine: ListToMine;
+    private listToMine: TransactionQueueToMine;
     private identity: string = "";
     private run = true;
     private node: Node;
 
-    constructor(listToMine: ListToMine, node: Node) {
+    constructor(listToMine: TransactionQueueToMine, node: Node) {
         this.listToMine = listToMine;
         this.node = node;
     }
@@ -21,7 +21,7 @@ export class Miner {
         let lastBlock = blockchain.getLastBlock();
         console.log("lastBlock: " + lastBlock);
         console.log("lastBlock.toString: " + lastBlock.toString());
-        let blockToMine = this.listToMine.getBlockToMine();
+        let blockToMine = this.listToMine.getTransactionToMine();
         if(blockToMine == undefined)
         {
             throw new Error("Block to mine is undefined");
