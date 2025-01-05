@@ -13,7 +13,6 @@ import {
     showNeighbors,
     connectToNeighbor,
     showBlocks,
-    addToMine,
     enum_login_to_wallet,
     enum_fetch_identities_from_wallet,
     enum_send_transaction,
