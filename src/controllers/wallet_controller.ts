@@ -2,7 +2,14 @@ import {Controller} from "./controller";
 import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
 import {NodeWallet} from "../nodes/node_wallet";
-import {encrypt, generateKeys, verifyPassword} from "../crypto_utils";
+import {
+    decrypt,
+    encrypt,
+    generateKeys,
+    signData,
+    verifyPassword,
+    verifySignature
+} from "../crypto_utils";
 import {openTransactions} from "../index";
 import {TransactionOutput} from "../transactions/transaction_output";
 import {TransactionInput} from "../transactions/transaction_input";
@@ -177,14 +184,16 @@ export class WalletController extends Controller {
                         // (inputTransactions: TransactionInput[], outputTransactions: TransactionOutput[], timestamp: Date, publicKey: string, transactionSignature: string)
                         let transaction = new Transaction(transferedInputTransactions, outputTrans, new Date(), from, "");
                         transaction.transactionHash = transaction.getTransactionHash();
+                        let privateKey = await (this.node as NodeWallet).getDigitalWallet.getDecryptedPrivateKey(port, password, from);
+                        transaction.transactionSignature = signData(transaction.transactionHash, privateKey!!)
+
+                        // Tak się weryfikuje
+                        // console.log("verify: " + verifySignature(transaction.transactionHash, transaction.transactionSignature, from));
                         let transactionInJson = transaction.toJsonString();
-                        // console.log(transactionInJson);
                         listToMine.addItemToMine(transaction);
                         let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
                         this.node.broadcastMessage(message);
 
-                        // console.log("decrypted private key");
-                        // console.log(await (this.node as NodeWallet).getDigitalWallet.getDecryptedPrivateKey(port, password, from));
                         response.status(200)
                             .send("Transactions added");
                         return;

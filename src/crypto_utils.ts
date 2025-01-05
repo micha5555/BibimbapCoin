@@ -1,4 +1,12 @@
-import {generateKeyPairSync, createHash, KeyObject, createCipheriv, createDecipheriv, randomBytes} from "node:crypto";
+import {
+    generateKeyPairSync,
+    createHash,
+    KeyObject,
+    createCipheriv,
+    createDecipheriv,
+    randomBytes,
+    sign, verify, createPrivateKey, createPublicKey
+} from "node:crypto";
 import argon2 from 'argon2';
 
 // const encryption_method = 'aes-256-cbc';
@@ -71,8 +79,40 @@ function decrypt(dataToDecrypt:string, password:string) {
     )
 }
 
+function signData(data: string, privateKey: string): string {
+    let privateKeyAsKeyObject = createPrivateKeyObjectFromString(privateKey);
+    return sign(null, Buffer.from(data), {
+        key: privateKeyAsKeyObject,
+    }).toString('base64');
+}
+
+function verifySignature(data: string, signature: string, publicKey: string): boolean {
+    let publicKeyAsKeyObject = createPublicKeyObjectFromString(publicKey);
+    return verify(null, Buffer.from(data), {
+        key: publicKeyAsKeyObject,
+    }, Buffer.from(signature, "base64"));
+}
+
+function createPrivateKeyObjectFromString(privateKeyFragment: string): KeyObject {
+    const pem = `-----BEGIN PRIVATE KEY-----\n${privateKeyFragment}\n-----END PRIVATE KEY-----`;
+    return createPrivateKey({
+        key: pem,
+        format: 'pem',
+        type: 'pkcs8'
+    });
+}
+
+function createPublicKeyObjectFromString(publicKeyFragment: string): KeyObject {
+    const pem = `-----BEGIN PUBLIC KEY-----\n${publicKeyFragment}\n-----END PUBLIC KEY-----`;
+    return createPublicKey({
+        key: pem,
+        format: 'pem',
+        type: 'spki'
+    });
+}
+
 function hashTheMessage(body: string) {
     return createHash("sha1").update(body).digest("hex");
 }
 
-export { generateKeys, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt, hashTheMessage };
+export { generateKeys, hashPassword, extractOnlyKeyContent, verifyPassword, encrypt, decrypt, hashTheMessage, signData, verifySignature };
