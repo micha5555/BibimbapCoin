@@ -2,7 +2,14 @@ import {Controller} from "./controller";
 import {Express, Request, Response} from "express";
 import {Node} from "../nodes/node";
 import {NodeWallet} from "../nodes/node_wallet";
-import {encrypt, generateKeys, verifyPassword} from "../crypto_utils";
+import {
+    decrypt,
+    encrypt,
+    generateKeys,
+    signData,
+    verifyPassword,
+    verifySignature
+} from "../crypto_utils";
 import {openTransactions} from "../index";
 import {TransactionOutput} from "../transactions/transaction_output";
 import {TransactionInput} from "../transactions/transaction_input";
@@ -177,11 +184,16 @@ export class WalletController extends Controller {
                         // (inputTransactions: TransactionInput[], outputTransactions: TransactionOutput[], timestamp: Date, publicKey: string, transactionSignature: string)
                         let transaction = new Transaction(transferedInputTransactions, outputTrans, new Date(), from, "");
                         transaction.transactionHash = transaction.getTransactionHash();
+                        let privateKey = await (this.node as NodeWallet).getDigitalWallet.getDecryptedPrivateKey(port, password, from);
+                        transaction.transactionSignature = signData(transaction.transactionHash, privateKey!!)
+
+                        // Tak się weryfikuje
+                        // console.log("verify: " + verifySignature(transaction.transactionHash, transaction.transactionSignature, from));
                         let transactionInJson = transaction.toJsonString();
-                        // console.log(transactionInJson);
                         listToMine.addTransactionToQueue(transaction);
                         let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
                         this.node.broadcastMessage(message);
+
                         response.status(200)
                             .send("Transactions added");
                         return;
@@ -212,6 +224,36 @@ export class WalletController extends Controller {
                         let moneyForAddress = openTransactions.getMoneyForAddress(publicKey);
                         response.status(200)
                             .send("Current balance: " + moneyForAddress);
+                        return;
+                    } else {
+                        response.status(400)
+                            .send("Incorrect password");
+                        return;
+                    }
+                }
+                response.status(400)
+                    .send("User not found");
+            }
+        });
+
+        this.app.post("/get-balances", async (request: Request, response: Response): Promise<void> => {
+            let port = request.body.port;
+            let password = request.body.password;
+            if (port == null || password == null) {
+                response.status(400)
+                    .send("Port and password are required");
+                return;
+            } else {
+                let user = (this.node as NodeWallet).getDigitalWallet.userData;
+                if (user.port === port) {
+                    if (await verifyPassword(user.password, password)) {
+                        let balances: string = "";
+                        for(let publicKey of user.identities.map(identity => identity.publicKey)) {
+                            let moneyForAddress = openTransactions.getMoneyForAddress(publicKey);
+                            balances += (publicKey + ": " + moneyForAddress + "\n");
+                        }
+                        response.status(200)
+                            .send("Current balances: \n" + balances);
                         return;
                     } else {
                         response.status(400)

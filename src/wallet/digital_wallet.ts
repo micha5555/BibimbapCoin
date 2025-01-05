@@ -1,4 +1,4 @@
-import {hashPassword} from "../crypto_utils";
+import {decrypt, hashPassword, verifyPassword} from "../crypto_utils";
 
 export class DigitalWallet {
     private _userData: { port: number, password:string, identities: { privateKey: string, publicKey: string}[] } | null = null;
@@ -27,6 +27,33 @@ export class DigitalWallet {
             return value
         });
         this._userData!! = ({ port, password, identities: [] });
+    }
+
+    async getDecryptedPrivateKey(port: number, password: string, publicKey: string): Promise<string | undefined> {
+        // console.log("public key from argument: " + publicKey);
+        // console.log("password from argument: " + password);
+        let portInWallet = this._userData!!.port;
+        // console.log("port in wallet: " + portInWallet);
+        if (portInWallet === undefined) {
+            console.error(`User with port ${port} not registered in this wallet`);
+            // this._userData = ({ port, password, identities: [{ privateKey, publicKey }] });
+        } else {
+            if(!await verifyPassword(this._userData!!.password, password)) {
+                console.error("Incorrect password");
+                return undefined;
+            }
+            console.log("correct password");
+            for (const identity of this._userData!!.identities) {
+                // console.log("identity public key: " + identity.publicKey);
+                // console.log("identity private key: " + identity.privateKey);
+                // console.log(publicKey === identity.publicKey);
+                // console.log(publicKey === identity.publicKey);
+                if (identity.publicKey === publicKey) {
+                    return decrypt(identity.privateKey, password);
+                }
+            }
+            return undefined;
+        }
     }
 
     toString(): string {

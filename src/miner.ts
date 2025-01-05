@@ -19,16 +19,14 @@ export class Miner {
 
     prepareBlockToMine(): Block {
         let lastBlock = blockchain.getLastBlock();
-        console.log("lastBlock: " + lastBlock);
-        console.log("lastBlock.toString: " + lastBlock.toString());
-        let blockToMine = this.listToMine.getTransactionToMine();
-        if(blockToMine == undefined)
+        let transactionToMine = this.listToMine.getTransactionToMine();
+        if(transactionToMine == undefined)
         {
-            throw new Error("Block to mine is undefined");
+            throw new Error("Transaction to mine is undefined");
         }
-        let transactionContainer = new TransactionContainer([blockToMine])
-        console.log(blockToMine);
-        console.log(typeof blockToMine);
+        let transactionContainer = new TransactionContainer([transactionToMine])
+        // console.log(transactionToMine);
+        // console.log(typeof transactionToMine);
         return Block.generate(lastBlock.getIndex+1, lastBlock.getDisplayHash(), new Date(), transactionContainer, this.identity, blockchain.nextBlockDifficulty);
     }
 

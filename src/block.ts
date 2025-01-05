@@ -34,7 +34,7 @@ export class Block {
         // console.log('Transaction:', Transaction);
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
         const transactionsCoinbase = new TransactionContainer();
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEAPMOQa0GAygWV7nvY5iKrdDZt/oLsy54UC7RxXHTBR9k=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEA+3975InS2+anD8oOfVSr5d+eFBF96V2FaZU6xsLYCSk=", genesisDate));
         transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
         var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
         genesisBlock.calculateHash();
@@ -68,8 +68,6 @@ export class Block {
     }
 
     calculateHash(): void {
-        console.log("data in calculateHash: ", this.data);
-        console.log(typeof this.data);
         let hashBuffer = createHash('sha256')
             .update(this.index + this.previousHash + this.data.getCalculatedHash() + this.nonce + this.minerId + this.startTimestamp.toISOString())
             .digest();

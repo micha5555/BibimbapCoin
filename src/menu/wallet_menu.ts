@@ -2,7 +2,7 @@ import {NodeWallet} from "../nodes/node_wallet";
 import {TransactionQueueToMine} from "../transaction_queue_to_mine";
 import inquirer from "inquirer";
 import {
-    add_to_mine, addToMine, connectToNeighbor,
+    connectToNeighbor,
     enum_connect, enum_exit, enum_show_items_to_mine, enum_showBlocks,
     enum_showNeighbors, showBlocks, showNeighbors
 } from "./menu_common_functions";
@@ -25,7 +25,7 @@ export class WalletMenu {
                 type: "list",
                 name: "action",
                 message: "What do you want to do?",
-                choices: [enum_showNeighbors, enum_connect, add_to_mine, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+                choices: [enum_showNeighbors, enum_connect/*, add_to_mine*/, enum_show_items_to_mine, enum_showBlocks, enum_exit]
             }
         ])
 
@@ -39,9 +39,9 @@ export class WalletMenu {
             case enum_showBlocks:
                 await showBlocks(this._node);
                 break;
-            case add_to_mine: //TODO: Add broadcasting this message to neighbors
-                await addToMine(this._listToMine);
-                break;
+            // case add_to_mine: //TODO: Add broadcasting this message to neighbors
+            //     await addToMine(this._listToMine);
+            //     break;
             case enum_show_items_to_mine:
                 console.log(this._listToMine.getQueue);
                 break;

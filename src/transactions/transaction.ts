@@ -34,11 +34,7 @@ export class Transaction {
     }
 
     static recreateTransactionJson(jsonString: string): Transaction {
-        console.log("in recreateTransactionJson");
-        console.log(jsonString);
         let transaction: Transaction = deserialize(Transaction, jsonString);
-        console.log(transaction);
-        console.log(typeof transaction);
         transaction.transactionHash = transaction.getTransactionHash();
         return transaction;
     }
@@ -81,6 +77,9 @@ export class Transaction {
             .toString();
     }
 
+    // public signTransaction(privateKey: string) { //TODO: Sign the transaction
+    //     //TODO: USE RANDOM NONCE
+    // }
     public equals(transaction: Transaction): boolean {
         if (this.inputTransactions.length !== transaction.inputTransactions.length) {
             return false;
