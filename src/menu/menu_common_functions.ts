@@ -10,7 +10,7 @@ export const enum_showNeighbors = "Show neighbors";
 export const enum_connect = "Connect to neighbor";
 export const enum_showBlocks = "Show blocks";
 export const enum_exit = "Exit";
-export const add_to_mine = "Add message to mine"; //TODO? Delete
+// export const add_to_mine = "Add message to mine"; //TODO? Delete
 export const mine_block = "Mine block";
 export const chose_identity = "Choose identity to mine";
 export const enum_show_items_to_mine = "Show items to mine";
@@ -59,14 +59,14 @@ export async function showBlocks(node: Node) {
     blockchain.displayBlockChain()
 }
 
-// TODO: broadcast
-export async function addToMine(listToMine: ListToMine) {
-    let message = await inquirer.prompt([
-        {
-            type: "input",
-            name: "message",
-            message: "Enter message to mine"
-        }
-    ])
-    listToMine.addItemToMine(message.message);
-}
+// // TODO: broadcast
+// export async function addToMine(listToMine: ListToMine) {
+//     let message = await inquirer.prompt([
+//         {
+//             type: "input",
+//             name: "message",
+//             message: "Enter message to mine"
+//         }
+//     ])
+//     listToMine.addItemToMine(message.message);
+// }

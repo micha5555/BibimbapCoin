@@ -5,7 +5,7 @@ import {
     chose_identity,
     enum_showNeighbors,
     enum_connect,
-    add_to_mine,
+    // add_to_mine,
     mine_block,
     enum_show_items_to_mine,
     enum_showBlocks,
@@ -322,4 +322,3 @@ export class NodeMenu {
         return answer.password;
     }
 }
-

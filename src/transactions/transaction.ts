@@ -77,9 +77,9 @@ export class Transaction {
             .toString();
     }
 
-    public signTransaction(privateKey: string) { //TODO: Sign the transaction
-        //TODO: USE RANDOM NONCE
-    }
+    // public signTransaction(privateKey: string) { //TODO: Sign the transaction
+    //     //TODO: USE RANDOM NONCE
+    // }
 
     public verifyRewardTransaction() { //TODO: Verify reward miner transaction
         // Verify if the transaction is a reward transaction - if it has no input transactions
