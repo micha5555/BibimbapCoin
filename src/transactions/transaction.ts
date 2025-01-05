@@ -34,11 +34,7 @@ export class Transaction {
     }
 
     static recreateTransactionJson(jsonString: string): Transaction {
-        console.log("in recreateTransactionJson");
-        console.log(jsonString);
         let transaction: Transaction = deserialize(Transaction, jsonString);
-        console.log(transaction);
-        console.log(typeof transaction);
         transaction.transactionHash = transaction.getTransactionHash();
         return transaction;
     }

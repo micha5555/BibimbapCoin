@@ -1,5 +1,4 @@
 import inquirer from "inquirer";
-// import {listToMine} from "../index";
 import {Node} from "../nodes/node";
 import {blockchain, connect} from "../index";
 import {ListToMine} from "../list_to_mine";
@@ -17,6 +16,7 @@ export const chose_identity = "Choose identity to mine";
 export const enum_show_items_to_mine = "Show items to mine";
 export const enum_login_to_wallet = "Login to wallet";
 export const enum_fetch_identities_from_wallet = "Fetch identities from wallet";
+export const enum_send_transaction = "Send transaction";
 
 export async function showNeighbors(node: Node) {
     console.log(node.getNeighbors());
