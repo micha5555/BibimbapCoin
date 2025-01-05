@@ -235,5 +235,35 @@ export class WalletController extends Controller {
                     .send("User not found");
             }
         });
+
+        this.app.post("/get-balances", async (request: Request, response: Response): Promise<void> => {
+            let port = request.body.port;
+            let password = request.body.password;
+            if (port == null || password == null) {
+                response.status(400)
+                    .send("Port and password are required");
+                return;
+            } else {
+                let user = (this.node as NodeWallet).getDigitalWallet.userData;
+                if (user.port === port) {
+                    if (await verifyPassword(user.password, password)) {
+                        let balances: string = "";
+                        for(let publicKey of user.identities.map(identity => identity.publicKey)) {
+                            let moneyForAddress = openTransactions.getMoneyForAddress(publicKey);
+                            balances += (publicKey + ": " + moneyForAddress + "\n");
+                        }
+                        response.status(200)
+                            .send("Current balances: \n" + balances);
+                        return;
+                    } else {
+                        response.status(400)
+                            .send("Incorrect password");
+                        return;
+                    }
+                }
+                response.status(400)
+                    .send("User not found");
+            }
+        });
     }
 }

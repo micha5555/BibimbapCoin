@@ -16,7 +16,8 @@ import {
     addToMine,
     enum_login_to_wallet,
     enum_fetch_identities_from_wallet,
-    enum_send_transaction
+    enum_send_transaction,
+    enum_calculate_balances
 } from "./menu_common_functions";
 import {Miner} from "../miner";
 import {ListToMine} from "../list_to_mine";
@@ -43,7 +44,7 @@ export class NodeMenu {
                 type: "list",
                 name: "action",
                 message: "What do you want to do?",
-                choices: [enum_login_to_wallet, enum_fetch_identities_from_wallet, enum_showIDs, enum_genID, enum_send_transaction, chose_identity, enum_showNeighbors, enum_connect, /*add_to_mine,*/ mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+                choices: [enum_login_to_wallet, enum_fetch_identities_from_wallet, enum_showIDs, enum_genID, enum_send_transaction, enum_calculate_balances, chose_identity, enum_showNeighbors, enum_connect, /*add_to_mine,*/ mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
             }
         ])
 
@@ -55,7 +56,6 @@ export class NodeMenu {
                 await this.fetchIdentitiesFromWallet();
                 break
             case enum_showIDs:
-                // coś nei wyświetla
                 await this.showId();
                 break;
             case enum_genID:
@@ -63,6 +63,9 @@ export class NodeMenu {
                 break;
             case enum_send_transaction:
                 await this.sendTransaction();
+                break;
+            case enum_calculate_balances:
+                await this.calculateBalance();
                 break;
             case chose_identity:
                 await this.chooseIdentity();
@@ -97,14 +100,14 @@ export class NodeMenu {
         let walletPort = await this.getWalletPort();
         let password = await this.getPassword();
         try {
-            let result = await fetch(`http://localhost:`+ walletPort + '/login-user', {
+            let result = await fetch(`http://localhost:` + walletPort + '/login-user', {
                 method: 'POST',
                 body: JSON.stringify({port: this._port, password: password}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            if(result.status !== 200) {
+            if (result.status !== 200) {
                 console.error("Failed to login to wallet");
                 return;
             } else {
@@ -122,14 +125,14 @@ export class NodeMenu {
         try {
             let walletPort = await this._node.getWalletPort();
             // console.log("walletPort: " + walletPort);
-            let result = await fetch(`http://localhost:`+ walletPort + '/get-identities', {
+            let result = await fetch(`http://localhost:` + walletPort + '/get-identities', {
                 method: 'POST',
                 body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            if(result.status !== 200) {
+            if (result.status !== 200) {
                 // console.log(result.status);
                 // console.log(result.statusText);
                 console.error("Failed to fetch identities from wallet");
@@ -147,7 +150,7 @@ export class NodeMenu {
     }
 
     async chooseIdentity() {
-        if(this._node.getIdentities().length === 0) {
+        if (this._node.getIdentities().length === 0) {
             console.error("No identities found");
             return
         }
@@ -171,14 +174,14 @@ export class NodeMenu {
 
     async generateID() {
         try {
-            let result = await fetch(`http://localhost:`+ this._node.getWalletPort() + '/add-identity', {
+            let result = await fetch(`http://localhost:` + this._node.getWalletPort() + '/add-identity', {
                 method: 'POST',
                 body: JSON.stringify({port: this._port, password: this._node.getPassword()}),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            if(result.status !== 200) {
+            if (result.status !== 200) {
                 console.error("Failed to generate identity");
                 return;
             } else {
@@ -191,7 +194,7 @@ export class NodeMenu {
     }
 
     async sendTransaction() {
-        if(this._node.getIdentities().length === 0) {
+        if (this._node.getIdentities().length === 0) {
             console.error("No identities found. Firstly, fetch them from wallet");
             return
         }
@@ -223,20 +226,53 @@ export class NodeMenu {
         ]);
 
         try {
-            let result = await fetch(`http://localhost:`+ this._node.getWalletPort() + '/add-transaction', {
+            let result = await fetch(`http://localhost:` + this._node.getWalletPort() + '/add-transaction', {
                 method: 'POST',
-                body: JSON.stringify({port: this._port, password: this._node.getPassword(), transactions: {from: identityAnswer.identity, to: answers.recipient, amount: parseInt(answers.amount)}}),
+                body: JSON.stringify({
+                    port: this._port,
+                    password: this._node.getPassword(),
+                    transactions: {
+                        from: identityAnswer.identity,
+                        to: answers.recipient,
+                        amount: parseInt(answers.amount)
+                    }
+                }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            if(result.status !== 200) {
+            if (result.status !== 200) {
                 console.error("Failed to send transaction");
                 return;
             } else {
                 console.log("Transaction sent");
             }
         } catch (e) {
+            console.error("Failed to connect to Wallet");
+        }
+    }
+
+    async calculateBalance() {
+        try {
+            let result = await fetch(`http://localhost:` + this._node.getWalletPort() + '/get-balances', {
+                method: 'POST',
+                body: JSON.stringify({
+                    port: this._port,
+                    password: this._node.getPassword()
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if (result.status !== 200) {
+                console.error("Failed to calculate balances");
+                return;
+            } else {
+                let balances = await result.text();
+                console.log(balances);
+            }
+        } catch (e) {
+            console.log(e);
             console.error("Failed to connect to Wallet");
         }
     }

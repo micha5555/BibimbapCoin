@@ -17,6 +17,7 @@ export const enum_show_items_to_mine = "Show items to mine";
 export const enum_login_to_wallet = "Login to wallet";
 export const enum_fetch_identities_from_wallet = "Fetch identities from wallet";
 export const enum_send_transaction = "Send transaction";
+export const enum_calculate_balances = "Calculate balances";
 
 export async function showNeighbors(node: Node) {
     console.log(node.getNeighbors());
