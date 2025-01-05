@@ -14,7 +14,7 @@ import {
     showNeighbors, connectToNeighbor, showBlocks, addToMine, enum_login_to_wallet, enum_fetch_identities_from_wallet
 } from "./menu_common_functions";
 import {Miner} from "../miner";
-import {TransactionQueueToMine} from "../list_to_mine";
+import {TransactionQueueToMine} from "../transaction_queue_to_mine";
 import {NodeNode} from "../nodes/node_node";
 
 export class NodeMenu {

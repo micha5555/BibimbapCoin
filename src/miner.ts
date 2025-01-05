@@ -1,5 +1,5 @@
 import { Block } from "./block";
-import { TransactionQueueToMine } from "./list_to_mine";
+import { TransactionQueueToMine } from "./transaction_queue_to_mine";
 import inquirer from "inquirer";
 import {Node} from "./nodes/node";
 import {Message, MessageType} from "./message";

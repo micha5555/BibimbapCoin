@@ -1,5 +1,5 @@
 import {NodeWallet} from "../nodes/node_wallet";
-import {TransactionQueueToMine} from "../list_to_mine";
+import {TransactionQueueToMine} from "../transaction_queue_to_mine";
 import inquirer from "inquirer";
 import {
     add_to_mine, addToMine, connectToNeighbor,

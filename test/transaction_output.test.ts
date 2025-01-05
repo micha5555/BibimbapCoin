@@ -63,3 +63,43 @@ describe('TransactionOutput.fromJson', () => {
         expect(transactionOutput.address).toBe("address");
     });
 });
+
+describe('TransactionOutput.equals', () => {
+    it('should return true for the same values', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID", 100, "address");
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(true);
+    });
+
+    it('should return false for different values', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID", 200, "address");
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(false);
+    });
+
+    it('should return false for different addresses', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID", 100, "address2");
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(false);
+    });
+
+    it('should return false for different ids', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID2", 100, "address");
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(false);
+    });
+
+    it('should return false for different amounts', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID", 200, "address");
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(false);
+    });
+
+    // TempBlocked is not checked in equals method that's why it should return true
+    it('should return true for different tempBlocked', () => {
+        let transactionOutput1 = new TransactionOutput("ID", 100, "address");
+        let transactionOutput2 = new TransactionOutput("ID", 100, "address");
+        transactionOutput2.tempBlocked = true;
+        expect(transactionOutput1.equals(transactionOutput2)).toBe(true);
+    });
+});

@@ -53,3 +53,42 @@ describe('TransactionInput.fromJson', () => {
         expect(transactionInput.blockIndex).toBe(3);
     });
 });
+
+describe('TransactionInput.equals', () => {
+    it('should return true for the same values', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID", 0, 3, "address");
+        expect(transactionInput1.equals(transactionInput2)).toBe(true);
+    });
+
+    it('should return false for different values', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID", 3, 0, "address");
+        expect(transactionInput1.equals(transactionInput2)).toBe(false);
+    });
+
+    it('should return false for different transactionOutputId', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID2", 0, 3, "address");
+        expect(transactionInput1.equals(transactionInput2)).toBe(false);
+    });
+
+    it('should return false for different transactionIndex', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID", 3, 3, "address");
+        expect(transactionInput1.equals(transactionInput2)).toBe(false);
+    });
+
+    it('should return false for different blockIndex', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID", 0, 0, "address");
+        expect(transactionInput1.equals(transactionInput2)).toBe(false);
+    });
+
+    // Address is not used in the equals method that's why it should return true
+    it('should return true for different address', () => {
+        let transactionInput1 = new TransactionInput("ID", 0, 3, "address");
+        let transactionInput2 = new TransactionInput("ID", 0, 3, "address2");
+        expect(transactionInput1.equals(transactionInput2)).toBe(true);
+    });
+});

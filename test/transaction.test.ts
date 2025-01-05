@@ -63,3 +63,54 @@ describe("Transaction.recreateTransactionJson", () => {
         expect(transaction).toBeInstanceOf(Transaction);
     });
 });
+
+describe("Transaction.equals", () => {
+    it("should return true if the transactions are equal", () => {
+        let transaction1 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(true);
+    });
+
+    it("should return false if the transactions are not equal", () => {
+        let transaction1 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        transaction2.timestamp = new Date("2024-07-02T00:00:00.000Z");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return false if the transactions have different input transactions", () => {
+        let transaction1 = new Transaction([new TransactionInput("ID", 0, 3, "address")], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return false if the transactions have different output transactions", () => {
+        let transaction1 = new Transaction([], [new TransactionOutput("ID", 100, "address")], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return false if the transactions have different public keys", () => {
+        let transaction1 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "KEYKEYKEY", "");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return false if the transactions have different transaction signatures", () => {
+        let transaction1 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "SIGNATURE");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return false if the transactions have different input transactions, output transactions, public keys and transaction signatures", () => {
+        let transaction1 = new Transaction([new TransactionInput("ID", 0, 3, "address")], [new TransactionOutput("ID", 100, "address")], new Date("2024-07-01T00:00:00.000Z"), "KEYKEYKEY", "SIGNATURE");
+        let transaction2 = new Transaction([], [], new Date("2024-07-01T00:00:00.000Z"), "", "");
+        expect(transaction1.equals(transaction2)).toBe(false);
+    });
+
+    it("should return true if the transactions have equal input transactions, output transactions, public keys and transaction signatures", () => {
+        let transaction1 = new Transaction([new TransactionInput("ID", 0, 3, "address")], [new TransactionOutput("ID", 100, "address")], new Date("2024-07-01T00:00:00.000Z"), "KEYKEYKEY", "SIGNATURE");
+        let transaction2 = new Transaction([new TransactionInput("ID", 0, 3, "address")], [new TransactionOutput("ID", 100, "address")], new Date("2024-07-01T00:00:00.000Z"), "KEYKEYKEY", "SIGNATURE");
+        expect(transaction1.equals(transaction2)).toBe(true);
+    });
+});
