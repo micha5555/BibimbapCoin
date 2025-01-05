@@ -43,7 +43,7 @@ export class NodeMenu {
                 type: "list",
                 name: "action",
                 message: "What do you want to do?",
-                choices: [enum_login_to_wallet, enum_fetch_identities_from_wallet, enum_showIDs, enum_genID, enum_send_transaction, chose_identity, enum_showNeighbors, enum_connect, add_to_mine, mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
+                choices: [enum_login_to_wallet, enum_fetch_identities_from_wallet, enum_showIDs, enum_genID, enum_send_transaction, chose_identity, enum_showNeighbors, enum_connect, /*add_to_mine,*/ mine_block, enum_show_items_to_mine, enum_showBlocks, enum_exit]
             }
         ])
 
@@ -76,9 +76,9 @@ export class NodeMenu {
             case enum_showBlocks:
                 await showBlocks(this._node);
                 break;
-            case add_to_mine: //TODO: Add broadcasting this message to neighbors
-                await addToMine(this._listToMine);
-                break;
+            // case add_to_mine: //TODO: Add broadcasting this message to neighbors
+            //     await addToMine(this._listToMine);
+            //     break;
             case mine_block:
                 await this.mine();
                 break;
