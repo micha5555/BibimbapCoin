@@ -35,7 +35,11 @@ export class Block {
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
         const transactionsCoinbase = new TransactionContainer();
         transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEA+3975InS2+anD8oOfVSr5d+eFBF96V2FaZU6xsLYCSk=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(123, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(88, "MCowBQYDK2VwAyEAOx44hTvgHgCkaFDMFZuFKlRe+l8it//QiX/jC7W2KZQ=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(542, "MCowBQYDK2VwAyEA7R/JuE0g3SF8g1Azzoxc2M8zEOoOInpOJcejPZ/EsGc=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(111, "MCowBQYDK2VwAyEAHtDPrIHd1jdO5wYH/ub0VzlqzN8WA4p007lrzrhVWOc=", genesisDate));
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(321, "MCowBQYDK2VwAyEA7r3HXjO7aex+g/Nk+MevRXdAt4Zgx3ky+N1sQwkbhh4=", genesisDate));
         var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
         genesisBlock.calculateHash();
         return genesisBlock;
@@ -81,23 +85,23 @@ export class Block {
         return this.hash;
     }
 
-    verifyNew() : boolean {
+    verifyNew(): boolean {
         // Verify if the hash and calculated hash are the same
         let sentHash = this.hash;
         this.calculateHash();
-        if(sentHash != this.hash) {
+        if (sentHash != this.hash) {
             console.error("Hashes are not equal");
             return false;
         }
 
         // Verify if the difficulty is expected
-        if(this.difficulty != blockchain.nextBlockDifficulty) {
+        if (this.difficulty != blockchain.nextBlockDifficulty) {
             console.error("Difficulty is not correct. Expected: " + blockchain.nextBlockDifficulty + " but got: " + this.difficulty);
             return false;
         }
 
         //Verify if the difficulty is correct
-        if(!this.isFound()) {
+        if (!this.isFound()) {
             console.error("Block is not mined correctly");
             return false;
         }
@@ -110,17 +114,15 @@ export class Block {
         }
 
         // Verify if the index is + 1 from the previous block
-        if(lastBlock.index + 1 != this.index) {
+        if (lastBlock.index + 1 != this.index) {
             console.error("Block index is not correct. Expected: " + (lastBlock.index + 1) + " but got: " + this.index);
             return false;
         }
 
         // If second block - no reward transaction
         // Verify reward transaction
-        if(this.index > 1)
-        {
-            if(this.data.verifyRewardTransaction())
-            {
+        if (this.index > 1) {
+            if (this.data.verifyRewardTransaction()) {
                 return false;
             }
         }
@@ -133,18 +135,18 @@ export class Block {
         return true;
     }
 
-    verifyExisting() : boolean {
+    verifyExisting(): boolean {
         // Verify if the hash and calculated hash are the same
         let sentHash = this.hash;
         this.calculateHash();
-        if(sentHash != this.hash) {
+        if (sentHash != this.hash) {
             console.error("Hashes are not equal");
             return false;
         }
 
         // Verify if the hashes of the block and adequate block in the blockchain are the same
         let adequateBlock = blockchain.getBlock(this.index);
-        if(adequateBlock.hash != this.hash) {
+        if (adequateBlock.hash != this.hash) {
             console.error("Hashes are not equal");
             return false;
         }
@@ -198,7 +200,7 @@ export class Block {
         ]`;
     }
 
-    toJson() : string {
+    toJson(): string {
         return JSON.stringify(this);
     }
 
