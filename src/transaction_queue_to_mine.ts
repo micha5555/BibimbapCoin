@@ -4,8 +4,8 @@ export class TransactionQueueToMine {
     private _queue: Transaction[] = [];
 
     addTransactionToQueue(item: Transaction): void {
-        console.log("Adding item to mine: " + item);
-        console.log("Type of item: " + typeof item);
+        // console.log("Adding item to mine: " + item);
+        // console.log("Type of item: " + typeof item);
         this._queue.push(item);
     }
 
