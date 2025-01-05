@@ -4,8 +4,6 @@ export class ListToMine {
     private _queue: Transaction[] = [];
 
     addItemToMine(item: Transaction): void {
-        console.log("Adding item to mine: " + item);
-        console.log("Type of item: " + typeof item);
         this._queue.push(item);
     }
 

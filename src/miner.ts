@@ -19,8 +19,6 @@ export class Miner {
 
     prepareBlockToMine(): Block {
         let lastBlock = blockchain.getLastBlock();
-        console.log("lastBlock: " + lastBlock);
-        console.log("lastBlock.toString: " + lastBlock.toString());
         let blockToMine = this.listToMine.getBlockToMine();
         if(blockToMine == undefined)
         {
