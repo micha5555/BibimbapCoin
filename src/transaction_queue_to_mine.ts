@@ -14,6 +14,12 @@ export class TransactionQueueToMine {
         return this._queue.shift();
     }
 
+    getTransactionsToMine(): Transaction[] {
+        let transactions =  this._queue;
+        this._queue = [];
+        return transactions;
+    }
+
     get getQueue(): Transaction[] {
         return this._queue;
     }

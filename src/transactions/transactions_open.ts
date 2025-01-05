@@ -37,6 +37,15 @@ export class OpenTransactions {
         this._transactionsMap.delete([transactionId,  transactionIndex, blockIndex,address]);
     }
 
+    // I am using this to remove input transactions
+    removeTransactionById(transactionId: string): void {
+        this._transactionsMap.forEach((transaction, key) => {
+            if (transaction.id === transactionId) {
+                this._transactionsMap.delete(key);
+            }
+        });
+    }
+
     //Potentially to save and load from file - should be handled somewhere else
     loadFromJson(json: string): void {
         let openTransactions = JSON.parse(json);

@@ -122,7 +122,7 @@ export class Blockchain {
                 }
 
                 for (let inputTransaction of transaction.inputTransactions) {
-                    openTransactions.removeTransaction(inputTransaction.transactionOutputId, inputTransaction.address, i, block.getIndex);
+                    openTransactions.removeTransactionById(inputTransaction.transactionOutputId);
                 }
             }
 
