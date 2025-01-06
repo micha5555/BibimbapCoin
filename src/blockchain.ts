@@ -201,5 +201,6 @@ export class Blockchain {
 
         // Update last checked block index
         this.lastCheckedBlockIndex--;
+        this.nextBlockDifficulty = lastBlock.difficulty;
     }
 }
