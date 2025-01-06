@@ -8,7 +8,7 @@ export const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 5;
 export class Blockchain {
 
     public blocks: Block[] = [];
-    private lastCheckedBlockIndex: number = -1;
+    public lastCheckedBlockIndex: number = -1;
     public nextBlockDifficulty: number = DEFAULT_DIFFICULTY;
 
     constructor() {
