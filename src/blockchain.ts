@@ -47,7 +47,7 @@ export class Blockchain {
     }
 
     addBlock(block: Block) : boolean {
-        block.verifyNew();
+        block.verifyNew(); //TODO: Weryfikacja na ten moment nie jest do niczego wykorzystywana
 
         //TODO: If valid - Stop mining current block
 
