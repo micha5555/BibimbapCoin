@@ -29,6 +29,7 @@ export class DigitalWallet {
         this._userData!! = ({ port, password, identities: [] });
     }
 
+    // TODO obdługa kiedy hasło niepoprawne i zwróci undefined
     async getDecryptedPrivateKey(port: number, password: string, publicKey: string): Promise<string | undefined> {
         // console.log("public key from argument: " + publicKey);
         // console.log("password from argument: " + password);
@@ -39,10 +40,10 @@ export class DigitalWallet {
             // this._userData = ({ port, password, identities: [{ privateKey, publicKey }] });
         } else {
             if(!await verifyPassword(this._userData!!.password, password)) {
-                console.error("Incorrect password");
+                // console.error("Incorrect password");
                 return undefined;
             }
-            console.log("correct password");
+            // console.log("correct password");
             for (const identity of this._userData!!.identities) {
                 // console.log("identity public key: " + identity.publicKey);
                 // console.log("identity private key: " + identity.privateKey);

@@ -14,6 +14,7 @@ export class TransactionQueueToMine {
         return this._queue.shift();
     }
 
+    // TODO: czy to powinno być tak robione?
     getTransactionsToMine(): Transaction[] {
         let transactions =  this._queue;
         this._queue = [];
