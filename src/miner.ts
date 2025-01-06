@@ -53,9 +53,14 @@ export class Miner {
             }
             block.incrementNonce();
             block.calculateHash();
+            //  XDDDDDDDDDDDD
+            // tu był taki problem, że jak się koapło długo, to broadcast wywalał się, a z tym działa
+            // niby jest coś takiego, że Node działa na jednym wątku z kopaniem i jest zamknięty na jakieś eventy i one wywalają
+            if (block.getNonce % 100000 === 0) {
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
             if(block.getNonce % 1000000 === 0)
                 console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
-            // await new Promise(resolve => setTimeout(resolve, 500));  // Adding delay to slow down mining loop
         }
 
         console.log("Block mined with hash: " + block.getDisplayHash() + " and nonce: " + block.getNonce);
