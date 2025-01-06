@@ -7,6 +7,9 @@ import {type} from "node:os";
 
 function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received
     const block: Block = Block.fromJson(JSON.parse(message));
+
+    //TODO: Jeśli Index większy niż nasz blockchain, prosimy sąsiadów o przesłanie blockchaina (prawdopodobnie wycinka)
+
     blockchain.addBlock(block);
     block.getData.getTransactions().forEach(transaction => {
         listToMine.removeTransactionFromQueue(transaction);

@@ -47,10 +47,7 @@ export class Blockchain {
     }
 
     addBlock(block: Block) : boolean {
-        // if(!block.verifyNew()) {
-        //     console.log("Verification of block failed, it won't be added to the blockchain");
-        //     return false;
-        // }
+        block.verifyNew(); //TODO: Weryfikacja na ten moment nie jest do niczego wykorzystywana
 
         //TODO: If valid - Stop mining current block
         this.blocks.push(block);

@@ -38,6 +38,7 @@ export class OpenTransactions {
     }
 
     // I am using this to remove input transactions
+    //TODO: think if anything bad can happen,do we need more validation the just simple check by ID
     removeTransactionById(transactionId: string): void {
         this._transactionsMap.forEach((transaction, key) => {
             if (transaction.id === transactionId) {
