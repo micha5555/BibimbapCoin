@@ -11,6 +11,10 @@ export class Miner {
     private identity: string = "";
     private run = true;
     private node: Node;
+    private lastBlockFromBlockchainWhenPreparingBlock: Block | undefined = undefined;
+
+    // variable used to stopping mining current block because someone else already mined it
+    // public stopMiningGivenBlock: boolean = false;
 
     constructor(listToMine: TransactionQueueToMine, node: Node) {
         this.listToMine = listToMine;
@@ -20,6 +24,7 @@ export class Miner {
     prepareBlockToMine(): Block {
         let lastBlock = blockchain.getLastBlock();
         let transactionsToMine = this.listToMine.getTransactionsToMine();
+        this.lastBlockFromBlockchainWhenPreparingBlock = lastBlock;
         if(transactionsToMine == undefined)
         {
             throw new Error("Transactions to mine is undefined");
@@ -33,7 +38,7 @@ export class Miner {
     }
 
     // TODO: przerwać kopanie aktualnego bloku jak przyjdzie wykopany
-    async mineBlock(): Promise<Block> {
+    async mineBlock(): Promise<Block | undefined> {
         console.log("Preparing block to mine");
         let block = this.prepareBlockToMine();
 
@@ -42,6 +47,10 @@ export class Miner {
 
         console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
         while (!block.isFound() && this.run) {
+            if(this.lastBlockFromBlockchainWhenPreparingBlock?.getPreviousHash !== blockchain.getLastBlock().getPreviousHash) {
+                console.log("Block already mined by someone else");
+                return undefined;
+            }
             block.incrementNonce();
             block.calculateHash();
             if(block.getNonce % 1000000 === 0)
@@ -89,7 +98,12 @@ export class Miner {
             }
 
             let block = await this.mineBlock();
-            console.log("Block mined: " + block.toString());
+            if(block === undefined) {
+                console.log("Mining stopped - block already mined by someone else");
+                continue;
+            } else {
+                console.log("Block mined: " + block.toString());
+            }
 
             const prompt = inquirer.prompt(
                 {
@@ -114,4 +128,10 @@ export class Miner {
             }
         }
     }
+
+    // async stopMiningBlock(): Promise<void> {
+    //     if(this.run) {
+    //         this.stopMiningGivenBlock = true;
+    //     }
+    // }
 }
