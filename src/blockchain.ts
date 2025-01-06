@@ -138,4 +138,60 @@ export class Blockchain {
     getLastCheckedBlockIndex() {
         return this.lastCheckedBlockIndex;
     }
+
+    createCopy() {
+        let copy = new Blockchain();
+        copy.blocks = this.blocks.slice();
+        copy.lastCheckedBlockIndex = this.lastCheckedBlockIndex;
+        copy.nextBlockDifficulty = this.nextBlockDifficulty;
+        return copy
+    }
+
+    removeLastBlock() { // Orphan block handling
+        if (this.blocks.length === 1) {
+            console.log("Cannot remove genesis block");
+            return;
+        }
+
+        let lastBlock = this.blocks.pop();
+        if (lastBlock === undefined) {
+            console.log("Error while removing last block");
+            return;
+        }
+
+        let transactions = lastBlock.getData.getTransactions();
+
+        for (let i = 0; i < transactions.length; i++) {
+            let transaction = transactions[i];
+            for (let outputTransaction of transaction.outputTransactions) {
+                // openTransactions.removeTransactionById(outputTransaction.id);
+                let deleted = openTransactions.removeTransaction(outputTransaction.id, outputTransaction.address, i, lastBlock.getIndex);
+                if (!deleted) {
+                    throw new Error("Error while removing transaction from open transactions: " + outputTransaction.id + " " + outputTransaction.address + " " + i + " " + lastBlock.getIndex);
+                }
+            }
+
+            for (let inputTransaction of transaction.inputTransactions) {
+                //Get block with output transaction
+                let block = this.blocks[inputTransaction.blockIndex];
+                let transaction = block.getData.getTransaction(inputTransaction.transactionIndex)
+                if(transaction === undefined) {
+                    throw new Error("Transaction not found");
+                }
+                let outputTransaction = transaction.outputTransactions.find(outputTransaction => outputTransaction.id === inputTransaction.transactionOutputId);
+                if(outputTransaction === undefined) {
+                    throw new Error("Output transaction not found");
+                }
+
+                if(outputTransaction.address !== transaction.publicKey) {
+                    throw new Error("Address does not match public key");
+                }
+
+                openTransactions.addTransaction(outputTransaction, inputTransaction.transactionIndex, inputTransaction.blockIndex);
+            }
+        }
+
+        this.lastCheckedBlockIndex--;
+
+    }
 }

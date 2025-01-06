@@ -33,8 +33,8 @@ export class OpenTransactions {
         return this._transactionsMap.has([transactionId,  transactionIndex, blockIndex,address]);
     }
 
-    removeTransaction(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): void {
-        this._transactionsMap.delete([transactionId,  transactionIndex, blockIndex,address]);
+    removeTransaction(transactionId: string, address: string,  transactionIndex: number, blockIndex :number): boolean {
+        return this._transactionsMap.delete([transactionId,  transactionIndex, blockIndex,address]);
     }
 
     // I am using this to remove input transactions
