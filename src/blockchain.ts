@@ -153,6 +153,7 @@ export class Blockchain {
             return;
         }
 
+        // Get last block and remove it from blockchain
         let lastBlock = this.blocks.pop();
         if (lastBlock === undefined) {
             console.log("Error while removing last block");
@@ -161,18 +162,23 @@ export class Blockchain {
 
         let transactions = lastBlock.getData.getTransactions();
 
+        // For each transaction
         for (let i = 0; i < transactions.length; i++) {
             let transaction = transactions[i];
+
+            // Handle output transactions
             for (let outputTransaction of transaction.outputTransactions) {
-                // openTransactions.removeTransactionById(outputTransaction.id);
+
+                // Remove outputTransactions of this block (aka open) from open transactions
                 let deleted = openTransactions.removeTransaction(outputTransaction.id, outputTransaction.address, i, lastBlock.getIndex);
                 if (!deleted) {
                     throw new Error("Error while removing transaction from open transactions: " + outputTransaction.id + " " + outputTransaction.address + " " + i + " " + lastBlock.getIndex);
                 }
             }
 
+            // Handle input transactions
             for (let inputTransaction of transaction.inputTransactions) {
-                //Get block with output transaction
+                //Get output transaction that input transaction is referring to
                 let block = this.blocks[inputTransaction.blockIndex];
                 let transaction = block.getData.getTransaction(inputTransaction.transactionIndex)
                 if(transaction === undefined) {
@@ -183,15 +189,17 @@ export class Blockchain {
                     throw new Error("Output transaction not found");
                 }
 
+                // Verify if the address matches the public key
                 if(outputTransaction.address !== transaction.publicKey) {
                     throw new Error("Address does not match public key");
                 }
 
+                // Add output transaction back to open transactions
                 openTransactions.addTransaction(outputTransaction, inputTransaction.transactionIndex, inputTransaction.blockIndex);
             }
         }
 
+        // Update last checked block index
         this.lastCheckedBlockIndex--;
-
     }
 }
