@@ -1,7 +1,7 @@
 import {Block} from "./block";
 import {openTransactions} from "./index";
 
-export const DEFAULT_DIFFICULTY: number = 4;
+export const DEFAULT_DIFFICULTY: number = 21;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
 export const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 5;
 
@@ -47,13 +47,19 @@ export class Blockchain {
     }
 
     addBlock(block: Block) : boolean {
-        block.verifyNew();
+        // if(!block.verifyNew()) {
+        //     console.log("Verification of block failed, it won't be added to the blockchain");
+        //     return false;
+        // }
 
         //TODO: If valid - Stop mining current block
-
+        console.log("1");
         this.blocks.push(block);
+        console.log("2");
         this.updateOpenTransactions();
+        console.log("3");
         this.adjustDifficulty();
+        console.log("4");
         //TODO: NOW - we can start mining again
         return true;
     }
@@ -134,5 +140,9 @@ export class Blockchain {
         for (let block of this.blocks) {
             console.log(block.toString());
         }
+    }
+
+    getLastCheckedBlockIndex() {
+        return this.lastCheckedBlockIndex;
     }
 }

@@ -169,16 +169,33 @@ export abstract class Node{
         return false;
     }
 
-    broadcastMessage(message: Message): void {
+    async broadcastMessage(message: Message): Promise<void> {
         this.addMessage(message.message, message.getMessageHash(), message.timestamp, message.messageType);
-        this.getNeighbors().forEach(neighbor => {
-            let result = fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
+
+        for(let neighbor of this.getNeighbors()) {
+            console.log("Sending broadcast to neighbour port: " + neighbor.port);
+            console.log("JSON.stringify(message):");
+            console.log(JSON.stringify(message));
+            let result = await fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
                 method: 'POST',
                 body: JSON.stringify(message),
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
-        });
+            });
+            await result.text();
+        }
+        // this.getNeighbors().forEach(neighbor => {
+        //     console.log("Sending broadcast to neighbour port: " + neighbor.port);
+        //     console.log("JSON.stringify(message):");
+        //     console.log(JSON.stringify(message));
+        //     let result = await fetch(`http://localhost:`+ neighbor.port + '/broadcast-message', {
+        //         method: 'POST',
+        //         body: JSON.stringify(message),
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         }
+        //     })
+        // });
     }
 }

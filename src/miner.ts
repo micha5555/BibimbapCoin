@@ -11,7 +11,7 @@ export class Miner {
     private identity: string = "";
     private run = true;
     private node: Node;
-    private lastBlockFromBlockchainWhenPreparingBlock: Block | undefined = undefined;
+    // private lastBlockFromBlockchainWhenPreparingBlock: Block | undefined = undefined;
 
     // variable used to stopping mining current block because someone else already mined it
     // public stopMiningGivenBlock: boolean = false;
@@ -24,7 +24,7 @@ export class Miner {
     prepareBlockToMine(): Block {
         let lastBlock = blockchain.getLastBlock();
         let transactionsToMine = this.listToMine.getTransactionsToMine();
-        this.lastBlockFromBlockchainWhenPreparingBlock = lastBlock;
+        // this.lastBlockFromBlockchainWhenPreparingBlock = lastBlock;
         if(transactionsToMine == undefined)
         {
             throw new Error("Transactions to mine is undefined");
@@ -47,7 +47,7 @@ export class Miner {
 
         console.log("Current hash: " + block.getDisplayHash() + " with nonce: " + block.getNonce);
         while (!block.isFound() && this.run) {
-            if(this.lastBlockFromBlockchainWhenPreparingBlock?.getPreviousHash !== blockchain.getLastBlock().getPreviousHash) {
+            if(blockchain.getLastCheckedBlockIndex() === block.getIndex) {
                 console.log("Block already mined by someone else");
                 return undefined;
             }
@@ -63,7 +63,7 @@ export class Miner {
 
         blockchain.addBlock(block);
         let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
-        this.node.broadcastMessage(message);
+        await this.node.broadcastMessage(message);
         return block;
     }
 

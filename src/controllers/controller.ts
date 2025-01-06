@@ -64,14 +64,16 @@ export abstract class Controller {
                 .send(listToMine.getQueue);
         })
 
-        this.app.post("/broadcast-message", (request: Request, response: Response): void => {
+        this.app.post("/broadcast-message", async (request: Request, response: Response): Promise<void> => {
+            console.log("in broadcasttttt");
             let message = Message.recreateMessageJson(JSON.stringify(request.body));
+            console.log(message.messageType);
             const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(message.getMessageHash());
             if(nodeHasThisMessage) {
                 response.status(201)
                     .send(`The node ${this.port} already has this message`);
             } else {
-                this.node.broadcastMessage(message);
+                await this.node.broadcastMessage(message);
                 switch(message.messageType) {
                     case MessageType.BLOCK:
                         handleBlockMessage(message.message, this.node);

@@ -11,6 +11,7 @@ function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mi
     block.getData.getTransactions().forEach(transaction => {
         listToMine.removeTransactionFromQueue(transaction);
     });
+
     //TODO: Zaktualizować, by działało dla transakcji
 }
 
