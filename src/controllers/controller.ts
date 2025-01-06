@@ -65,9 +65,7 @@ export abstract class Controller {
         })
 
         this.app.post("/broadcast-message", (request: Request, response: Response): void => {
-            console.log("in broadcasttttt");
             let message = Message.recreateMessageJson(JSON.stringify(request.body));
-            console.log(message.messageType);
             const nodeHasThisMessage = this.node.doesNodeAlreadyHasMessage(message.getMessageHash());
             if(nodeHasThisMessage) {
                 response.status(201)
