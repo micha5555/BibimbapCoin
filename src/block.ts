@@ -3,17 +3,19 @@ import {blockchain, openTransactions} from "./index";
 import {TransactionContainer} from "./transactions/transaction_container";
 import {Transaction} from "./transactions/transaction";
 import {TransactionInput} from "./transactions/transaction_input";
+import {deserialize, deserializeArray, Exclude, Expose, Type} from "class-transformer";
 
+@Exclude()
 export class Block {
-    private index: number;
-    private previousHash: string;
-    private startTimestamp: Date;
-    private timestamp: Date | null = null;
-    private data: TransactionContainer;
-    private hash: string = "";
-    private nonce: number;
-    public difficulty: number;
-    private minerId: string;
+    @Expose() private index: number;
+    @Expose() private previousHash: string;
+    @Expose() @Type(() => Date) private startTimestamp: Date;
+    @Expose() @Type(() => Date) private timestamp: Date | null = null;
+    @Expose() @Type(() => TransactionContainer) private data: TransactionContainer;
+    @Expose() private hash: string = "";
+    @Expose() private nonce: number;
+    @Expose() public difficulty: number;
+    @Expose() private minerId: string;
 
     constructor(index: number, previousHash: string, startTimestamp: Date, data: TransactionContainer, hash: string, nonce: number, difficulty: number, minerId: string) {
         this.index = index;
@@ -45,10 +47,12 @@ export class Block {
         return genesisBlock;
     }
 
-    static fromJson(json: any): Block {
-        let block: Block = new Block(Number(json.index), String(json.previousHash), new Date(json.startTimestamp), TransactionContainer.fromJson(JSON.stringify(json.data)), String(json.hash), Number(json.nonce), Number(json.difficulty), String(json.minerId));
-        block.timestamp = new Date(json.timestamp);
-        return block;
+    static fromJson(json: string): Block {
+        return deserialize(Block, json);
+    }
+
+    static fromJsonArray(json: string): Block[] {
+        return deserializeArray(Block, json);
     }
 
     get getIndex(): number {

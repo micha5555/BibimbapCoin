@@ -4,7 +4,7 @@ export class TransactionQueueToMine {
     private _queue: Transaction[] = [];
 
     addTransactionToQueue(item: Transaction): void {
-        // TODO: Add only if not already in the queue
+        // TODO: całkowita walidacja transakcji
         // console.log("Adding item to mine: " + item);
         // console.log("Type of item: " + typeof item);
         this._queue.push(item);

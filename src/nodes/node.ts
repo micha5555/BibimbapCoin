@@ -70,7 +70,7 @@ export abstract class Node{
     addBlockchainFromJson(responseJson: any): void {
         let blocks: Block[] = [];
         for (let blockJson of responseJson) {
-            blocks.push(Block.fromJson(blockJson));
+            blocks.push(Block.fromJson(JSON.stringify(blockJson)));
         }
         blockchain.addBatchOfBlocks(blocks);
     }

@@ -47,7 +47,12 @@ export class Blockchain {
     }
 
     addBlock(block: Block) : boolean {
-        block.verifyNew(); //TODO: Weryfikacja na ten moment nie jest do niczego wykorzystywana
+        let verified = block.verifyNew(); //TODO: Weryfikacja na ten moment nie jest do niczego wykorzystywana
+        if (!verified) {
+            console.log("Block verification failed");
+            return false;
+        }
+
 
         //TODO: If valid - Stop mining current block
         this.blocks.push(block);
@@ -100,7 +105,7 @@ export class Blockchain {
     loadFromJson(json: string) {
         let jsonBlocks = JSON.parse(json).blocks;
         for (let jsonBlock of jsonBlocks) {
-            this.blocks.push(Block.fromJson(jsonBlock));
+            this.blocks.push(Block.fromJson(JSON.stringify(jsonBlock)));
         }
 
         if (this.getLastBlock().getIndex > this.lastCheckedBlockIndex) {
