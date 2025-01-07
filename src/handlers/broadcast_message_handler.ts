@@ -52,8 +52,8 @@ function handleBlockchainMessage(message: string) : void {
         // b. blockchain jest niepoprawny, bo nawet genesis block jest inny
 
         //Szukanie ostatniego wspólnego bloku
-        let lastCommonBlock: Block | undefined = undefined;
-        for (let i = incomingBlockWithIndexOneBiggerThanLocal.getIndex)
+        // let lastCommonBlock: Block | undefined = undefined;
+        // for (let i = incomingBlockWithIndexOneBiggerThanLocal.getIndex)
     }
 
     // W tym momencie chcemy dodać bloki, które są poprawne (x pierwszych bloków po ostatnim bloku w naszym blockchainie)
