@@ -26,7 +26,7 @@ const app = express();
 app.use(express.json());
 
 let controller: Controller;
-let node: Node;
+export let node: Node;
 export let listToMine = new TransactionQueueToMine();
 export let openTransactions = new OpenTransactions();
 export let blockchain = new Blockchain();

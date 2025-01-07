@@ -1,4 +1,4 @@
-import {createHash, randomUUID} from "node:crypto";
+import {createHash, randomUUID, UUID} from "node:crypto";
 import {deserialize, Exclude, Expose, serialize, Type} from "class-transformer";
 import {TransactionInput} from "./transaction_input";
 import {TransactionOutput} from "./transaction_output";
@@ -39,8 +39,8 @@ export class Transaction {
         return transaction;
     }
 
-    static createCoinbaseTransaction(amount: number, address: string, date: Date): Transaction {
-        let transactionOutput = TransactionOutput.TransactionToAddress(amount, address);
+    static createCoinbaseTransaction(uuid: UUID, amount: number, address: string, date: Date): Transaction {
+        let transactionOutput = TransactionOutput.GenesisTransaction(uuid, amount, address);
         let transaction = new Transaction([], [transactionOutput], date, "", "");
         transaction.transactionHash = transaction.getTransactionHash();
         return transaction;
@@ -134,19 +134,26 @@ export class Transaction {
 
     public verifyTransaction(blockchain: Blockchain, openTransactions: OpenTransactions) { //TODO: Verify the transaction
         // Verify input transactions - if they are unspent
+        let usingOpenTransactions = []
         for (let inputTransaction of this.inputTransactions) {
             let block = blockchain.getBlock(inputTransaction.blockIndex);
             if (block === undefined) {
+                console.log("Block not found");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
             let transaction = block.getData.getTransaction(inputTransaction.transactionIndex);
             if (transaction === undefined) {
+                console.log("Transaction not found");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
 
             let transactionOutput = transaction.outputTransactions
                 .find(outputTransaction => outputTransaction.id === inputTransaction.transactionOutputId);
             if (transactionOutput === undefined) {
+                console.log("Transaction output not found");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
 
@@ -154,26 +161,35 @@ export class Transaction {
             inputTransaction.amount = transactionOutput.amount;
 
             let isThere = openTransactions.isTransactionInOpenTransactions(
-                inputTransaction.transactionOutputId, inputTransaction.address,
-                inputTransaction.transactionIndex, inputTransaction.blockIndex);
+                inputTransaction.transactionOutputId);
             if (!isThere) {
+                console.log("is there");
+                console.log("Transaction not found in open transactions");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
             let openTransaction = openTransactions.getTransaction(
-                inputTransaction.transactionOutputId, inputTransaction.address,
-                inputTransaction.transactionIndex, inputTransaction.blockIndex);
+                inputTransaction.transactionOutputId);
             if (openTransaction === undefined) {
+                console.log("ddddd");
+                console.log("Transaction not found in open transactions");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
-            let isUnspent = !openTransaction.tempBlocked;
-            if (!isUnspent) {
+            usingOpenTransactions.push(openTransaction);
+            if (openTransaction[0].tempBlocked) {
+                console.log("Transaction is temp blocked");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
+            openTransaction[0].tempBlocked = true;
         }
 
         // Verify public keys from input transactions - if they match the public key of the transaction
         for (let inputTransaction of this.inputTransactions) {
             if (inputTransaction.address !== this.publicKey) {
+                console.log("Public keys do not match");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
         }
@@ -184,12 +200,18 @@ export class Transaction {
         // Verify the output transactions - if they are valid
         for (let outputTransaction of this.outputTransactions) {
             if (outputTransaction.amount <= 0) {
+                console.log("Amount is less than or equal to 0");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
             if (outputTransaction.address === undefined) {
+                console.log("Address is undefined");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
             if (outputTransaction.id === undefined) {
+                console.log("Output transaction Id is undefined");
+                this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
         }
@@ -204,9 +226,17 @@ export class Transaction {
             sumOutput += outputTransaction.amount;
         }
         if (sumInput !== sumOutput) {
+            console.log("Sum of input transactions is not equal to the sum of output transactions");
+            this.unblockOpenTransactions(usingOpenTransactions);
             return false;
         }
+        return true;
+    }
 
+    unblockOpenTransactions(openTransactions: any) {
+        for (let openTransaction of openTransactions) {
+            openTransaction.tempBlocked = false;
+        }
         return true;
     }
 }

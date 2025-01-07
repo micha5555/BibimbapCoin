@@ -2,6 +2,7 @@ import {blockchain, listToMine} from "../index";
 import {Block} from "../block";
 import {Message} from "../message";
 import {Transaction} from "../transactions/transaction";
+import {Blockchain} from "../blockchain";
 
 export abstract class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -104,5 +105,22 @@ export abstract class Node{
             });
             await result.text();
         }
+    }
+
+    async askNeighboursForBlockchain(): Promise<Blockchain[]> {
+        let blockchains: Blockchain[] = [];
+        for(let neighbor of this.getNeighbors()) {
+            let blockchain = await this.askNeighborForBlockchain(neighbor.port);
+            blockchains.push(blockchain);
+        }
+        return blockchains;
+    }
+
+    async askNeighborForBlockchain(port: number): Promise<Blockchain> {
+        let blockchain = new Blockchain();
+        let result = await fetch(`http://localhost:`+ port + '/get-blocks');
+        blockchain.loadFromJson(await result.json());
+
+        return blockchain;
     }
 }

@@ -36,12 +36,14 @@ export class Block {
         // console.log('Transaction:', Transaction);
         const genesisDate = new Date("2024-12-09T16:01:19.692Z");
         const transactionsCoinbase = new TransactionContainer();
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(100, "MCowBQYDK2VwAyEA+3975InS2+anD8oOfVSr5d+eFBF96V2FaZU6xsLYCSk=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(123, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(88, "MCowBQYDK2VwAyEAOx44hTvgHgCkaFDMFZuFKlRe+l8it//QiX/jC7W2KZQ=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(542, "MCowBQYDK2VwAyEA7R/JuE0g3SF8g1Azzoxc2M8zEOoOInpOJcejPZ/EsGc=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(111, "MCowBQYDK2VwAyEAHtDPrIHd1jdO5wYH/ub0VzlqzN8WA4p007lrzrhVWOc=", genesisDate));
-        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(321, "MCowBQYDK2VwAyEA7r3HXjO7aex+g/Nk+MevRXdAt4Zgx3ky+N1sQwkbhh4=", genesisDate));
+
+
+        transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction("f4bb794f-c097-4269-94b7-dbb8ff6c9801", 100, "MCowBQYDK2VwAyEA+3975InS2+anD8oOfVSr5d+eFBF96V2FaZU6xsLYCSk=", genesisDate));
+        // transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(123, "MCowBQYDK2VwAyEASCJu120RBQqLoyZ8+KyUCwZA/eRLxFDJATm1d2W89eU=", genesisDate));
+        // transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(88, "MCowBQYDK2VwAyEAOx44hTvgHgCkaFDMFZuFKlRe+l8it//QiX/jC7W2KZQ=", genesisDate));
+        // transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(542, "MCowBQYDK2VwAyEA7R/JuE0g3SF8g1Azzoxc2M8zEOoOInpOJcejPZ/EsGc=", genesisDate));
+        // transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(111, "MCowBQYDK2VwAyEAHtDPrIHd1jdO5wYH/ub0VzlqzN8WA4p007lrzrhVWOc=", genesisDate));
+        // transactionsCoinbase.addCoinbaseTransaction(Transaction.createCoinbaseTransaction(321, "MCowBQYDK2VwAyEA7r3HXjO7aex+g/Nk+MevRXdAt4Zgx3ky+N1sQwkbhh4=", genesisDate));
         var genesisBlock = new Block(0, "", genesisDate, transactionsCoinbase, "", 0, 0, "GENESIS BLOCK");
         genesisBlock.calculateHash();
         return genesisBlock;
@@ -123,16 +125,9 @@ export class Block {
             return false;
         }
 
-        // If second block - no reward transaction
-        // Verify reward transaction
-        if (this.index > 1) {
-            if (this.data.verifyRewardTransaction()) {
-                return false;
-            }
-        }
-
         // Verify rest of the transactions
         if (!this.data.verifyTransactions(blockchain, openTransactions)) {
+            console.error("Transactions verification failed");
             return false;
         }
 

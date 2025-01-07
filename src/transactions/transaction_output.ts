@@ -1,4 +1,4 @@
-import {createHash, randomUUID} from "node:crypto";
+import {createHash, randomUUID, UUID} from "node:crypto";
 import {deserialize, Exclude, Expose, serialize} from "class-transformer";
 
 @Exclude()
@@ -26,6 +26,10 @@ export class TransactionOutput {
 
     static TransactionToAddress(amount: number, address: string) : TransactionOutput {
         return new TransactionOutput(randomUUID(), amount, address);
+    }
+
+    static GenesisTransaction(uuid: UUID, amount: number, address: string) : TransactionOutput {
+        return new TransactionOutput(uuid, amount, address);
     }
 
     calculateHash() : string {

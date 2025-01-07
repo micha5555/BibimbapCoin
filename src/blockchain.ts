@@ -1,5 +1,5 @@
 import {Block} from "./block";
-import {openTransactions} from "./index";
+import {openTransactions, node} from "./index";
 
 export const DEFAULT_DIFFICULTY: number = 4;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
@@ -46,13 +46,11 @@ export class Blockchain {
         }
     }
 
-    addBlock(block: Block) : boolean {
-        let verified = block.verifyNew(); //TODO: Weryfikacja na ten moment nie jest do niczego wykorzystywana
-        if (!verified) {
+    async addBlock(block: Block): Promise<boolean> {
+        if(!block.verifyNew()) {
             console.log("Block verification failed");
             return false;
         }
-
 
         //TODO: If valid - Stop mining current block
         this.blocks.push(block);
@@ -102,7 +100,7 @@ export class Blockchain {
         return JSON.stringify(this);
     }
 
-    loadFromJson(json: string) {
+    loadFromJsonWithUpdatingOpenTransactions(json: string) {
         let jsonBlocks = JSON.parse(json).blocks;
         for (let jsonBlock of jsonBlocks) {
             this.blocks.push(Block.fromJson(JSON.stringify(jsonBlock)));
@@ -110,6 +108,12 @@ export class Blockchain {
 
         if (this.getLastBlock().getIndex > this.lastCheckedBlockIndex) {
             this.updateOpenTransactions();
+        }
+    }
+
+    loadFromJson(json:any) {
+        for (let jsonBlock of json) {
+            this.blocks.push(Block.fromJson(JSON.stringify(jsonBlock)));
         }
     }
 
@@ -175,7 +179,7 @@ export class Blockchain {
             for (let outputTransaction of transaction.outputTransactions) {
 
                 // Remove outputTransactions of this block (aka open) from open transactions
-                let deleted = openTransactions.removeTransaction(outputTransaction.id, outputTransaction.address, i, lastBlock.getIndex);
+                let deleted = openTransactions.removeTransactionById(outputTransaction.id);
                 if (!deleted) {
                     throw new Error("Error while removing transaction from open transactions: " + outputTransaction.id + " " + outputTransaction.address + " " + i + " " + lastBlock.getIndex);
                 }
@@ -207,5 +211,19 @@ export class Blockchain {
         // Update last checked block index
         this.lastCheckedBlockIndex--;
         this.nextBlockDifficulty = lastBlock.difficulty;
+    }
+
+    // TODO: implement to twoje Jakubie
+    verifyBlockchain(): boolean {
+        return true;
+    }
+
+    static checkIfBlockchainContainsBlock(block: Block, blockchain: Blockchain): boolean {
+        for (let blockFromBlockchain of blockchain.getBlocks) {
+            if (blockFromBlockchain.getHash === block.getHash) {
+                return true;
+            }
+        }
+        return false;
     }
 }

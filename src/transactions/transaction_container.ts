@@ -43,7 +43,7 @@ export class TransactionContainer {
     }
 
     verifyTransactions(blockchain: Blockchain, openTransactions: OpenTransactions) : boolean {
-        for (let transaction of this.transactions.slice(1)) {
+        for (let transaction of this.transactions) {
             if (!transaction.verifyTransaction(blockchain,openTransactions)) {
                 return false;
             }
