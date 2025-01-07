@@ -9,6 +9,9 @@ function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mi
     const block: Block = Block.fromJson(JSON.parse(message));
 
     //TODO: Jeśli Index większy niż nasz blockchain, prosimy sąsiadów o przesłanie blockchaina (prawdopodobnie wycinka)
+    if (block.getIndex > blockchain.getLastBlock().getIndex) {
+
+    }
 
     blockchain.addBlock(block);
     block.getData.getTransactions().forEach(transaction => {

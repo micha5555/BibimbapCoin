@@ -69,6 +69,10 @@ export class Miner {
         blockchain.addBlock(block);
         let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
         await this.node.broadcastMessage(message);
+
+        // let blockchainToSend = JSON.stringify(blockchain.getBlocks.map(block => block.toJson()));
+        // console.log("blockchainToSend: \n" + blockchainToSend);
+        // let messageBlockchain = Message.newMessage(, MessageType.BLOCKCHAIN);
         return block;
     }
 

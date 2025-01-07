@@ -163,7 +163,7 @@ export class WalletController extends Controller {
                         let gatheredTransactions = [];
                         let sumInput = 0;
                         for (let outTransaction of outputTransactions) {
-                            sumInput += outTransaction.amount;
+                            sumInput += outTransaction[0].amount;
                             gatheredTransactions.push(outTransaction);
                             if (sumInput >= amount) {
                                 break;
@@ -172,7 +172,7 @@ export class WalletController extends Controller {
 
                         let transferedInputTransactions: TransactionInput[] = [];
                         gatheredTransactions.forEach(transaction => {
-                            let intran = new TransactionInput(transaction.id, transaction.transactionIndex, transaction.blockIndex, from);
+                            let intran = new TransactionInput(transaction[0].id, transaction[2], transaction[1], from);
                             transferedInputTransactions.push(intran);
                         });
 

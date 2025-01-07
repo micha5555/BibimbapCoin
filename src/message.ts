@@ -3,7 +3,8 @@ import {createHash} from "node:crypto";
 export enum MessageType {
     BLOCK = 'block',
     TEXT = 'text',
-    TRANSACTION = 'transaction'
+    TRANSACTION = 'transaction',
+    BLOCKCHAIN = 'blockchain'
 }
 
 export class Message
