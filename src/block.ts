@@ -12,7 +12,7 @@ export class Block {
     private data: TransactionContainer;
     private hash: string = "";
     private nonce: number;
-    private difficulty: number;
+    public difficulty: number;
     private minerId: string;
 
     constructor(index: number, previousHash: string, startTimestamp: Date, data: TransactionContainer, hash: string, nonce: number, difficulty: number, minerId: string) {

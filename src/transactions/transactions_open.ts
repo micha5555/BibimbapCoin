@@ -39,8 +39,9 @@ export class OpenTransactions {
         // return this._transactionsMap.has([transactionId,  transactionIndex, blockIndex, address]);
     }
 
-    removeTransactionById(transactionId: string): void {
-        this._transactionsMap.delete(transactionId);
+
+    removeTransactionById(transactionId: string): boolean {
+        return this._transactionsMap.delete(transactionId);
     }
 
     // I am using this to remove input transactions

@@ -8,7 +8,7 @@ export const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 5;
 export class Blockchain {
 
     public blocks: Block[] = [];
-    private lastCheckedBlockIndex: number = -1;
+    public lastCheckedBlockIndex: number = -1;
     public nextBlockDifficulty: number = DEFAULT_DIFFICULTY;
 
     constructor() {
@@ -146,6 +146,71 @@ export class Blockchain {
 
     getLastCheckedBlockIndex() {
         return this.lastCheckedBlockIndex;
+    }
+
+    createCopy() {
+        let copy = new Blockchain();
+        copy.blocks = this.blocks.slice();
+        copy.lastCheckedBlockIndex = this.lastCheckedBlockIndex;
+        copy.nextBlockDifficulty = this.nextBlockDifficulty;
+        return copy
+    }
+
+    removeLastBlock() { // Orphan block handling
+        if (this.blocks.length === 1) {
+            console.log("Cannot remove genesis block");
+            return;
+        }
+
+        // Get last block and remove it from blockchain
+        let lastBlock = this.blocks.pop();
+        if (lastBlock === undefined) {
+            console.log("Error while removing last block");
+            return;
+        }
+
+        let transactions = lastBlock.getData.getTransactions();
+
+        // For each transaction
+        for (let i = 0; i < transactions.length; i++) {
+            let transaction = transactions[i];
+
+            // Handle output transactions
+            for (let outputTransaction of transaction.outputTransactions) {
+
+                // Remove outputTransactions of this block (aka open) from open transactions
+                let deleted = openTransactions.removeTransactionById(outputTransaction.id);
+                if (!deleted) {
+                    throw new Error("Error while removing transaction from open transactions: " + outputTransaction.id + " " + outputTransaction.address + " " + i + " " + lastBlock.getIndex);
+                }
+            }
+
+            // Handle input transactions
+            for (let inputTransaction of transaction.inputTransactions) {
+                //Get output transaction that input transaction is referring to
+                let block = this.blocks[inputTransaction.blockIndex];
+                let transaction = block.getData.getTransaction(inputTransaction.transactionIndex)
+                if(transaction === undefined) {
+                    throw new Error("Transaction not found");
+                }
+                let outputTransaction = transaction.outputTransactions.find(outputTransaction => outputTransaction.id === inputTransaction.transactionOutputId);
+                if(outputTransaction === undefined) {
+                    throw new Error("Output transaction not found");
+                }
+
+                // Verify if the address matches the public key
+                if(outputTransaction.address !== transaction.publicKey) {
+                    throw new Error("Address does not match public key");
+                }
+
+                // Add output transaction back to open transactions
+                openTransactions.addTransaction(outputTransaction, inputTransaction.transactionIndex, inputTransaction.blockIndex);
+            }
+        }
+
+        // Update last checked block index
+        this.lastCheckedBlockIndex--;
+        this.nextBlockDifficulty = lastBlock.difficulty;
     }
 
     // TODO: implement to twoje Jakubie
