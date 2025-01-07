@@ -4,6 +4,7 @@ import {blockchain, listToMine} from "../index";
 import {Transaction} from "../transactions/transaction";
 import {type} from "node:os";
 import {Blockchain} from "../blockchain";
+import {verifySignature} from "../crypto_utils";
 
 
 async function handleBlockMessage(message: string, node: Node): Promise<void> { //TODO: Stop mining when valid block is received
@@ -54,8 +55,12 @@ function handleTextMessage(message: string): void {
 }
 
 function handleTransactionMessage(message: any): void {
-    // // TODO: jakieś weryfikacje? ofc weryfikacja
-    listToMine.addTransactionToQueue(Transaction.recreateTransactionJson(message));
+    let recreatedTransaction = Transaction.recreateTransactionJson(message);
+    if(!verifySignature(recreatedTransaction.transactionHash, recreatedTransaction.transactionSignature, recreatedTransaction.publicKey)) {
+        console.log("Transaction signature is invalid");
+        return;
+    }
+    listToMine.addTransactionToQueue(recreatedTransaction);
 }
 
 function handleBlockchainMessage(message: string) : void {
