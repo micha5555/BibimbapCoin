@@ -1,5 +1,5 @@
 import {Block} from "./block";
-import {openTransactions, node} from "./index";
+import {OpenTransactions} from "./transactions/transactions_open";
 
 export const DEFAULT_DIFFICULTY: number = 11;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
@@ -10,8 +10,10 @@ export class Blockchain {
     public blocks: Block[] = [];
     public lastCheckedBlockIndex: number = -1;
     public nextBlockDifficulty: number = DEFAULT_DIFFICULTY;
+    public localOpenTransactions: OpenTransactions;
 
-    constructor() {
+    constructor(openTransactions: OpenTransactions) {
+        this.localOpenTransactions = openTransactions;
         this.blocks.push(Block.generateGenesis());
         this.updateOpenTransactions();
     }
@@ -151,11 +153,11 @@ export class Blockchain {
                     throw new Error("Transaction not found");
                 }
                 for (let outputTransaction of transaction.outputTransactions) {
-                    openTransactions.addTransaction(outputTransaction, i, block.getIndex);
+                    this.localOpenTransactions.addTransaction(outputTransaction, i, block.getIndex);
                 }
 
                 for (let inputTransaction of transaction.inputTransactions) {
-                    openTransactions.removeTransactionById(inputTransaction.transactionOutputId);
+                    this.localOpenTransactions.removeTransactionById(inputTransaction.transactionOutputId);
                 }
             }
 
@@ -174,11 +176,18 @@ export class Blockchain {
     }
 
     createCopy() {
-        let copy = new Blockchain();
+        let copy = new Blockchain(this.localOpenTransactions.createCopy());
         copy.blocks = this.blocks.slice();
         copy.lastCheckedBlockIndex = this.lastCheckedBlockIndex;
         copy.nextBlockDifficulty = this.nextBlockDifficulty;
         return copy
+    }
+
+    replaceBlockchain(newBlockchain: Blockchain) {
+        this.blocks = newBlockchain.blocks;
+        this.lastCheckedBlockIndex = newBlockchain.lastCheckedBlockIndex;
+        this.nextBlockDifficulty = newBlockchain.nextBlockDifficulty;
+        this.localOpenTransactions = newBlockchain.localOpenTransactions;
     }
 
     removeLastBlock() { // Orphan block handling
@@ -204,7 +213,7 @@ export class Blockchain {
             for (let outputTransaction of transaction.outputTransactions) {
 
                 // Remove outputTransactions of this block (aka open) from open transactions
-                let deleted = openTransactions.removeTransactionById(outputTransaction.id);
+                let deleted = this.localOpenTransactions.removeTransactionById(outputTransaction.id);
                 if (!deleted) {
                     throw new Error("Error while removing transaction from open transactions: " + outputTransaction.id + " " + outputTransaction.address + " " + i + " " + lastBlock.getIndex);
                 }
@@ -229,7 +238,7 @@ export class Blockchain {
                 }
 
                 // Add output transaction back to open transactions
-                openTransactions.addTransaction(outputTransaction, inputTransaction.transactionIndex, inputTransaction.blockIndex);
+                this.localOpenTransactions.addTransaction(outputTransaction, inputTransaction.transactionIndex, inputTransaction.blockIndex);
             }
         }
 

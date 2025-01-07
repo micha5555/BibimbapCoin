@@ -63,4 +63,12 @@ export class OpenTransactions {
     toJson(): string {
         return JSON.stringify(Array.from(this._transactionsMap.entries()));
     }
+
+    createCopy(): OpenTransactions {
+        let openTransactions = new OpenTransactions();
+        this._transactionsMap.forEach((value, key) => {
+            openTransactions.addTransaction(value[0], value[2], value[1]);
+        });
+        return openTransactions;
+    }
 }

@@ -14,27 +14,30 @@ async function handleBlockMessage(message: string, node: Node): Promise<void> { 
         if (block.getIndex > blockchain.getLastBlock().getIndex) {
             console.log("IN handleBlockMessage IF");
             let neighborsBlockchains = await node.askNeighboursForBlockchain();
-            let neighborsBlockchainsWithThisBlock = neighborsBlockchains.filter(blockchain => Blockchain.checkIfBlockchainContainsBlock(block, blockchain));
-            let longestBlockchainThatIsValid: Blockchain | undefined = undefined;
-            for (const blockchain of neighborsBlockchainsWithThisBlock) {
-                if (blockchain.verifyBlockchain()) {
-                    if (longestBlockchainThatIsValid === undefined || blockchain.getBlocks.length > longestBlockchainThatIsValid.getBlocks.length) {
+            console.log(neighborsBlockchains);
+            // let neighborsBlockchainsWithThisBlock = neighborsBlockchains.filter(blockchain => Blockchain.checkIfBlockchainContainsBlock(block, blockchain));
+            let longestBlockchainThatIsValid: Block[] | undefined = undefined;
+            for (const blockchain of neighborsBlockchains) {
+                    if (longestBlockchainThatIsValid === undefined || blockchain.length > longestBlockchainThatIsValid.length) {
                         longestBlockchainThatIsValid = blockchain;
                     }
-                }
             }
             console.log("longestBlockchainThatIsValid:")
             console.log(longestBlockchainThatIsValid);
-            if (longestBlockchainThatIsValid !== undefined) {
-                // for(let block of longestBlockchainThatIsValid.getBlocks) {
-                //     this.blocks.push(block);
-                //     this.updateOpenTransactions();
-                //     // this.adjustDifficulty();
-                // }
-                blockchain.blocks = longestBlockchainThatIsValid.getBlocks;
-                blockchain.lastCheckedBlockIndex = longestBlockchainThatIsValid.getLastCheckedBlockIndex();
-                blockchain.nextBlockDifficulty = longestBlockchainThatIsValid.nextBlockDifficulty;
-                console.log("changed blockachain");
+            if(longestBlockchainThatIsValid === undefined) {
+                return;
+            }
+
+            let copyOfBlockchain = checkRealBlockchain(longestBlockchainThatIsValid);
+            if(copyOfBlockchain === undefined) {
+                return;
+            }
+
+            if(copyOfBlockchain.getLastBlock().getIndex > blockchain.getLastBlock().getIndex) {
+                blockchain.replaceBlockchain(copyOfBlockchain);
+            }
+            else {
+                //Nowy blockchain jest krótszy
                 return;
             }
         }
@@ -61,54 +64,66 @@ function handleTransactionMessage(message: any): void {
 function handleBlockchainMessage(message: string) : void {
     let blocks: Block[] = Block.fromJsonArray(message);
 
+    let copyOfBlockchain =  checkRealBlockchain(blocks);
+    if(copyOfBlockchain === undefined) {
+        return;
+    }
+
+    if(copyOfBlockchain.getLastBlock().getIndex > blockchain.getLastBlock().getIndex) {
+        blockchain.replaceBlockchain(copyOfBlockchain);
+    }
+    else {
+        //Nowy blockchain jest krótszy
+        return;
+    }
+}
+
+function checkRealBlockchain(blocks: Block[]) : Blockchain | undefined {
     let lastBlock = blocks[blocks.length - 1];
     if(lastBlock.getIndex <= blockchain.getLastBlock().getIndex) { // IGNORE
         console.log("Received blockchain is not longer than the current one");
         return;
     }
 
-    let lastLocalBlock = blockchain.getLastBlock();
-    let incomingBlockWithIndexOneBiggerThanLocal = blocks.find(block => block.getIndex === lastLocalBlock.getIndex + 1);
-    if(incomingBlockWithIndexOneBiggerThanLocal === undefined) {
-        console.log("Received blockchain is not valid");
+    let indexOfBlock = blocks.findIndex(block => block.getIndex === blockchain.getLastBlock().getIndex);
+    let lastCommonBlock: Block | undefined = undefined;
+    let indexOfIncomingBlockArray: number | undefined = undefined;
+    for (let i = indexOfBlock; i >= 0; i--) {
+        let block = blocks[i];
+        let localBlock = blockchain.getBlock(block.getIndex);
+        if (block.getDisplayHash === localBlock.getDisplayHash) {
+            lastCommonBlock = block;
+            indexOfIncomingBlockArray = i;
+            break;
+        }
+
+    }
+
+    if(lastCommonBlock === undefined || indexOfIncomingBlockArray === undefined) {
+        if(blocks[0].getIndex === 0) { //IGNORE
+            console.log("Received blockchain has a different genesis block");
+            return;
+        }
+
+        console.log("Received blockchain is too short - common block not found");
         return;
     }
 
-    if (incomingBlockWithIndexOneBiggerThanLocal.getPreviousHash !== lastLocalBlock.getDisplayHash()) {
-        //Sytuacja w której nasz blockchain jest krótszy, i prawdopodobnie został rozgałęziony wcześniej
-
-        //TODO: Musimy wyszukać ostatni blok, który jest wspólny dla obu blockchainów
-        //TODO: Jeśli nie ma takiego bloku, to
-        // a. otrzymany wycinek blockchain jest za mały i musimy poprosić o więcej bloków - kogo?
-        // b. blockchain jest niepoprawny, bo nawet genesis block jest inny
-
-        //Szukanie ostatniego wspólnego bloku
-        // let lastCommonBlock: Block | undefined = undefined;
-        // for (let i = incomingBlockWithIndexOneBiggerThanLocal.getIndex)
+    let copyOfBlockchain = blockchain.createCopy();
+    while(copyOfBlockchain.getLastBlock().getIndex !== lastCommonBlock.getIndex) {
+        copyOfBlockchain.removeLastBlock();
     }
 
-    // W tym momencie chcemy dodać bloki, które są poprawne (x pierwszych bloków po ostatnim bloku w naszym blockchainie)
-    // Pozostałe bloki (y ostatnich bloków) zostaną przeanalizowane, transakcje zostaną dodane do kolejki do wydobycia.
-
-
-    let indexOfIncomingBlockHandled : number =  blocks.findIndex(block => block.getIndex === incomingBlockWithIndexOneBiggerThanLocal?.getIndex - 1) ;
-    for(let i = blocks.findIndex(block => block.getIndex === incomingBlockWithIndexOneBiggerThanLocal?.getIndex); i < blocks.length; i++) {
-        let addSuccess = blockchain.addBlock(blocks[i]); //Weryfikacja wewnątrz dodawania
+    for(let i = indexOfIncomingBlockArray+1; i < blocks.length; i++) {
+        let addSuccess = copyOfBlockchain.addBlock(blocks[i]); //Weryfikacja wewnątrz dodawania
         if(!addSuccess) {
             console.log("Error while adding a block of index " + blocks[i].getIndex);
             break;
         }
-        indexOfIncomingBlockHandled = i;
     }
 
-    for(let i = indexOfIncomingBlockHandled + 1; i < blocks.length; i++) {
-        let block = blocks[i];
-        block.getData.getTransactions().forEach(transaction => {
-            listToMine.addTransactionToQueue(transaction);
-        });
-    }
+    return copyOfBlockchain;
 }
-
 
 
 export { handleBlockMessage, handleTransactionMessage, handleTextMessage, handleBlockchainMessage };

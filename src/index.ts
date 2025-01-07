@@ -29,7 +29,7 @@ let controller: Controller;
 export let node: Node;
 export let listToMine = new TransactionQueueToMine();
 export let openTransactions = new OpenTransactions();
-export let blockchain = new Blockchain();
+export let blockchain = new Blockchain(openTransactions);
 
 const interval_time = 10000;
 Timers.setInterval(() => {

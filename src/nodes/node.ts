@@ -2,7 +2,6 @@ import {blockchain, listToMine} from "../index";
 import {Block} from "../block";
 import {Message} from "../message";
 import {Transaction} from "../transactions/transaction";
-import {Blockchain} from "../blockchain";
 
 export abstract class Node{
     private _neighbors: { port: number, isAlive: boolean }[] = [];
@@ -107,20 +106,26 @@ export abstract class Node{
         }
     }
 
-    async askNeighboursForBlockchain(): Promise<Blockchain[]> {
-        let blockchains: Blockchain[] = [];
+    async askNeighboursForBlockchain(): Promise<Block[][]> {
+        let blockchains: Block[][] = [];
         for(let neighbor of this.getNeighbors()) {
-            let blockchain = await this.askNeighborForBlockchain(neighbor.port);
-            blockchains.push(blockchain);
+            let blocks = await this.askNeighborForBlockchain(neighbor.port);
+            blockchains.push(blocks);
         }
         return blockchains;
     }
 
-    async askNeighborForBlockchain(port: number): Promise<Blockchain> {
-        let blockchain = new Blockchain();
-        let result = await fetch(`http://localhost:`+ port + '/get-blocks');
-        blockchain.loadFromJson(await result.json());
-
-        return blockchain;
+    async askNeighborForBlockchain(port: number): Promise<Block[]> {
+        try {
+            let result = await fetch(`http://localhost:`+ port + '/get-blocks');
+            console.log("result: " + result);
+            let stringJson = JSON.stringify(await result.json());
+            console.log("stringJson: " + stringJson);
+            return Block.fromJsonArray(stringJson);
+        }
+        catch (error) {
+            console.error(`Failed to get blocks from port ${port}: ${error}`);
+            return [];
+        }
     }
 }

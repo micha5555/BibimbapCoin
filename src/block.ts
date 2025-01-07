@@ -54,6 +54,17 @@ export class Block {
     }
 
     static fromJsonArray(json: string): Block[] {
+        // console.log('JSON:', json);
+        // let blocks: Block[] = []
+        // // if json is {} then return empty array
+        // if (json === "{}") {
+        //     return blocks;
+        // }
+        //
+        // for (let block of JSON.parse(json)) {
+        //     blocks.push(deserialize(Block, block));
+        // }
+        // return blocks;
         return deserializeArray(Block, json);
     }
 
