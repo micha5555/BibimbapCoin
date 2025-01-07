@@ -1,7 +1,7 @@
 import {Block} from "./block";
 import {openTransactions, node} from "./index";
 
-export const DEFAULT_DIFFICULTY: number = 4;
+export const DEFAULT_DIFFICULTY: number = 11;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
 export const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 5;
 
@@ -52,10 +52,35 @@ export class Blockchain {
             return false;
         }
 
-        //TODO: If valid - Stop mining current block
-        this.blocks.push(block);
-        this.updateOpenTransactions();
-        this.adjustDifficulty();
+        // if(block.getPreviousHash === this.getLastBlock().getDisplayHash()) {
+            this.blocks.push(block);
+            this.updateOpenTransactions();
+            this.adjustDifficulty();
+        // }
+        // else if (block.getIndex > this.getLastBlock().getIndex) {
+        //     console.log("IN ELSE IF");
+        //     let neighborsBlockchains = await node.askNeighboursForBlockchain();
+        //     let neighborsBlockchainsWithThisBlock = neighborsBlockchains.filter(blockchain => Blockchain.checkIfBlockchainContainsBlock(block, blockchain));
+        //     let longestBlockchainThatIsValid: Blockchain | undefined = undefined;
+        //     for (const blockchain of neighborsBlockchainsWithThisBlock) {
+        //         if (blockchain.verifyBlockchain()) {
+        //             if (longestBlockchainThatIsValid === undefined || blockchain.getBlocks.length > longestBlockchainThatIsValid.getBlocks.length) {
+        //                 longestBlockchainThatIsValid = blockchain;
+        //             }
+        //         }
+        //     }
+        //     if (longestBlockchainThatIsValid !== undefined) {
+        //         // for(let block of longestBlockchainThatIsValid.getBlocks) {
+        //         //     this.blocks.push(block);
+        //         //     this.updateOpenTransactions();
+        //         //     // this.adjustDifficulty();
+        //         // }
+        //         this.blocks = longestBlockchainThatIsValid.getBlocks;
+        //         this.lastCheckedBlockIndex = longestBlockchainThatIsValid.getLastCheckedBlockIndex();
+        //         this.nextBlockDifficulty = longestBlockchainThatIsValid.nextBlockDifficulty;
+        //     }
+        // }
+
         //TODO: NOW - we can start mining again
         return true;
     }

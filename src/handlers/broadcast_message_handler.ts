@@ -3,15 +3,43 @@ import {Node} from "../nodes/node";
 import {blockchain, listToMine} from "../index";
 import {Transaction} from "../transactions/transaction";
 import {type} from "node:os";
+import {Blockchain} from "../blockchain";
 
 
-function handleBlockMessage(message: string, node: Node): void { //TODO: Stop mining when valid block is received
+async function handleBlockMessage(message: string, node: Node): Promise<void> { //TODO: Stop mining when valid block is received
     const block: Block = Block.fromJson(message);
 
-    //TODO: Jeśli Index większy niż nasz blockchain, prosimy sąsiadów o przesłanie blockchaina (prawdopodobnie wycinka)
-    if (block.getIndex > blockchain.getLastBlock().getIndex) {
-
+    if(block.getPreviousHash !== blockchain.getLastBlock().getDisplayHash()) {
+        //TODO: Jeśli Index większy niż nasz blockchain, prosimy sąsiadów o przesłanie blockchaina (prawdopodobnie wycinka)
+        if (block.getIndex > blockchain.getLastBlock().getIndex) {
+            console.log("IN handleBlockMessage IF");
+            let neighborsBlockchains = await node.askNeighboursForBlockchain();
+            let neighborsBlockchainsWithThisBlock = neighborsBlockchains.filter(blockchain => Blockchain.checkIfBlockchainContainsBlock(block, blockchain));
+            let longestBlockchainThatIsValid: Blockchain | undefined = undefined;
+            for (const blockchain of neighborsBlockchainsWithThisBlock) {
+                if (blockchain.verifyBlockchain()) {
+                    if (longestBlockchainThatIsValid === undefined || blockchain.getBlocks.length > longestBlockchainThatIsValid.getBlocks.length) {
+                        longestBlockchainThatIsValid = blockchain;
+                    }
+                }
+            }
+            console.log("longestBlockchainThatIsValid:")
+            console.log(longestBlockchainThatIsValid);
+            if (longestBlockchainThatIsValid !== undefined) {
+                // for(let block of longestBlockchainThatIsValid.getBlocks) {
+                //     this.blocks.push(block);
+                //     this.updateOpenTransactions();
+                //     // this.adjustDifficulty();
+                // }
+                blockchain.blocks = longestBlockchainThatIsValid.getBlocks;
+                blockchain.lastCheckedBlockIndex = longestBlockchainThatIsValid.getLastCheckedBlockIndex();
+                blockchain.nextBlockDifficulty = longestBlockchainThatIsValid.nextBlockDifficulty;
+                console.log("changed blockachain");
+                return;
+            }
+        }
     }
+
 
     blockchain.addBlock(block);
     block.getData.getTransactions().forEach(transaction => {

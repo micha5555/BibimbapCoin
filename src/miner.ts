@@ -66,7 +66,10 @@ export class Miner {
         console.log("Block mined with hash: " + block.getDisplayHash() + " and nonce: " + block.getNonce);
         block.setTimestamp(new Date());
 
+        // wait random time between 0 and 5 seconds
+
         blockchain.addBlock(block);
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 5000));
         let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
         await this.node.broadcastMessage(message);
 
