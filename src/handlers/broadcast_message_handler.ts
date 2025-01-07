@@ -44,7 +44,7 @@ async function handleBlockMessage(message: string, node: Node): Promise<void> { 
     }
 
 
-    blockchain.addBlock(block);
+    await blockchain.addBlock(block);
     block.getData.getTransactions().forEach(transaction => {
         listToMine.removeTransactionFromQueue(transaction);
     });

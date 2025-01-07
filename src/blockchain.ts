@@ -1,5 +1,6 @@
 import {Block} from "./block";
 import {OpenTransactions} from "./transactions/transactions_open";
+import {blockchain} from "./index";
 
 export const DEFAULT_DIFFICULTY: number = 11;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
@@ -48,9 +49,9 @@ export class Blockchain {
         }
     }
 
-    async addBlock(block: Block): Promise<boolean> {
+    addBlock(block: Block): boolean {
         if(!block.verifyNew(this)) {
-            console.log("Block verification failed");
+            console.log("Block verification failed\nBlock: " + block+"\nBlockchain: "+this);
             return false;
         }
 
@@ -82,6 +83,8 @@ export class Blockchain {
         //         this.nextBlockDifficulty = longestBlockchainThatIsValid.nextBlockDifficulty;
         //     }
         // }
+        console.log("Block added to blockchain");
+        console.log(block)
 
         //TODO: NOW - we can start mining again
         return true;
@@ -92,7 +95,7 @@ export class Blockchain {
 
         for (let block of blocks) {
             if (block.getIndex <= lastBlockIndex) {
-                if (!block.verifyExisting()) {
+                if (!block.verifyExisting(this)) {
                     console.log("Error while verifying a block that should be already in the blockchain");
                     return;
                 }
@@ -188,7 +191,11 @@ export class Blockchain {
         this.lastCheckedBlockIndex = newBlockchain.lastCheckedBlockIndex;
         this.nextBlockDifficulty = newBlockchain.nextBlockDifficulty;
         this.localOpenTransactions = newBlockchain.localOpenTransactions;
-    }
+        // blockchain.blocks = newBlockchain.blocks;
+        // blockchain.lastCheckedBlockIndex = newBlockchain.lastCheckedBlockIndex;
+        // blockchain.nextBlockDifficulty = newBlockchain.nextBlockDifficulty;
+        // blockchain.localOpenTransactions = newBlockchain.localOpenTransactions;
+            }
 
     removeLastBlock() { // Orphan block handling
         if (this.blocks.length === 1) {

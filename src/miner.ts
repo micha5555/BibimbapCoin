@@ -11,6 +11,7 @@ export class Miner {
     private identity: string = "";
     private run = true;
     private node: Node;
+    // public localBlockchain = blockchain;
     // private lastBlockFromBlockchainWhenPreparingBlock: Block | undefined = undefined;
 
     // variable used to stopping mining current block because someone else already mined it
@@ -68,7 +69,7 @@ export class Miner {
 
         // wait random time between 0 and 5 seconds
 
-        blockchain.addBlock(block);
+        await blockchain.addBlock(block);
         await new Promise(resolve => setTimeout(resolve, Math.random() * 5000));
         let message = Message.newMessage(block.toJson(), MessageType.BLOCK);
         await this.node.broadcastMessage(message);

@@ -1,5 +1,4 @@
 import {createHash} from "node:crypto";
-import {blockchain, openTransactions} from "./index";
 import {TransactionContainer} from "./transactions/transaction_container";
 import {Transaction} from "./transactions/transaction";
 import {TransactionInput} from "./transactions/transaction_input";
@@ -146,7 +145,7 @@ export class Block {
         return true;
     }
 
-    verifyExisting(): boolean {
+    verifyExisting(blockchain: Blockchain): boolean {
         // Verify if the hash and calculated hash are the same
         let sentHash = this.hash;
         this.calculateHash();
