@@ -4,6 +4,7 @@ import {TransactionContainer} from "./transactions/transaction_container";
 import {Transaction} from "./transactions/transaction";
 import {TransactionInput} from "./transactions/transaction_input";
 import {deserialize, deserializeArray, Exclude, Expose, Type} from "class-transformer";
+import {Blockchain} from "./blockchain";
 
 @Exclude()
 export class Block {
@@ -102,7 +103,7 @@ export class Block {
         return this.hash;
     }
 
-    verifyNew(): boolean {
+    verifyNew(blockchain: Blockchain): boolean {
         // Verify if the hash and calculated hash are the same
         let sentHash = this.hash;
         this.calculateHash();
@@ -137,7 +138,7 @@ export class Block {
         }
 
         // Verify rest of the transactions
-        if (!this.data.verifyTransactions(blockchain, openTransactions)) {
+        if (!this.data.verifyTransactions(blockchain, blockchain.localOpenTransactions)) {
             console.error("Transactions verification failed");
             return false;
         }

@@ -49,7 +49,7 @@ export class Blockchain {
     }
 
     async addBlock(block: Block): Promise<boolean> {
-        if(!block.verifyNew()) {
+        if(!block.verifyNew(this)) {
             console.log("Block verification failed");
             return false;
         }
