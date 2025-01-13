@@ -71,7 +71,7 @@ export abstract class Controller {
                 response.status(201)
                     .send(`The node ${this.port} already has this message`);
             } else {
-                this.node.broadcastMessage(message);
+                let broadcastToNeighbors = true;
                 switch(message.messageType) {
                     case MessageType.BLOCK:
                         handleBlockMessage(message.message, this.node);
@@ -80,14 +80,21 @@ export abstract class Controller {
                         handleTextMessage(message.message);
                         break;
                     case MessageType.TRANSACTION:
-                        handleTransactionMessage(message.message);
+                        broadcastToNeighbors = handleTransactionMessage(message.message);
                         break;
                     case MessageType.BLOCKCHAIN:
                         handleBlockchainMessage(message.message);
                         break;
                 }
-                response.status(200)
-                    .send(`Message broadcasted to all neighbors from node ${this.port}`);
+                if(broadcastToNeighbors) {
+                    this.node.broadcastMessage(message);
+                    response.status(200)
+                        .send(`Message broadcasted to all neighbors from node ${this.port}`);
+                } else {
+                    response.status(400)
+                        .send(`Message not broadcasted to neighbors from node ${this.port}`);
+                }
+
             }
 
         })

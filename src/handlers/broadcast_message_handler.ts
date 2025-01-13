@@ -54,13 +54,14 @@ function handleTextMessage(message: string): void {
     // listToMine.addItemToMine(message);
 }
 
-function handleTransactionMessage(message: any): void {
+function handleTransactionMessage(message: any): boolean {
     let recreatedTransaction = Transaction.recreateTransactionJson(message);
     if(!verifySignature(recreatedTransaction.transactionHash, recreatedTransaction.transactionSignature, recreatedTransaction.publicKey)) {
         console.log("Transaction signature is invalid");
-        return;
+        return false;
     }
     listToMine.addTransactionToQueue(recreatedTransaction);
+    return true;
 }
 
 function handleBlockchainMessage(message: string) : void {
