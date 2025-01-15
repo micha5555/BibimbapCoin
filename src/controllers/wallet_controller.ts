@@ -190,12 +190,16 @@ export class WalletController extends Controller {
                         // Tak się weryfikuje
                         // console.log("verify: " + verifySignature(transaction.transactionHash, transaction.transactionSignature, from));
                         let transactionInJson = transaction.toJsonString();
-                        listToMine.addTransactionToQueue(transaction);
-                        let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
-                        this.node.broadcastMessage(message);
-
-                        response.status(200)
-                            .send("Transactions added");
+                        let transactionAdded = listToMine.addTransactionToQueue(transaction);
+                        if(transactionAdded) {
+                            let message = Message.newMessage(transactionInJson, MessageType.TRANSACTION);
+                            this.node.broadcastMessage(message);
+                            response.status(200)
+                                .send("Transactions added");
+                            return;
+                        }
+                        response.status(400)
+                            .send("Failed to add transaction");
                         return;
                     } else {
                         response.status(400)

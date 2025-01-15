@@ -4,7 +4,7 @@ import {blockchain, openTransactions, openTransactionsCopy} from "./index";
 export class TransactionQueueToMine {
     private _queue: Transaction[] = [];
 
-    addTransactionToQueue(item: Transaction): void {
+    addTransactionToQueue(item: Transaction): boolean {
         // TODO: całkowita walidacja transakcji
         // console.log("Adding item to mine: " + item);
         // console.log("Type of item: " + typeof item);
@@ -12,7 +12,9 @@ export class TransactionQueueToMine {
         if(shouldAddTransactionToQueue) {
             this._queue.push(item);
             this.updateCopyOfOpenTransactionsBasedOnNewTransaction(item);
+            return true;
         }
+        return false;
     }
 
     getTransactionToMine(): Transaction | undefined {
