@@ -1,5 +1,5 @@
 import {Block} from "./block";
-import {openTransactions, node} from "./index";
+import {openTransactions, openTransactionsCopy} from "./index";
 
 export const DEFAULT_DIFFICULTY: number = 11;
 export const BLOCK_GENERATION_INTERVAL: number = 10 * 1000; // 10 seconds
@@ -152,10 +152,12 @@ export class Blockchain {
                 }
                 for (let outputTransaction of transaction.outputTransactions) {
                     openTransactions.addTransaction(outputTransaction, i, block.getIndex);
+                    openTransactionsCopy.addTransaction(structuredClone(outputTransaction), i, block.getIndex);
                 }
 
                 for (let inputTransaction of transaction.inputTransactions) {
                     openTransactions.removeTransactionById(inputTransaction.transactionOutputId);
+                    openTransactionsCopy.removeTransactionById(inputTransaction.transactionOutputId);
                 }
             }
 

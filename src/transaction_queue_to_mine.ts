@@ -1,4 +1,5 @@
 import {Transaction} from "./transactions/transaction";
+import {blockchain, openTransactions, openTransactionsCopy} from "./index";
 
 export class TransactionQueueToMine {
     private _queue: Transaction[] = [];
@@ -7,7 +8,11 @@ export class TransactionQueueToMine {
         // TODO: całkowita walidacja transakcji
         // console.log("Adding item to mine: " + item);
         // console.log("Type of item: " + typeof item);
-        this._queue.push(item);
+        let shouldAddTransactionToQueue = item.verifyTransaction(blockchain, openTransactionsCopy);
+        if(shouldAddTransactionToQueue) {
+            this._queue.push(item);
+            this.updateCopyOfOpenTransactionsBasedOnNewTransaction(item);
+        }
     }
 
     getTransactionToMine(): Transaction | undefined {
@@ -36,6 +41,18 @@ export class TransactionQueueToMine {
                 this._queue.splice(i, 1);
                 return;
             }
+        }
+    }
+
+    private updateCopyOfOpenTransactionsBasedOnNewTransaction(transaction: Transaction): void {
+        if(transaction === undefined) {
+            return;
+        }
+        // for (let outputTransaction of transaction.outputTransactions) {
+        //     openTransactionsCopy.addTransaction(outputTransaction, -1, -1);
+        // }
+        for(let inputTransaction of transaction.inputTransactions) {
+            openTransactionsCopy.removeTransactionById(inputTransaction.transactionOutputId);
         }
     }
 }

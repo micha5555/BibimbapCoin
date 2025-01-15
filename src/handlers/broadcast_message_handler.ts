@@ -1,6 +1,6 @@
 import {Block} from "../block";
 import {Node} from "../nodes/node";
-import {blockchain, listToMine} from "../index";
+import {blockchain, listToMine, openTransactions, openTransactionsCopy} from "../index";
 import {Transaction} from "../transactions/transaction";
 import {type} from "node:os";
 import {Blockchain} from "../blockchain";
@@ -13,7 +13,6 @@ async function handleBlockMessage(message: string, node: Node): Promise<void> { 
     if(block.getPreviousHash !== blockchain.getLastBlock().getDisplayHash()) {
         //TODO: Jeśli Index większy niż nasz blockchain, prosimy sąsiadów o przesłanie blockchaina (prawdopodobnie wycinka)
         if (block.getIndex > blockchain.getLastBlock().getIndex) {
-            console.log("IN handleBlockMessage IF");
             let neighborsBlockchains = await node.askNeighboursForBlockchain();
             let neighborsBlockchainsWithThisBlock = neighborsBlockchains.filter(blockchain => Blockchain.checkIfBlockchainContainsBlock(block, blockchain));
             let longestBlockchainThatIsValid: Blockchain | undefined = undefined;
@@ -24,8 +23,6 @@ async function handleBlockMessage(message: string, node: Node): Promise<void> { 
                     }
                 }
             }
-            console.log("longestBlockchainThatIsValid:")
-            console.log(longestBlockchainThatIsValid);
             if (longestBlockchainThatIsValid !== undefined) {
                 // for(let block of longestBlockchainThatIsValid.getBlocks) {
                 //     this.blocks.push(block);
@@ -35,7 +32,6 @@ async function handleBlockMessage(message: string, node: Node): Promise<void> { 
                 blockchain.blocks = longestBlockchainThatIsValid.getBlocks;
                 blockchain.lastCheckedBlockIndex = longestBlockchainThatIsValid.getLastCheckedBlockIndex();
                 blockchain.nextBlockDifficulty = longestBlockchainThatIsValid.nextBlockDifficulty;
-                console.log("changed blockachain");
                 return;
             }
         }

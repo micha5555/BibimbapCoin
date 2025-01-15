@@ -29,6 +29,8 @@ let controller: Controller;
 export let node: Node;
 export let listToMine = new TransactionQueueToMine();
 export let openTransactions = new OpenTransactions();
+// used to validate transactions with already added transactions to queue
+export let openTransactionsCopy = new OpenTransactions();
 export let blockchain = new Blockchain();
 
 const interval_time = 10000;

@@ -171,7 +171,6 @@ export class Transaction {
             let openTransaction = openTransactions.getTransaction(
                 inputTransaction.transactionOutputId);
             if (openTransaction === undefined) {
-                console.log("ddddd");
                 console.log("Transaction not found in open transactions");
                 this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
@@ -179,6 +178,7 @@ export class Transaction {
             usingOpenTransactions.push(openTransaction);
             if (openTransaction[0].tempBlocked) {
                 console.log("Transaction is temp blocked");
+                // ???
                 this.unblockOpenTransactions(usingOpenTransactions);
                 return false;
             }
